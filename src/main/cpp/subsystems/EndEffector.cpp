@@ -4,18 +4,18 @@ EndEffector::EndEffector() {
 
 };
 
-void EndEffector::MotorBack() {
-endeffectorMotor.SetVoltage(-12_V);
-};
-
 void EndEffector::MotorForward() {
-endeffectorMotor.SetVoltage(12_V);
+    m_endEffectorMotor.SetVoltage(12_V);
 };
 
-bool EndEffector::getBreakBeamState() {
-
+void EndEffector::MotorBack() {
+    m_endEffectorMotor.SetVoltage(-12_V);
 };
 
 void EndEffector::MotorStop() {
-    endeffectorMotor.SetVoltage(0_V);
+    m_endEffectorMotor.SetVoltage(0_V);
+};
+
+bool EndEffector::getBreakBeamState() {
+    return m_breakbeam.Get();
 };

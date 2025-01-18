@@ -24,8 +24,6 @@ class Elevator {
 
     private:
 
-    ctre::phoenix6::CANBus kCANBus{"rio"};
-
-    ctre::phoenix6::hardware::TalonFX leadMotor{ElevatorConstants::leadmotorID, kCANBus};
-    ctre::phoenix6::hardware::TalonFX followerMotor{ElevatorConstants::followermotorID, kCANBus};
+    ctre::phoenix6::hardware::TalonFX m_leadMotor{ElevatorConstants::leadmotorID};
+    ctre::phoenix6::hardware::TalonFX m_followerMotor{ElevatorConstants::followermotorID};
 };

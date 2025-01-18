@@ -16,18 +16,16 @@ class AlgaeIntake {
     public:
 
     AlgaeIntake();
-    
-    bool getBreakbeamState();
 
-void moveForward();
-void moveBackward();
-void stopMotor();
+    void moveForward();
+    void moveBackward();
+    void stopMotor();
+
+    bool getBreakbeamState();
 
     private:
     
     frc::DigitalInput m_breakbeam{AlgaeIntakeConstants::breakbeamID};
 
-    ctre::phoenix6::CANBus kCANBus{"rio"};
-
-    ctre::phoenix6::hardware::TalonFX m_AlgaeIntakeMotor{AlgaeIntakeConstants::motorId, kCANBus};
+    ctre::phoenix6::hardware::TalonFX m_AlgaeIntakeMotor{AlgaeIntakeConstants::motorId};
 }; 
