@@ -19,13 +19,12 @@ class EndEffector {
 
     void MotorForward();
     void MotorBack();
-    bool getBreakBeamState();
     void MotorStop();
+
+    bool getBreakBeamState();
 
     private:
     frc::DigitalInput m_breakbeam{EndEffectorConstants::breakBeamID};
 
-    ctre::phoenix6::CANBus kCANBus{"rio"};
-
-    ctre::phoenix6::hardware::TalonFX endeffectorMotor{EndEffectorConstants::motorID, kCANBus};
+    ctre::phoenix6::hardware::TalonFX m_endEffectorMotor{EndEffectorConstants::motorID};
 };
