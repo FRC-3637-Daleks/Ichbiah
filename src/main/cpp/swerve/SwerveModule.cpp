@@ -42,15 +42,14 @@ constexpr auto kCurrentLimitPeriod = 0.04_s;
 // Indicates time from neutral to full output
 constexpr auto kRampRate = 0.2_s;
 
-constexpr auto kWheelDiameterIdeal = 4_in;
-constexpr auto kWheelDiameter = kWheelDiameterIdeal;
+constexpr auto kWheelDiameter = 4_in;
 
 constexpr double kDriveEncoderReduction = 6.75;     // reduction in drive motor
 constexpr auto kDriveEncoderDistancePerRevolution = // Linear distance per
                                                     // revolution of motor
     kWheelDiameter * std::numbers::pi / kDriveEncoderReduction;
 constexpr auto kWheelMoment = .015_kg_sq_m;
-constexpr auto kTalonSpeedChoreo = 5104_rpm; // choreo value
+constexpr auto kTalonSpeedChoreo = 5104_rpm; // choreo value, 80% of free speed to simulate being under load
 constexpr auto kTalonSpeed = 6080_rpm;       // Website value
 constexpr auto kDriveMaxAcceleration = 530_tr_per_s_sq;
 constexpr auto kDriveTargetAcceleration = 400_tr_per_s_sq;
