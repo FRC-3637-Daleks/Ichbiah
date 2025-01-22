@@ -4,15 +4,15 @@ AlgaeIntake::AlgaeIntake(){
 }
 
 void AlgaeIntake::moveForward(){
-    m_AlgaeIntakeMotor.SetVoltage(12_V);
+    m_algaeIntakeMotor.SetVoltage(12_V);
 }
 
 void AlgaeIntake::moveBackward(){
-    m_AlgaeIntakeMotor.SetVoltage(-12_V);
+    m_algaeIntakeMotor.SetVoltage(-12_V);
 }
    
 void AlgaeIntake::stopMotor(){
-    m_AlgaeIntakeMotor.SetVoltage(0_V);
+    m_algaeIntakeMotor.SetVoltage(0_V);
 }
 
 frc2::CommandPtr AlgaeIntake::WhileIntake(){
