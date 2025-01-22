@@ -8,13 +8,19 @@
 #include <ctre/phoenix6/configs/Configs.hpp>
 #include <ctre/phoenix6/configs/Configurator.hpp>
 
+#define PI 3.14159265359
+
 
 namespace ElevatorConstants {
     ctre::phoenix6::configs::Slot0Configs kElevatorConfig{};
 
-    int leadmotorID = 50;
-    int followermotorID = 70;
-    int breakBeamID = 60;
+    int kLeadmotorID = 50;
+    int kFollowermotorID = 70;
+    int kBreakBeamID = 60;
+
+    double kP = 0.0;
+    double kI = 0.0;
+    double kD = 0.0;
 }
 
 class Elevator {
@@ -22,13 +28,14 @@ class Elevator {
 
     Elevator();
 
+    void SetMotorPosition();
+
     void MotorMoveUp();
     void MotorMoveDown();
     void MotorStop();
-    void SetMotorPosition();
 
     private:
-
-    ctre::phoenix6::hardware::TalonFX m_leadMotor{ElevatorConstants::leadmotorID};
-    ctre::phoenix6::hardware::TalonFX m_followerMotor{ElevatorConstants::followermotorID};
+    
+    ctre::phoenix6::hardware::TalonFX m_leadMotor{ElevatorConstants::kLeadmotorID};
+    ctre::phoenix6::hardware::TalonFX m_followerMotor{ElevatorConstants::kFollowermotorID};
 };

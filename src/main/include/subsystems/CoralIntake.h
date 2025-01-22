@@ -3,7 +3,7 @@
 #include <frc/Solenoid.h>
 
 namespace CoralIntakeConstants{
-    int breakbeamID = 30;
+    int kBreakbeamID = 30;
 }
 
 class CoralIntake {
@@ -14,6 +14,6 @@ class CoralIntake {
 
     private:
     
-    frc::DigitalInput m_breakbeam{CoralIntakeConstants::breakbeamID};
+    frc::DigitalInput m_breakbeam{CoralIntakeConstants::kBreakbeamID};
 
 };

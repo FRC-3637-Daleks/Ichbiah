@@ -1,21 +1,22 @@
 #include "subsystems/Elevator.h"
 
 Elevator::Elevator() {
-    followerMotor.SetControl(ctre::phoenix6::controls::Follower{ElevatorConstants::leadmotorID, false});
+    //Sets the follower motor
+    m_followerMotor.SetControl(ctre::phoenix6::controls::Follower{ElevatorConstants::kLeadmotorID, false});
     
-    ElevatorConstants::kElevatorConfig.kP = 0.0;
-    ElevatorConstants::kElevatorConfig.kD = 0.0;
-    ElevatorConstants::kElevatorConfig.kI = 0.0;
+    //Sets and defines the Elevator motor PID config
+    ElevatorConstants::kElevatorConfig.kP = ElevatorConstants::kP;
+    ElevatorConstants::kElevatorConfig.kD = ElevatorConstants::kI;
+    ElevatorConstants::kElevatorConfig.kI = ElevatorConstants::kD;
+    m_leadMotor.GetConfigurator().Apply(ElevatorConstants::kElevatorConfig);
 
-    leadMotor.GetConfigurator().Apply(ElevatorConstants::kElevatorConfig);
-    auto statusSignal = leadMotor.GetPosition();
-    auto value = statusSignal.GetDataCopy().value() * 2 * std::numbers::pi * 3_cm;
+    //auto statusSignal = m_leadMotor.GetPosition();
+    //auto value = statusSignal.GetDataCopy().value() * 2 * PI * 3_cm;
 };
 
 void Elevator::SetMotorPosition() {
     ctre::phoenix6::controls::PositionVoltage m_request = ctre::phoenix6::controls::PositionVoltage{0_tr}.WithSlot(0);
-    leadMotor.SetControl(m_request.WithPosition(10_tr));
-
+    m_leadMotor.SetControl(m_request.WithPosition(10_tr));
 }
 
 void Elevator::MotorMoveUp() {

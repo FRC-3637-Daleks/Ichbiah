@@ -8,8 +8,8 @@
 
 
 namespace EndEffectorConstants {
-    int motorID = 50;
-    int breakBeamID = 60;
+    int kMotorID = 50;
+    int kBreakBeamID = 60;
 }
 
 class EndEffector {
@@ -24,7 +24,7 @@ class EndEffector {
     bool getBreakBeamState();
 
     private:
-    frc::DigitalInput m_breakbeam{EndEffectorConstants::breakBeamID};
+    frc::DigitalInput m_breakbeam{EndEffectorConstants::kBreakBeamID};
 
-    ctre::phoenix6::hardware::TalonFX m_endEffectorMotor{EndEffectorConstants::motorID};
+    ctre::phoenix6::hardware::TalonFX m_endEffectorMotor{EndEffectorConstants::kMotorID};
 };
