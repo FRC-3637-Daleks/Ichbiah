@@ -7,6 +7,10 @@
 
 #include <iostream>
 
+#if __linux__
+#include <pthread.h>
+#endif
+
 OdometryThread::OdometryThread(
   const std::array<SwerveModule::SignalGroup, 4> &signals,
   studica::AHRS &gyro,
@@ -18,6 +22,25 @@ OdometryThread::OdometryThread(
   kDriveKinematics{kinematics},
   m_odom{kDriveKinematics, GetGyroHeading(), each_position()},
   m_thread{[this, period] {Run(period);}} {
+  
+#if __linux__
+  sched_param sch;
+  int policy;
+  pthread_getschedparam(
+    *reinterpret_cast<const pthread_t*>(m_thread.native_handle()),
+    &policy,
+    &sch
+  );
+
+  sch.sched_priority = 1;
+
+  if (pthread_setschedparam(
+    *reinterpret_cast<const pthread_t*>(m_thread.native_handle()),
+    SCHED_FIFO,
+    &sch)) {
+    std::cerr << "F\n";
+  }
+#endif
 }
 
 /* Lock free algorithm for single producer single consumer on-demand

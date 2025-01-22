@@ -68,7 +68,9 @@ private:
   uint8_t m_consumerIndex{0};
   uint8_t m_producerIndex{1};
   std::atomic<uint8_t> m_freeIndex{2};
+  static_assert(decltype(m_freeIndex)::is_always_lock_free);
   std::atomic<bool> m_unreadData{false};
+  static_assert(decltype(m_unreadData)::is_always_lock_free);
 
 private:
   // the actual thread function
