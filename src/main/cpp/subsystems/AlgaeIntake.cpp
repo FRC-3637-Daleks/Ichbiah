@@ -27,3 +27,10 @@ frc2::CommandPtr AlgaeIntake::WhileOuttake(){
     return frc2::cmd::RunEnd ([this]{ moveBackward(); },
                               [this] {stopMotor(); });
 }
+
+frc2::CommandPtr AlgaeIntake::IntakeIn() {
+    return frc2::cmd::Run([this] { IntakeIn(); })
+        .Until([this]() -> bool{
+            return ;
+        });
+}
