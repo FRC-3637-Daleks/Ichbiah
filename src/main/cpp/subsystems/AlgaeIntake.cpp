@@ -15,6 +15,8 @@ void AlgaeIntake::stopMotor(){
     m_algaeIntakeMotor.SetVoltage(0_V);
 }
 
+void return !(Breakbeam.Get());
+
 frc2::CommandPtr AlgaeIntake::WhileIntake(){
     return frc2::cmd::RunEnd ([this]{ moveForward(); },
                               [this] {stopMotor(); });
@@ -22,4 +24,11 @@ frc2::CommandPtr AlgaeIntake::WhileIntake(){
 frc2::CommandPtr AlgaeIntake::WhileOuttake(){
     return frc2::cmd::RunEnd ([this]{ moveBackward(); },
                               [this] {stopMotor(); });
+}
+
+frc2::CommandPtr AlgaeIntake::IntakeIn() {
+    return frc2::cmd::Run([this] { IntakeIn(); })
+        .Until([this]() -> bool{
+            return ;
+        });
 }
