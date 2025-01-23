@@ -20,6 +20,7 @@ class AlgaeIntake {
 
     frc2::CommandPtr WhileIntake();
     frc2::CommandPtr WhileOuttake();
+    frc2::CommandPtr IntakeIn();
     
     void moveForward();
     void moveBackward();
