@@ -19,3 +19,8 @@ void EndEffector::MotorStop() {
 bool EndEffector::getBreakBeamState() {
     return m_breakbeam.Get();
 };
+
+frc2::CommandPtr EndEffector::WhileX(){
+    return frc2::cmd::RunEnd ([this]{ EndEffector::MotorForward(); },
+                              [this] {EndEffector::MotorStop(); });
+}
