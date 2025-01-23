@@ -1,8 +1,8 @@
 #pragma once
 #include <frc/DigitalInput.h>
 #include <frc/Solenoid.h>
-
-
+#include <frc2/command/CommandPtr.h>
+#include <frc2/command/Commands.h>
 #include <ctre/phoenix6/CANcoder.hpp>
 #include <ctre/phoenix6/TalonFX.hpp>
 
@@ -22,6 +22,9 @@ class EndEffector {
     void MotorStop();
 
     bool getBreakBeamState();
+
+    frc2::CommandPtr WhileX();
+    frc2::CommandPtr WhileNotX();
 
     private:
     frc::DigitalInput m_breakbeam{EndEffectorConstants::kBreakBeamID};
