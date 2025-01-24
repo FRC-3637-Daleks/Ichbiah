@@ -21,6 +21,7 @@
 #include "subsystems/Drivetrain.h"
 #include "subsystems/ROSBridge.h"
 #include "PathFollower.h"
+#include "subsystems/Elevator.h"
 
 
 /**
@@ -48,6 +49,7 @@ public:
 
   Drivetrain m_swerve;
   ROSBridge m_ros;
+  Elevator m_elevator;
 
   bool m_isRed;
 
