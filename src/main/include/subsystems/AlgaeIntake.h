@@ -16,7 +16,7 @@ class AlgaeIntake {
 
     AlgaeIntake();
     
-    bool getBreakbeamState();
+    bool isBreakbeamBroken();
 
     frc2::CommandPtr WhileIntake();
     frc2::CommandPtr WhileOuttake();
