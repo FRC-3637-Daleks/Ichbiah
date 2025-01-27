@@ -2,6 +2,7 @@
 
 #include <frc/simulation/ElevatorSim.h>
 #include <frc/RobotController.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 
 namespace ElevatorConstants {
 // Device Addresses
@@ -18,9 +19,10 @@ namespace ElevatorConstants {
     constexpr auto kMass = 9_kg;    // Guess-value, not particularly important, edit once built
 
 // Feedback/Feedforward Gains
-    double kP = 0.0;
-    double kI = 0.0;
-    double kD = 0.0;
+    double kP = 1.0;
+    double kI = 0.0007;
+    double kD = 0.06;
+    double kG = 0.04053;
 }
 
 class ElevatorSim {
@@ -50,7 +52,8 @@ Elevator::Elevator() : m_leadMotor{ElevatorConstants::kLeadmotorID},
     m_ElevatorConfig.WithSlot0(configs::Slot0Configs{}
                     .WithKP(ElevatorConstants::kP)
                     .WithKI(ElevatorConstants::kI)
-                    .WithKD(ElevatorConstants::kD));
+                    .WithKD(ElevatorConstants::kD)
+                    .WithKG(ElevatorConstants::kG));
     m_leadMotor.GetConfigurator().Apply(m_ElevatorConfig);    
 };
 
@@ -144,6 +147,9 @@ void Elevator::SimulationPeriodic() {
     // mechanically linked, though we should never read this value
     m_followerSim.SetRawRotorPosition(rotor_turns);
     m_followerSim.SetRotorVelocity(rotor_velocity);
+
+    //Publishing data to NetworkTables
+    frc::SmartDashboard::PutNumber("Elevator/Position ", m_leadSim.GetMotorVoltage().value());
 }
 
 Elevator::~Elevator() {}
