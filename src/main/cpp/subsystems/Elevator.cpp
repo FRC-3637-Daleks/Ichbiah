@@ -8,7 +8,7 @@ namespace ElevatorConstants {
 // Device Addresses
     int kLeadmotorID = 50;
     int kFollowermotorID = 70;
-    int kBreakBeamID = 60;
+    int kBottomLimitSwitchID = 60;
 
 // Physical Parameters
     constexpr auto kSpoolRadius = 1.7_in;  // Estimated, confirm with mechanical
@@ -17,6 +17,13 @@ namespace ElevatorConstants {
     constexpr auto kMinHeight = 2_ft;  // VERY estimated, confirm with CAD
     constexpr auto kMaxHeight = 6_ft;  // VERY estimated, confirm with CAD
     constexpr auto kMass = 9_kg;    // Guess-value, not particularly important, edit once built
+
+//Level Height
+    constexpr units::length::centimeter_t kL1 = 90_cm;
+    constexpr units::length::centimeter_t kL2 = 127_cm;
+    constexpr units::length::centimeter_t kL3 = 150_cm;
+    constexpr units::length::centimeter_t kL4 = 180_cm;
+    constexpr units::length::centimeter_t kTolerance = 2_cm;
 
 // Feedback/Feedforward Gains
     double kP = 1.0;
@@ -48,13 +55,49 @@ Elevator::Elevator() : m_leadMotor{ElevatorConstants::kLeadmotorID},
 
     //Sets and defines the Elevator motor PID config
     configs::TalonFXConfiguration m_ElevatorConfig;
+
+    ctre::phoenix6::configs::HardwareLimitSwitchConfigs LimitConfig{};
+    LimitConfig.ReverseLimitAutosetPositionEnable = true;
+    LimitConfig.ReverseLimitAutosetPositionValue = 0_tr;
+    LimitConfig.ReverseLimitRemoteSensorID = ElevatorConstants::kBottomLimitSwitchID;
+
+
     m_followerMotor.SetControl(controls::Follower{ElevatorConstants::kLeadmotorID, false});
     m_ElevatorConfig.WithSlot0(configs::Slot0Configs{}
                     .WithKP(ElevatorConstants::kP)
                     .WithKI(ElevatorConstants::kI)
                     .WithKD(ElevatorConstants::kD)
-                    .WithKG(ElevatorConstants::kG));
+                    .WithKG(ElevatorConstants::kG))
+                    .WithHardwareLimitSwitch(LimitConfig);
     m_leadMotor.GetConfigurator().Apply(m_ElevatorConfig);    
+};
+
+frc2::CommandPtr Elevator::GoToL4() {
+    return frc2::cmd::RunOnce(
+        [this] {SetMotorPosition(ElevatorConstants::kL4);})
+        .Until([this]() -> bool {return IsAtPos(ElevatorConstants::kL4);});
+};
+
+frc2::CommandPtr Elevator::GoToL3() {
+    return frc2::cmd::RunOnce(
+        [this] {SetMotorPosition(ElevatorConstants::kL3);})
+        .Until([this]() -> bool {return IsAtPos(ElevatorConstants::kL3);});
+};
+
+frc2::CommandPtr Elevator::GoToL2() {
+    return frc2::cmd::RunOnce(
+        [this] {SetMotorPosition(ElevatorConstants::kL2);})
+        .Until([this]() -> bool {return IsAtPos(ElevatorConstants::kL2);});
+};
+
+frc2::CommandPtr Elevator::GoToL1() {
+    return frc2::cmd::RunOnce(
+        [this] {SetMotorPosition(ElevatorConstants::kL1);})
+        .Until([this]() -> bool {return IsAtPos(ElevatorConstants::kL1);});
+};
+
+bool Elevator::IsAtPos(units::length::centimeter_t pos) {
+    return (abs((pos - GetEncoderPosition()).value()) <= (ElevatorConstants::kTolerance).value());
 };
 
 units::length::centimeter_t Elevator::GetEncoderPosition() {
@@ -63,9 +106,10 @@ units::length::centimeter_t Elevator::GetEncoderPosition() {
     return value;
 }
 
-void Elevator::SetMotorPosition(units::angle::turn_t turns) {
+void Elevator::SetMotorPosition(units::length::centimeter_t length) {
+    length -= ElevatorConstants::kMinHeight;
     ctre::phoenix6::controls::PositionVoltage m_request = ctre::phoenix6::controls::PositionVoltage{0_tr}.WithSlot(0);
-    m_leadMotor.SetControl(m_request.WithPosition(turns));
+    m_leadMotor.SetControl(m_request.WithPosition((units::angle::turn_t)(length / ElevatorConstants::kSpoolCircum).value()));
 }
 
 void Elevator::MotorMoveUp() {
