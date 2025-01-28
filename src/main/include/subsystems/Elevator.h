@@ -22,14 +22,28 @@ public:
     Elevator();
     ~Elevator();  // Need for reasons
 
-    void SetMotorPosition(units::angle::turn_t turns);
+    //Goes to the position, commnand only ends when 
+    // destination is reached within the tolerance
+    frc2::CommandPtr GoToL4();
+    frc2::CommandPtr GoToL3();
+    frc2::CommandPtr GoToL2();
+    frc2::CommandPtr GoToL1();
 
+    //Return bool on if its at the peram: pos
+    bool IsAtPos(units::length::centimeter_t pos);
+
+    //Sets the motor position (ends as soon as run)
+    void SetMotorPosition(units::length::centimeter_t length);
+
+    //Moves the motor up and down manually
     void MotorMoveUp();
     void MotorMoveDown();
     void MotorStop();
 
+    // Gets the encoder position (used mostly by other functions)
     units::length::centimeter_t GetEncoderPosition();
 
+    //Like the void cmds. but stops on button release
     frc2::CommandPtr WhileUp();
     frc2::CommandPtr WhileDown();
 
