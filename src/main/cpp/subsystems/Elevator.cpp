@@ -19,6 +19,9 @@ namespace ElevatorConstants {
     constexpr auto kMass = 9_kg;    // Guess-value, not particularly important, edit once built
 
 //Level Height
+    
+    constexpr units::length::centimeter_t goal_heights[] = {0_cm, 90_cm, 127_cm, 150_cm, 180_cm};
+
     constexpr units::length::centimeter_t kL1 = 90_cm;
     constexpr units::length::centimeter_t kL2 = 127_cm;
     constexpr units::length::centimeter_t kL3 = 150_cm;
@@ -73,32 +76,42 @@ Elevator::Elevator() : m_leadMotor{ElevatorConstants::kLeadmotorID},
 };
 
 frc2::CommandPtr Elevator::GoToL4() {
-    return frc2::cmd::RunOnce(
+    return RunOnce(
         [this] {SetMotorPosition(ElevatorConstants::kL4);})
         .Until([this]() -> bool {return IsAtPos(ElevatorConstants::kL4);});
 };
 
 frc2::CommandPtr Elevator::GoToL3() {
-    return frc2::cmd::RunOnce(
+    return RunOnce(
         [this] {SetMotorPosition(ElevatorConstants::kL3);})
         .Until([this]() -> bool {return IsAtPos(ElevatorConstants::kL3);});
 };
 
 frc2::CommandPtr Elevator::GoToL2() {
-    return frc2::cmd::RunOnce(
+    return RunOnce(
         [this] {SetMotorPosition(ElevatorConstants::kL2);})
         .Until([this]() -> bool {return IsAtPos(ElevatorConstants::kL2);});
 };
 
 frc2::CommandPtr Elevator::GoToL1() {
-    return frc2::cmd::RunOnce(
+    return RunOnce(
         [this] {SetMotorPosition(ElevatorConstants::kL1);})
         .Until([this]() -> bool {return IsAtPos(ElevatorConstants::kL1);});
 };
 
-bool Elevator::IsAtPos(units::length::centimeter_t pos) {
-    return (abs((pos - GetEncoderPosition()).value()) <= (ElevatorConstants::kTolerance).value());
+frc2::CommandPtr Elevator::GoToLevel(Elevator::Level level) {
+    return RunOnce(
+        [this, level] {SetMotorPosition(level);})
+        .Until([this, &level]() -> bool {return IsAtLevel(level);});
 };
+
+bool Elevator::IsAtPos(units::length::centimeter_t pos) {
+    return (units::math::abs((pos - GetEncoderPosition())) <= (ElevatorConstants::kTolerance));
+};
+
+bool Elevator::IsAtLevel(Elevator::Level level) {
+    return IsAtPos(ElevatorConstants::goal_heights[level] + ElevatorConstants::kMinHeight);
+}
 
 units::length::centimeter_t Elevator::GetEncoderPosition() {
     auto statusSignal = m_leadMotor.GetPosition();
@@ -109,7 +122,11 @@ units::length::centimeter_t Elevator::GetEncoderPosition() {
 void Elevator::SetMotorPosition(units::length::centimeter_t length) {
     length -= ElevatorConstants::kMinHeight;
     ctre::phoenix6::controls::PositionVoltage m_request = ctre::phoenix6::controls::PositionVoltage{0_tr}.WithSlot(0);
-    m_leadMotor.SetControl(m_request.WithPosition((units::angle::turn_t)(length / ElevatorConstants::kSpoolCircum).value()));
+    m_leadMotor.SetControl(m_request.WithPosition((units::angle::turn_t)(length / ElevatorConstants::kSpoolCircum * 1_tr).value()));
+}
+
+void Elevator::SetMotorPosition(Elevator::Level level) {
+    SetMotorPosition(ElevatorConstants::goal_heights[level] + ElevatorConstants::kMinHeight);
 }
 
 void Elevator::MotorMoveUp() {

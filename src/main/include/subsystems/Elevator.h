@@ -22,18 +22,24 @@ public:
     Elevator();
     ~Elevator();  // Need for reasons
 
+    enum Level {INTAKE = 0, L1, L2, L3, L4, N};
+
     //Goes to the position, commnand only ends when 
     // destination is reached within the tolerance
     frc2::CommandPtr GoToL4();
     frc2::CommandPtr GoToL3();
     frc2::CommandPtr GoToL2();
     frc2::CommandPtr GoToL1();
+    frc2::CommandPtr GoToLevel(Level level);
+
 
     //Return bool on if its at the peram: pos
     bool IsAtPos(units::length::centimeter_t pos);
+    bool IsAtLevel(Level level);
 
     //Sets the motor position (ends as soon as run)
     void SetMotorPosition(units::length::centimeter_t length);
+    void SetMotorPosition(Level level);
 
     //Moves the motor up and down manually
     void MotorMoveUp();
