@@ -26,12 +26,7 @@ public:
 
     //Goes to the position, commnand only ends when 
     // destination is reached within the tolerance
-    frc2::CommandPtr GoToL4();
-    frc2::CommandPtr GoToL3();
-    frc2::CommandPtr GoToL2();
-    frc2::CommandPtr GoToL1();
-    frc2::CommandPtr GoToLevel(Level level);
-
+    void GoToLevel(Level level);
 
     //Return bool on if its at the peram: pos
     bool IsAtPos(units::length::centimeter_t pos);
@@ -53,9 +48,14 @@ public:
     frc2::CommandPtr WhileUp();
     frc2::CommandPtr WhileDown();
 
+    void RobotPeriodic();
+
 private:
     ctre::phoenix6::hardware::TalonFX m_leadMotor;
     ctre::phoenix6::hardware::TalonFX m_followerMotor;
+    frc::DigitalInput m_forwardLimit{0};
+    frc::DigitalInput m_reverseLimit{1};
+    Level goalLevel;
 
 private:  // simulation related members
     friend class ElevatorSim;
