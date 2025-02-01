@@ -20,7 +20,7 @@
 
 #include "subsystems/Drivetrain.h"
 #include "subsystems/ROSBridge.h"
-#include "subsystems/Elevator.h"
+#include "subsystems/SuperStructure.h"
 
 
 /**
@@ -52,7 +52,7 @@ public:
 
   Drivetrain m_swerve;
   ROSBridge m_ros;
-  Elevator m_elevator;
+  SuperStructure m_superStructure;
 
   bool m_isRed;
 

@@ -87,6 +87,7 @@ bool Elevator::IsAtLevel(Elevator::Level level) {
     return IsAtPos(ElevatorConstants::goal_heights[level] + ElevatorConstants::kMinHeight);
 }
 
+
 units::length::centimeter_t Elevator::GetEncoderPosition() {
     auto statusSignal = m_leadMotor.GetPosition();
     auto value = statusSignal.GetDataCopy().value() * 2 * std::numbers::pi * 3_cm;

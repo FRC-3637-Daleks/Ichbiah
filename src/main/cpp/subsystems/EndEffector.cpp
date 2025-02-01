@@ -25,6 +25,11 @@ frc2::CommandPtr EndEffector::WhileIn(){
                               [this] {EndEffector::MotorStop(); });
 }
 
+frc2::CommandPtr EndEffector::WhileOut(){
+    return frc2::cmd::RunEnd ([this]{ EndEffector::MotorBack(); },
+                              [this] {EndEffector::MotorStop(); });
+}
+
 bool EndEffector::isForwardBreakBeamBroken(){
     return !(m_ForwardBreakBeam.Get());
 }
