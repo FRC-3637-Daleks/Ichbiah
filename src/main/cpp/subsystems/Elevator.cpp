@@ -75,34 +75,8 @@ Elevator::Elevator() : m_leadMotor{ElevatorConstants::kLeadmotorID},
     m_leadMotor.GetConfigurator().Apply(m_ElevatorConfig);    
 };
 
-frc2::CommandPtr Elevator::GoToL4() {
-    return RunOnce(
-        [this] {SetMotorPosition(ElevatorConstants::kL4);})
-        .Until([this]() -> bool {return IsAtPos(ElevatorConstants::kL4);});
-};
-
-frc2::CommandPtr Elevator::GoToL3() {
-    return RunOnce(
-        [this] {SetMotorPosition(ElevatorConstants::kL3);})
-        .Until([this]() -> bool {return IsAtPos(ElevatorConstants::kL3);});
-};
-
-frc2::CommandPtr Elevator::GoToL2() {
-    return RunOnce(
-        [this] {SetMotorPosition(ElevatorConstants::kL2);})
-        .Until([this]() -> bool {return IsAtPos(ElevatorConstants::kL2);});
-};
-
-frc2::CommandPtr Elevator::GoToL1() {
-    return RunOnce(
-        [this] {SetMotorPosition(ElevatorConstants::kL1);})
-        .Until([this]() -> bool {return IsAtPos(ElevatorConstants::kL1);});
-};
-
-frc2::CommandPtr Elevator::GoToLevel(Elevator::Level level) {
-    return RunOnce(
-        [this, level] {SetMotorPosition(level);})
-        .Until([this, &level]() -> bool {return IsAtLevel(level);});
+void Elevator::GoToLevel(Elevator::Level level) {
+    goalLevel = level;
 };
 
 bool Elevator::IsAtPos(units::length::centimeter_t pos) {
@@ -121,7 +95,9 @@ units::length::centimeter_t Elevator::GetEncoderPosition() {
 
 void Elevator::SetMotorPosition(units::length::centimeter_t length) {
     length -= ElevatorConstants::kMinHeight;
-    ctre::phoenix6::controls::PositionVoltage m_request = ctre::phoenix6::controls::PositionVoltage{0_tr}.WithSlot(0);
+    ctre::phoenix6::controls::PositionVoltage m_request = 
+        ctre::phoenix6::controls::PositionVoltage{0_tr}.WithSlot(0)
+        .WithLimitReverseMotion(m_reverseLimit.Get());
     m_leadMotor.SetControl(m_request.WithPosition((units::angle::turn_t)(length / ElevatorConstants::kSpoolCircum * 1_tr).value()));
 }
 
@@ -151,6 +127,9 @@ frc2::CommandPtr Elevator::WhileDown(){
                               [this] {MotorStop(); });
 }
 
+void Elevator::RobotPeriodic() {
+    SetMotorPosition(goalLevel);
+}
 //***************************SIMULATION*****************************
 ElevatorSim::ElevatorSim(Elevator& elevator):
     m_elevatorModel{
