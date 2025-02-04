@@ -48,7 +48,7 @@ public:
     frc2::CommandPtr WhileUp();
     frc2::CommandPtr WhileDown();
 
-    void RobotPeriodic();
+    void Periodic();
 
 private:
     ctre::phoenix6::hardware::TalonFX m_leadMotor;
