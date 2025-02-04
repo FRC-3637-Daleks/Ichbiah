@@ -45,7 +45,7 @@ void EndEffector::MotorStop() {
 
 frc2::CommandPtr EndEffector::WhileIn(){
     return RunEnd([this]{ EndEffector::MotorForward(); },
-                              [this] {EndEffector::MotorStop(); });
+                  [this] {EndEffector::MotorStop(); });
 }
 
 /**
@@ -96,4 +96,4 @@ frc2::CommandPtr EndEffector::Intake(){
     .Until([this]() -> bool {
         return isForwardBreakBeamBroken();
     });
-} 
+}
