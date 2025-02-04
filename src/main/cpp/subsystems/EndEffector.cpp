@@ -52,3 +52,10 @@ frc2::CommandPtr EndEffector::EffectorOut() {
         return !isForwardBreakBeamBroken();
     });
 }
+
+frc2::CommandPtr EndEffector::WhileIn(){
+    return frc2::cmd::Run([this]{WhileIn();})
+    .Until([this]() -> bool {
+        return isForwardBreakBeamBroken();
+    });
+}

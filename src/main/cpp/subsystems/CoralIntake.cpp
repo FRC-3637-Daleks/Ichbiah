@@ -22,13 +22,14 @@ bool CoralIntake::isBreakbeam3Broken(){
 bool CoralIntake::getintakeState(){
     return m_intakeState.Get();
 }
-
-void CoralIntake::RobotPeriodic(){
+void CoralIntake::SetState(bool state){
+    intakeState = state;
+}
+bool CoralIntake::GetState(){
+    return intakeState;
+}
+void CoralIntake::Periodic(){
     if (isBreakbeamBroken() || isBreakbeam3Broken() || isBreakbeam3Broken()){
         intakeState = true;
     }
-
-void CoralIntake::SetState(){
-    intakeState = state;
-}
 };
