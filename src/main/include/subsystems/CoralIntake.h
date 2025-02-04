@@ -13,7 +13,7 @@ namespace CoralIntakeConstants{
 class CoralIntake: public frc2::SubsystemBase {
     public:
     
-    void RobotPeriodic();
+    void Periodic();
     void SetState();
 
     CoralIntake();
@@ -23,6 +23,9 @@ class CoralIntake: public frc2::SubsystemBase {
     bool isBreakbeam2Broken();
     bool isBreakbeam3Broken();
     bool getintakeState();
+    void SetState(bool state);
+    bool GetState();
+    
    
     private:
 
