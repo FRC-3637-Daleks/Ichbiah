@@ -3,6 +3,7 @@
 #include <frc/simulation/ElevatorSim.h>
 #include <frc/RobotController.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/simulation/DIOSim.h>
 
 namespace ElevatorConstants {
 // Device Addresses
@@ -20,7 +21,7 @@ namespace ElevatorConstants {
 
 //Level Height
     
-    constexpr units::length::centimeter_t goal_heights[] = {0_cm, 90_cm, 127_cm, 150_cm, 180_cm};
+    constexpr units::length::centimeter_t goal_heights[] = {0_cm, 70_cm, 81_cm, 121_cm, 183_cm};
 
     constexpr units::length::centimeter_t kL1 = 90_cm;
     constexpr units::length::centimeter_t kL2 = 127_cm;
@@ -42,12 +43,16 @@ public:
 public:
     ElevatorSim(Elevator& elevator);
 
-public:
     // models the elevator
     frc::sim::ElevatorSim m_elevatorModel;
 
     // accesses internals of the talon FX objects to inject the simulated data
     ctre::phoenix6::sim::TalonFXSimState m_leadSim, m_followerSim;
+
+    frc::sim::DIOSim m_bottomBreakBeam;
+    frc::sim::DIOSim m_topBreakBeam;
+
+    
 };
 
 Elevator::Elevator() : m_leadMotor{ElevatorConstants::kLeadmotorID},
@@ -55,7 +60,6 @@ Elevator::Elevator() : m_leadMotor{ElevatorConstants::kLeadmotorID},
                        m_sim_state{new ElevatorSim{*this}} {
     //Sets the follower motor
     using namespace ctre::phoenix6;
-
     //Sets and defines the Elevator motor PID config
     configs::TalonFXConfiguration m_ElevatorConfig;
 
@@ -98,8 +102,8 @@ void Elevator::SetMotorPosition(units::length::centimeter_t length) {
     length -= ElevatorConstants::kMinHeight;
     ctre::phoenix6::controls::PositionVoltage m_request = 
         ctre::phoenix6::controls::PositionVoltage{0_tr}.WithSlot(0)
-        .WithLimitReverseMotion(m_reverseLimit.Get());
-    m_leadMotor.SetControl(m_request.WithPosition((units::angle::turn_t)(length / ElevatorConstants::kSpoolCircum * 1_tr).value()));
+         .WithLimitReverseMotion(m_reverseLimit.Get());
+    m_leadMotor.SetControl(m_request.WithPosition((length / ElevatorConstants::kSpoolCircum * 1_tr)));
 }
 
 void Elevator::SetMotorPosition(Elevator::Level level) {
@@ -128,7 +132,7 @@ frc2::CommandPtr Elevator::WhileDown(){
                               [this] {MotorStop(); });
 }
 
-void Elevator::RobotPeriodic() {
+void Elevator::Periodic() {
     SetMotorPosition(goalLevel);
 }
 //***************************SIMULATION*****************************
@@ -144,7 +148,9 @@ ElevatorSim::ElevatorSim(Elevator& elevator):
         ElevatorConstants::kMinHeight  // starting height
     },
     m_leadSim{elevator.m_leadMotor},
-    m_followerSim{elevator.m_followerMotor}
+    m_followerSim{elevator.m_followerMotor},
+    m_bottomBreakBeam{elevator.m_reverseLimit},
+    m_topBreakBeam{elevator.m_forwardLimit}
 {
 }
 
@@ -182,8 +188,11 @@ void Elevator::SimulationPeriodic() {
     
     m_leadSim.SetRawRotorPosition(rotor_turns);
     m_leadSim.SetRotorVelocity(rotor_velocity);
-    m_leadSim.SetForwardLimit(m_elevatorModel.HasHitUpperLimit());
-    m_leadSim.SetReverseLimit(m_elevatorModel.HasHitLowerLimit());
+    
+    auto &m_bottomBreakbeam = m_sim_state->m_bottomBreakBeam;
+    auto &m_topBreakbeam = m_sim_state->m_topBreakBeam;
+    m_bottomBreakbeam.SetValue(m_elevatorModel.HasHitLowerLimit());
+    m_topBreakbeam.SetValue(m_elevatorModel.HasHitUpperLimit());
 
     // mechanically linked, though we should never read this value
     m_followerSim.SetRawRotorPosition(rotor_turns);
