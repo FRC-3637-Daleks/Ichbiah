@@ -36,6 +36,10 @@ SuperStructure::SuperStructure() :
     frc::SmartDashboard::PutData("Mech2d", &m_sim_state->m_mech);
 };
 
+frc2::CommandPtr SuperStructure::prePlace(Elevator::Level level) {
+    return m_endeffector.EffectorContinue().AlongWith(RunOnce([this, level] {m_elevator.GoToLevel(level);}));
+};
+
 frc2::CommandPtr SuperStructure::moveElevatorTo(Elevator::Level level) {
     return RunOnce([this, level] {m_elevator.GoToLevel(level); std::cout << "Ran: " << level << std::endl;});
 };
