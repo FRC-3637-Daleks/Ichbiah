@@ -1,0 +1,28 @@
+#pragma once
+
+
+#include <frc2/command/SubsystemBase.h>
+#include "subsystems/Elevator.h"
+#include "subsystems/EndEffector.h"
+
+
+// Forward Declaration
+class SuperStructureSim;
+
+class SuperStructure: public frc2::SubsystemBase {
+public:
+    SuperStructure();
+    ~SuperStructure();  // Need for reasons
+
+    Elevator m_elevator;
+    EndEffector m_endeffector;
+
+    frc2::CommandPtr moveElevatorTo(Elevator::Level level);
+    bool baseAtPos;
+    frc2::CommandPtr prePlace(Elevator::Level level);
+
+private:
+    friend class SuperStructureSim;
+    std::unique_ptr<SuperStructureSim> m_sim_state;
+    void SimulationPeriodic() override;
+};
