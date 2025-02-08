@@ -37,7 +37,7 @@ SuperStructure::SuperStructure() :
 };
 
 frc2::CommandPtr SuperStructure::prePlace(Elevator::Level level) {
-    return m_endeffector.EffectorContinue().AlongWith(RunOnce([this, level] {m_elevator.GoToLevel(level);}));
+    return moveElevatorTo(m_elevator.L1);//m_endeffector.EffectorContinue().AlongWith(RunOnce([this, level] {m_elevator.GoToLevel(level);}));
 };
 
 frc2::CommandPtr SuperStructure::moveElevatorTo(Elevator::Level level) {
