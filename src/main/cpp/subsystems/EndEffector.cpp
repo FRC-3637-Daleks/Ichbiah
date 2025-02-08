@@ -1,6 +1,18 @@
+#pragma once
 #include "subsystems/EndEffector.h"
 
-EndEffector::EndEffector() {
+namespace EndEffectorConstants {
+    int kMotorID = 50;
+    int kBreakBeamID = 60;
+    int kForwardBreakBeamID = 70;
+    int kBackwardBreakBeamID = 80;
+}
+
+EndEffector::EndEffector():
+                        m_ForwardBreakBeam{EndEffectorConstants::kForwardBreakBeamID},
+                        m_BackwardBreakBeam{EndEffectorConstants::kBackwardBreakBeamID},                  
+                        m_endEffectorMotor{EndEffectorConstants::kMotorID}
+{
 
 };
 
@@ -14,10 +26,6 @@ void EndEffector::MotorBack() {
 
 void EndEffector::MotorStop() {
     m_endEffectorMotor.SetVoltage(0_V);
-};
-
-bool EndEffector::getBreakBeamState() {
-    return m_breakbeam.Get();
 };
 
 frc2::CommandPtr EndEffector::WhileIn(){

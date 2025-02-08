@@ -6,14 +6,6 @@
 #include <ctre/phoenix6/CANcoder.hpp>
 #include <ctre/phoenix6/TalonFX.hpp>
 
-
-namespace EndEffectorConstants {
-    int kMotorID = 50;
-    int kBreakBeamID = 60;
-    int kForwardBreakBeamID = 70;
-    int kBackwardBreakBeamID = 80;
-}
-
 class EndEffector {
     public:
 
@@ -23,7 +15,6 @@ class EndEffector {
     void MotorBack();
     void MotorStop();
 
-    bool getBreakBeamState();
     bool isForwardBreakBeamBroken();
     bool isBackwardBreakBeamBroken();
 
@@ -34,9 +25,8 @@ class EndEffector {
     frc2::CommandPtr EffectorOut();
     
     private:
-    frc::DigitalInput m_breakbeam{EndEffectorConstants::kBreakBeamID};
-    frc::DigitalInput m_ForwardBreakBeam{EndEffectorConstants::kForwardBreakBeamID};
-    frc::DigitalInput m_BackwardBreakBeam{EndEffectorConstants::kBackwardBreakBeamID};
+    frc::DigitalInput m_ForwardBreakBeam;
+    frc::DigitalInput m_BackwardBreakBeam;
 
-    ctre::phoenix6::hardware::TalonFX m_endEffectorMotor{EndEffectorConstants::kMotorID};
+    ctre::phoenix6::hardware::TalonFX m_endEffectorMotor;
 };
