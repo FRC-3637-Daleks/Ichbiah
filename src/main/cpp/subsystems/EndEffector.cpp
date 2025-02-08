@@ -1,27 +1,34 @@
 #include "subsystems/EndEffector.h"
 
-EndEffector::EndEffector() {
+namespace EndEffectorConstants {
+    int kMotorID = 50;
+    int kBreakBeamID = 60;
+    int kForwardBreakBeamID = 70;
+    int kBackwardBreakBeamID = 80;
+}
 
+EndEffector::EndEffector() :
+    m_BackwardBreakBeam(EndEffectorConstants::kBackwardBreakBeamID),
+    m_ForwardBreakBeam{EndEffectorConstants::kForwardBreakBeamID},
+    m_EndEffectorMotor{EndEffectorConstants::kMotorID}
+{
 };
 
 void EndEffector::MotorForward() {
-    m_endEffectorMotor.SetVoltage(12_V);
+    m_EndEffectorMotor.SetVoltage(12_V);
 };
 
 void EndEffector::MotorBack() {
-    m_endEffectorMotor.SetVoltage(-12_V);
+    m_EndEffectorMotor.SetVoltage(-12_V);
 };
 
 void EndEffector::MotorStop() {
-    m_endEffectorMotor.SetVoltage(0_V);
+    m_EndEffectorMotor.SetVoltage(0_V);
 };
 
-bool EndEffector::getBreakBeamState() {
-    return m_breakbeam.Get();
-};
 
 frc2::CommandPtr EndEffector::WhileIn(){
-    return frc2::cmd::RunEnd ([this]{ EndEffector::MotorForward(); },
+    return RunEnd([this]{ EndEffector::MotorForward(); },
                               [this] {EndEffector::MotorStop(); });
 }
 
@@ -33,29 +40,29 @@ bool EndEffector::isBackwardBreakBeamBroken(){
 }
 
 frc2::CommandPtr EndEffector::EffectorIn() {
-    return frc2::cmd::Run([this] { WhileIn(); })
+    return Run([this] { WhileIn(); })
     .Until([this]() -> bool {
         return isForwardBreakBeamBroken();
     });
 }
 
 frc2::CommandPtr EndEffector::EffectorContinue() {
-    return frc2::cmd::Run([this] { WhileIn(); })
+    return Run([this] { WhileIn(); })
     .Until([this]() -> bool {
         return !isBackwardBreakBeamBroken();
     });
 }
 
 frc2::CommandPtr EndEffector::EffectorOut() {
-    return frc2::cmd::Run([this] { WhileOut(); })
+    return Run([this] { WhileOut(); })
     .Until([this]() -> bool {
         return !isForwardBreakBeamBroken();
     });
 }
 
 frc2::CommandPtr EndEffector::WhileIn(){
-    return frc2::cmd::Run([this]{WhileIn();})
+    return Run([this]{WhileIn();})
     .Until([this]() -> bool {
         return isForwardBreakBeamBroken();
     });
-}
+} 

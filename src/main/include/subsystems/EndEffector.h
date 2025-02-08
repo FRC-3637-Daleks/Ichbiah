@@ -3,27 +3,20 @@
 #include <frc/Solenoid.h>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/Commands.h>
+#include <frc2/command/SubsystemBase.h>
 #include <ctre/phoenix6/CANcoder.hpp>
 #include <ctre/phoenix6/TalonFX.hpp>
 
-
-namespace EndEffectorConstants {
-    int kMotorID = 50;
-    int kBreakBeamID = 60;
-    int kForwardBreakBeamID = 70;
-    int kBackwardBreakBeamID = 80;
-}
-
-class EndEffector {
+class EndEffector : public frc2::SubsystemBase{
     public:
 
     EndEffector();
+    ~EndEffector();
 
     void MotorForward();
     void MotorBack();
     void MotorStop();
 
-    bool getBreakBeamState();
     bool isForwardBreakBeamBroken();
     bool isBackwardBreakBeamBroken();
 
@@ -34,9 +27,7 @@ class EndEffector {
     frc2::CommandPtr EffectorOut();
     
     private:
-    frc::DigitalInput m_breakbeam{EndEffectorConstants::kBreakBeamID};
-    frc::DigitalInput m_ForwardBreakBeam{EndEffectorConstants::kForwardBreakBeamID};
-    frc::DigitalInput m_BackwardBreakBeam{EndEffectorConstants::kBackwardBreakBeamID};
-
-    ctre::phoenix6::hardware::TalonFX m_endEffectorMotor{EndEffectorConstants::kMotorID};
+    frc::DigitalInput m_ForwardBreakBeam;
+    frc::DigitalInput m_BackwardBreakBeam;
+    ctre::phoenix6::hardware::TalonFX m_EndEffectorMotor;
 };
