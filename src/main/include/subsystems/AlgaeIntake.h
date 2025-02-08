@@ -5,16 +5,13 @@
 #include <ctre/phoenix6/TalonFX.hpp>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/Commands.h>
+#include <frc2/command/SubsystemBase.h>
 
-namespace AlgaeIntakeConstants{
-    int kMotorId = 10;
-    int kBreakbeamID = 20;
-}
-
-class AlgaeIntake {
+class AlgaeIntake : public frc2::SubsystemBase {
     public:
 
     AlgaeIntake();
+    ~AlgaeIntake();
     
     bool isBreakbeamBroken();
 
@@ -22,13 +19,11 @@ class AlgaeIntake {
     frc2::CommandPtr WhileOuttake();
     frc2::CommandPtr IntakeIn();
     
-    void moveForward();
+    void moveForward(); 
     void moveBackward();
     void stopMotor();
     
-    
-    private:
-    frc::DigitalInput m_breakbeam{AlgaeIntakeConstants::kBreakbeamID};
-
-    ctre::phoenix6::hardware::TalonFX m_algaeIntakeMotor{AlgaeIntakeConstants::kMotorId};
+    private: 
+    frc::DigitalInput m_breakbeam;
+    ctre::phoenix6::hardware::TalonFX m_algaeIntakeMotor;
 }; 
