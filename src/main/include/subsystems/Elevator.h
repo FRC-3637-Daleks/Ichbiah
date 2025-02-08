@@ -26,7 +26,6 @@ public:
 
     //Goes to the position, commnand only ends when 
     // destination is reached within the tolerance
-
     void GoToLevel(Level level);
 
     //Return bool on if its at the peram: pos
@@ -48,14 +47,21 @@ public:
     //Like the void cmds. but stops on button release
     frc2::CommandPtr WhileUp();
     frc2::CommandPtr WhileDown();
+    bool getBottomBreakBeam();
+    bool getTopBreakBeam();
+
+
+
 
     void Periodic();
 
 private:
     ctre::phoenix6::hardware::TalonFX m_leadMotor;
     ctre::phoenix6::hardware::TalonFX m_followerMotor;
-    frc::DigitalInput m_forwardLimit{0};
-    frc::DigitalInput m_reverseLimit{1};
+
+   //frc::DigitalInput m_forwardLimit;
+    frc::DigitalInput m_reverseLimit;
+ 
     Level goalLevel;
 
 private:  // simulation related members

@@ -10,14 +10,22 @@ namespace ElevatorConstants {
     int kLeadmotorID = 50;
     int kFollowermotorID = 70;
     int kBottomLimitSwitchID = 60;
+    int kReverseLimitID = 1;
+  //int kForwardLimitID = 0;
 
 // Physical Parameters
     constexpr auto kSpoolRadius = 1.7_in;  // Estimated, confirm with mechanical
     constexpr auto kSpoolCircum = kSpoolRadius * 2 * std::numbers::pi;
-    constexpr auto kGearReduction = 5.0;  // Tentative, could change
+    constexpr auto kGearReduction = 8.5;  // Tentative, could change
     constexpr auto kMinHeight = 2_ft;  // VERY estimated, confirm with CAD
     constexpr auto kMaxHeight = 6_ft;  // VERY estimated, confirm with CAD
-    constexpr auto kMass = 9_kg;    // Guess-value, not particularly important, edit once built
+    constexpr auto firstStageLength = (kMaxHeight - kMinHeight)/3;    //extension length of stage 1
+    constexpr auto kMass = 33.86_kg;    // Guess-value, not particularly important, edit once built
+    //constexpr auto kMassE1 = 3_kg;    // Mass of the first section of the elevator extender
+    //constexpr auto kMassE2 = 3_kg;    // Mass of the second section
+    //constexpr auto kMassE3 = 3_kg;    // Mass of the third section
+    //constexpr auto kBaseTensionWeight 
+    //  = kMassE1 + 2*kMassE2+ 4*kMassE3;    // Tension force felt by main elevator cable
 
 //Level Height
     
@@ -49,14 +57,15 @@ public:
     // accesses internals of the talon FX objects to inject the simulated data
     ctre::phoenix6::sim::TalonFXSimState m_leadSim, m_followerSim;
 
-    frc::sim::DIOSim m_bottomBreakBeam;
-    frc::sim::DIOSim m_topBreakBeam;
-
+    frc::sim::DIOSim m_bottomLimitSwitch;
+    //frc::sim::DIOSim m_topBreakBeam;
     
 };
 
 Elevator::Elevator() : m_leadMotor{ElevatorConstants::kLeadmotorID},
                        m_followerMotor{ElevatorConstants::kFollowermotorID},
+                       m_reverseLimit{ElevatorConstants::kReverseLimitID},
+                     //m_forwardLimit{ElevatorConstants::kForwardLimitID},
                        m_sim_state{new ElevatorSim{*this}} {
     //Sets the follower motor
     using namespace ctre::phoenix6;
@@ -67,6 +76,7 @@ Elevator::Elevator() : m_leadMotor{ElevatorConstants::kLeadmotorID},
     LimitConfig.ReverseLimitAutosetPositionEnable = true;
     LimitConfig.ReverseLimitAutosetPositionValue = 0_tr;
     LimitConfig.ReverseLimitRemoteSensorID = ElevatorConstants::kBottomLimitSwitchID;
+
 
 
     m_followerMotor.SetControl(controls::Follower{ElevatorConstants::kLeadmotorID, false});
@@ -89,8 +99,15 @@ bool Elevator::IsAtPos(units::length::centimeter_t pos) {
 
 bool Elevator::IsAtLevel(Elevator::Level level) {
     return IsAtPos(ElevatorConstants::goal_heights[level] + ElevatorConstants::kMinHeight);
-}
+};
 
+bool Elevator::getBottomBreakBeam() {
+    return m_reverseLimit.Get();
+};
+
+//bool Elevator::getTopBreakBeam() {
+//    return m_forwardLimit.Get();
+//};
 
 units::length::centimeter_t Elevator::GetEncoderPosition() {
     auto statusSignal = m_leadMotor.GetPosition();
@@ -102,7 +119,7 @@ void Elevator::SetMotorPosition(units::length::centimeter_t length) {
     length -= ElevatorConstants::kMinHeight;
     ctre::phoenix6::controls::PositionVoltage m_request = 
         ctre::phoenix6::controls::PositionVoltage{0_tr}.WithSlot(0)
-         .WithLimitReverseMotion(m_reverseLimit.Get());
+         .WithLimitReverseMotion(getBottomBreakBeam());
     m_leadMotor.SetControl(m_request.WithPosition((length / ElevatorConstants::kSpoolCircum * 1_tr)));
 }
 
@@ -149,8 +166,8 @@ ElevatorSim::ElevatorSim(Elevator& elevator):
     },
     m_leadSim{elevator.m_leadMotor},
     m_followerSim{elevator.m_followerMotor},
-    m_bottomBreakBeam{elevator.m_reverseLimit},
-    m_topBreakBeam{elevator.m_forwardLimit}
+    m_bottomLimitSwitch{elevator.m_reverseLimit}
+  //m_topBreakBeam{elevator.m_forwardLimit}
 {
 }
 
@@ -189,10 +206,10 @@ void Elevator::SimulationPeriodic() {
     m_leadSim.SetRawRotorPosition(rotor_turns);
     m_leadSim.SetRotorVelocity(rotor_velocity);
     
-    auto &m_bottomBreakbeam = m_sim_state->m_bottomBreakBeam;
-    auto &m_topBreakbeam = m_sim_state->m_topBreakBeam;
+    auto &m_bottomBreakbeam = m_sim_state->m_bottomLimitSwitch;
+    //auto &m_topBreakbeam = m_sim_state->m_topBreakBeam;
     m_bottomBreakbeam.SetValue(m_elevatorModel.HasHitLowerLimit());
-    m_topBreakbeam.SetValue(m_elevatorModel.HasHitUpperLimit());
+    //m_topBreakbeam.SetValue(m_elevatorModel.HasHitUpperLimit());
 
     // mechanically linked, though we should never read this value
     m_followerSim.SetRawRotorPosition(rotor_turns);
