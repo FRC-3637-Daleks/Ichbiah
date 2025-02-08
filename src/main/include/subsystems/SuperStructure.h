@@ -3,7 +3,7 @@
 
 #include <frc2/command/SubsystemBase.h>
 #include "subsystems/Elevator.h"
-//#include "subsystems/EndEffector.h"
+#include "subsystems/EndEffector.h"
 
 
 // Forward Declaration
@@ -15,7 +15,7 @@ public:
     ~SuperStructure();  // Need for reasons
 
     Elevator m_elevator;
-    //EndEffector m_endeffector;
+    EndEffector m_endeffector;
 
     frc2::CommandPtr moveElevatorTo(Elevator::Level level);
     bool baseAtPos;

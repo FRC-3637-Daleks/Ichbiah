@@ -3,13 +3,15 @@
 #include <frc/Solenoid.h>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/Commands.h>
+#include <frc2/command/SubsystemBase.h>
 #include <ctre/phoenix6/CANcoder.hpp>
 #include <ctre/phoenix6/TalonFX.hpp>
 
-class EndEffector {
+class EndEffector : public frc2::SubsystemBase{
     public:
 
     EndEffector();
+    ~EndEffector();
 
     void MotorForward();
     void MotorBack();
@@ -23,10 +25,10 @@ class EndEffector {
     frc2::CommandPtr EffectorIn();
     frc2::CommandPtr EffectorContinue();
     frc2::CommandPtr EffectorOut();
+    frc2::CommandPtr Intake();
     
     private:
     frc::DigitalInput m_ForwardBreakBeam;
     frc::DigitalInput m_BackwardBreakBeam;
-
-    ctre::phoenix6::hardware::TalonFX m_endEffectorMotor;
+    ctre::phoenix6::hardware::TalonFX m_EndEffectorMotor;
 };
