@@ -101,8 +101,6 @@ bool Elevator::IsAtLevel(Elevator::Level level) {
     return IsAtPos(ElevatorConstants::goal_heights[level] + ElevatorConstants::kMinHeight);
 };
 
-<<<<<<< HEAD
-=======
 bool Elevator::getBottomBreakBeam() {
     return m_reverseLimit.Get();
 };
@@ -111,7 +109,6 @@ bool Elevator::getBottomBreakBeam() {
 //    return m_forwardLimit.Get();
 //};
 
->>>>>>> 02f4f7c (saving elevator code before rebaseing)
 units::length::centimeter_t Elevator::GetEncoderPosition() {
     auto statusSignal = m_leadMotor.GetPosition();
     auto value = statusSignal.GetDataCopy().value() * 2 * std::numbers::pi * 3_cm;
