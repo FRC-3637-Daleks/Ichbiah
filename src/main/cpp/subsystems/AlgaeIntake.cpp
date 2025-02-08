@@ -1,7 +1,15 @@
 #include "subsystems/AlgaeIntake.h"
 
-AlgaeIntake::AlgaeIntake(){
+namespace AlgaeIntakeConstants{
+    int kMotorId = 10;
+    int kBreakbeamID = 20;
 }
+
+AlgaeIntake::AlgaeIntake() :
+    m_breakbeam{AlgaeIntakeConstants::kBreakbeamID},
+    m_algaeIntakeMotor{AlgaeIntakeConstants::kMotorId}
+{
+};
 
 void AlgaeIntake::moveForward(){
     m_algaeIntakeMotor.SetVoltage(12_V);
@@ -20,16 +28,16 @@ bool AlgaeIntake::isBreakbeamBroken() {
 }
 
 frc2::CommandPtr AlgaeIntake::WhileIntake(){
-    return frc2::cmd::RunEnd ([this]{ moveForward(); },
+    return RunEnd ([this]{ moveForward(); },
                               [this] {stopMotor(); });
 }
 frc2::CommandPtr AlgaeIntake::WhileOuttake(){
-    return frc2::cmd::RunEnd ([this]{ moveBackward(); },
+    return RunEnd ([this]{ moveBackward(); },
                               [this] {stopMotor(); });
 }
 
 frc2::CommandPtr AlgaeIntake::IntakeIn() {
-    return frc2::cmd::Run([this] { IntakeIn(); })
+    return Run([this] { IntakeIn(); })
         .Until([this]() -> bool{
             return isBreakbeamBroken();
         });
