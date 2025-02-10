@@ -39,9 +39,9 @@ namespace ElevatorConstants {
 
 // Feedback/Feedforward Gains
     double kP = 1.0;
-    double kI = 0.0007;
-    double kD = 0.06;
-    double kG = 0.04053;
+    double kI = 0.0005;
+    double kD = 0.13;
+    double kG = 0.09;
 }
 
 class ElevatorSim {
