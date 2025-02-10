@@ -1,10 +1,18 @@
 #include "subsystems/EndEffector.h"
 
+/**
+ * Note from Visvam:
+ * 
+ * Use constexpr for IDs. It helps the robot code run faster and use less memory.
+ * 
+ * Also remember that there are only 10 DIO ports on the RoboRIO 2.0.
+ */
+
 namespace EndEffectorConstants {
-    int kMotorID = 50;
-    int kBreakBeamID = 60;
-    int kForwardBreakBeamID = 70;
-    int kBackwardBreakBeamID = 80;
+    constexpr int kMotorID = 5;
+    constexpr int kBreakBeamID = 6;
+    constexpr int kForwardBreakBeamID = 7;
+    constexpr int kBackwardBreakBeamID = 8;
 }
 
 EndEffector::EndEffector() :
