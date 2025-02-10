@@ -190,6 +190,11 @@ void RobotContainer::ConfigureBindings() {
 
   m_swerveController.Button(6).WhileTrue(m_endeffector.WhileIn());
   m_swerveController.Button(7).WhileTrue(m_endeffector.WhileOut());
+  units::time::second_t events = traj.value().GetEvents("ScoreCoralA").at(0).timestamp;
+
+  double time_of_event = events.value();
+
+  fmt::println("timestamp of event! => {}", time_of_event);
 
   //Test commands
   m_swerveController.Button(8).WhileTrue(m_superStructure.m_elevator.MoveUp());
