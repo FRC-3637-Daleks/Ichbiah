@@ -49,9 +49,7 @@ const frc::TrapezoidProfile<units::radians>::Constraints
     kThetaControllerConstraints{kMaxAngularSpeed, kMaxAngularAcceleration};
 } // namespace AutoConstants
 
-namespace XboxConstants {
-
-constexpr int kCopilotControllerPort = 1;
+namespace OperatorConstants {
 constexpr int kSwerveControllerPort = 0;
 
 constexpr double kDeadband = 0.08;
@@ -66,26 +64,8 @@ constexpr int kDirection = -1;
 constexpr auto kMaxTeleopSpeed = 15.7_fps;
 constexpr auto kMaxTeleopTurnSpeed = 2.5 * std::numbers::pi * 1_rad_per_s;
 
-} // namespace JoystickConstants
-namespace JoystickConstants {
-
-constexpr int kCopilotControllerPort = 1;
-constexpr int kSwerveControllerPort = 0;
-
-constexpr double kDeadband = 0.08;
-constexpr double kClimbDeadband = 0.08;
-
-constexpr int kStrafeAxis = frc::Joystick::kDefaultXChannel;
-constexpr int kForwardAxis = frc::Joystick::kDefaultYChannel;
-constexpr int kRotationAxis = frc::Joystick::kDefaultTwistChannel;
-constexpr int kThrottleAxis = frc::Joystick::kDefaultThrottleChannel;
-constexpr int kResetHeadingButton = 1; //trigger
-constexpr int kDirection = 1;
-
-constexpr auto kMaxTeleopSpeed = 15.7_fps;
-constexpr auto kMaxTeleopTurnSpeed = 2.5 * std::numbers::pi * 1_rad_per_s;
-
 }
+
 
 
 namespace FieldConstants {
@@ -96,9 +76,8 @@ constexpr auto mid_line = field_length / 2;
 
 } // namespace FieldConstants
 
-using namespace JoystickConstants;
 RobotContainer::RobotContainer()
-  : m_swerveController(kSwerveControllerPort)
+  : m_swerveController(OperatorConstants::kSwerveControllerPort)
   {
 
   fmt::println("made it to robot container");
@@ -145,56 +124,45 @@ RobotContainer::RobotContainer()
 }
 
 void RobotContainer::ConfigureBindings() {
-  auto throttle = [this]() -> double {
-    if constexpr (std::is_same_v<decltype(m_swerveController.GetHID()), frc::Joystick&>) {
-      double input = m_swerveController.GetHID().GetRawAxis(kThrottleAxis);
-      double ret = ((-input + 1)) / 2;
-      return ret;
-    } else {
-      return 1.0; // No throttle axis, return full throttle
-    }
-  };
+
 
   // Configure Swerve Bindings.
-  auto fwd = [this, throttle]() -> units::meters_per_second_t {
+  auto fwd = [this]() -> units::meters_per_second_t {
     auto input = frc::ApplyDeadband(
-        kDirection * m_swerveController.GetHID().GetRawAxis(kForwardAxis),
-        kDeadband);
+        OperatorConstants::kDirection * m_swerveController.GetHID().GetRawAxis(OperatorConstants::kForwardAxis),
+        OperatorConstants::kDeadband);
     auto squaredInput =
         input * std::abs(input); // square the input while preserving the sign
     auto alliance_flip = IsRed() ? -1 : 1;
-    return kMaxTeleopSpeed 
+    return OperatorConstants::kMaxTeleopSpeed 
       * squaredInput
-      * alliance_flip
-      * throttle();
+      * alliance_flip;
   };
 
-  auto strafe = [this, throttle]() -> units::meters_per_second_t {
+  auto strafe = [this]() -> units::meters_per_second_t {
     auto input = frc::ApplyDeadband(
-        kDirection * m_swerveController.GetHID().GetRawAxis(kStrafeAxis),
-        kDeadband);
+        OperatorConstants::kDirection * m_swerveController.GetHID().GetRawAxis(OperatorConstants::kStrafeAxis),
+        OperatorConstants::kDeadband);
     auto squaredInput = input * std::abs(input);
     auto alliance_flip = IsRed() ? -1 : 1;
-    return kMaxTeleopSpeed
+    return OperatorConstants::kMaxTeleopSpeed
       * squaredInput
-      * alliance_flip
-      * throttle();
+      * alliance_flip;
   };
 
-  auto rot = [this, throttle]() -> units::revolutions_per_minute_t {
+  auto rot = [this]() -> units::revolutions_per_minute_t {
     auto input = frc::ApplyDeadband(
-        kDirection * m_swerveController.GetHID().GetRawAxis(kRotationAxis),
-        kDeadband);
+        OperatorConstants::kDirection * m_swerveController.GetHID().GetRawAxis(OperatorConstants::kRotationAxis),
+        OperatorConstants::kDeadband);
     auto squaredInput = input * std::abs(input);
-    return kMaxTeleopTurnSpeed
-      * squaredInput
-      * throttle();
+    return OperatorConstants::kMaxTeleopTurnSpeed
+      * squaredInput;
   };
 
   m_swerve.SetDefaultCommand(
       m_swerve.CustomSwerveCommand(fwd, strafe, rot));
   
-  m_swerveController.Button(kResetHeadingButton).OnTrue(m_swerve.ZeroHeadingCommand());
+  m_swerveController.Start().OnTrue(m_swerve.ZeroHeadingCommand());
 }
 
 void RobotContainer::ConfigureDashboard() {
