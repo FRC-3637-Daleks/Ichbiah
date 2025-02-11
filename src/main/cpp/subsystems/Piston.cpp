@@ -1,29 +1,34 @@
 #include "subsystems/Piston.h"
 
 //Forward Channal = ID 1, Reverse Channal = ID 2
-Piston::Piston(frc::PneumaticsModuleType moduleType, int forwardChannel, int reverseChannel, units::seconds_t delay)
-: m_solenoid{moduleType, forwardChannel, reverseChannel}, stroke_delay{delay} {}
+Piston::Piston(frc::PneumaticsModuleType moduleType, int forwardChannel, int reverseChannel, units::second_t delay)
+: m_solenoid{moduleType,
+            forwardChannel, 
+            reverseChannel},
+  stroke_delay{delay} {
+
+    m_state = State::Retracted;
+}
 
 frc2::CommandPtr Piston::Extend() {
-    m_state = Extending;
-    return frc::cmd::Run([this]{m_solenoid.Set(frc::DoubleSolenoid::Value::kForward);}.AndThen(WaitCommand(m_solenoid)).AndThen([this]{m_state = Extended}));
+    
+    return frc2::cmd::Run([this]{m_state = State::Extending;
+    m_solenoid.Set(frc::DoubleSolenoid::Value::kForward);})
+    .AndThen(frc2::cmd::Wait(stroke_delay))
+    .AndThen([this]{m_state = State::Extended;});
 }
 
 frc2::CommandPtr Piston::Retract() {
-    m_state = Retracting;
-    return frc::cmd::Run([this]{m_solenoid.Set(frc::DoubleSolenoid::Value::kReverse);}.AndThen(WaitCommand(m_solenoid)).AndThen(m_state = Retracted));
+    return frc2::cmd::Run([this]{m_state = State::Retracting;
+    m_solenoid.Set(frc::DoubleSolenoid::Value::kReverse);})
+    .AndThen(frc2::cmd::Wait(stroke_delay))
+    .AndThen([this]{m_state = State::Retracted;});
 }
 
 frc2::CommandPtr Piston::Off() {
-    m_solenoid.Set(frc::DoubleSolenoid::Value::kOff);
-    return frc::cmd::Run([this]{m_solenoid.Set(frc::DoubleSolenoid::Value::kOff);});
-
+    return frc2::cmd::Run([this]{m_solenoid.Set(frc::DoubleSolenoid::Value::kOff);});
 }
 
-bool Piston::isExtended() {
-    return m_solenoid.Get() == frc::DoubleSolenoid::Value::kForward;
-}
-
-bool Piston::isRetracted() {
-    return m_solenoid.Get() == frc::DoubleSolenoid::Value::kReverse;
+inline Piston::State Piston::getState() {
+    return m_state;
 }

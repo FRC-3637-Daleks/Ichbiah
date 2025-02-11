@@ -1,28 +1,32 @@
+#pragma once
+
 #include <frc/DoubleSolenoid.h>
 #include <frc/PneumaticsModuleType.h>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/Commands.h>
+#include <frc2/command/SubsystemBase.h>
 
-enum state {
-            Extending
-            Extended
-            Retracting
+#include <units/time.h>
+
+class Piston : public frc2::SubsystemBase {
+
+    public:
+        enum State {
+            Extending,
+            Extended,
+            Retracting,
             Retracted
         };
 
-class Piston {
-
-    public:
         Piston(frc::PneumaticsModuleType mType, int fChannel, int rChannel, units::second_t delay);
         frc2::CommandPtr Extend();
         frc2::CommandPtr Retract();
         frc2::CommandPtr Off();
-        bool isExtended();
-        bool isRetracted();
+        State getState();
 
     private:
         frc::DoubleSolenoid m_solenoid;
-        const units::second_t stroke_delay;
+        units::second_t stroke_delay;
 
-        enum state m_state
+        State m_state;
 };
