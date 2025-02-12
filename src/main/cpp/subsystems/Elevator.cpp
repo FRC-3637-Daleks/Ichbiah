@@ -167,6 +167,11 @@ ElevatorSim::ElevatorSim(Elevator& elevator):
     m_bottomLimitSwitch{elevator.m_reverseLimit}
   //m_topBreakBeam{elevator.m_forwardLimit}
 {
+    // Randomize starting height to test limit switch
+    static std::random_device rng{};
+    std::uniform_real_distribution<double> start_height_dist{0, 1};
+    const auto start_height = start_height_dist(rng)*ElevatorConstants::kFirstStageLength;
+    m_elevatorModel.SetState(start_height, 0_mps);
 }
 
 void Elevator::SimulationPeriodic() {
