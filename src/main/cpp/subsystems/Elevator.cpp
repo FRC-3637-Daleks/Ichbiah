@@ -19,13 +19,11 @@ namespace ElevatorConstants {
     constexpr auto kGearReduction = 8.5;  // Tentative, could change
     constexpr auto kMinHeight = 2_ft;  // VERY estimated, confirm with CAD
     constexpr auto kMaxHeight = 6_ft;  // VERY estimated, confirm with CAD
-    constexpr auto firstStageLength = (kMaxHeight - kMinHeight)/3;    //extension length of stage 1
-    constexpr auto kMass = 33.86_kg;    // Guess-value, not particularly important, edit once built
+    constexpr auto kFirstStageLength = (kMaxHeight - kMinHeight)/3;    //extension length of stage 1
+    constexpr auto kMassEffective = 33.86_kg;    // Approximated. Modeling 3-stage elevator as single stage
     //constexpr auto kMassE1 = 3_kg;    // Mass of the first section of the elevator extender
     //constexpr auto kMassE2 = 3_kg;    // Mass of the second section
     //constexpr auto kMassE3 = 3_kg;    // Mass of the third section
-    //constexpr auto kBaseTensionWeight 
-    //  = kMassE1 + 2*kMassE2+ 4*kMassE3;    // Tension force felt by main elevator cable
 
 //Level Height
     
@@ -157,12 +155,12 @@ ElevatorSim::ElevatorSim(Elevator& elevator):
     m_elevatorModel{
         frc::DCMotor::KrakenX60FOC(2),
         ElevatorConstants::kGearReduction,
-        ElevatorConstants::kMass,
+        ElevatorConstants::kMassEffective,
         ElevatorConstants::kSpoolRadius,
-        ElevatorConstants::kMinHeight,
-        ElevatorConstants::kMaxHeight,
+        0_m,    // min height
+        ElevatorConstants::kFirstStageLength,
         true,   // simulate gravity
-        ElevatorConstants::kMinHeight  // starting height
+        0_m     // starting height
     },
     m_leadSim{elevator.m_leadMotor},
     m_followerSim{elevator.m_followerMotor},
@@ -197,7 +195,7 @@ void Elevator::SimulationPeriodic() {
     // Feed simulated outputs of model back into user program
     const auto position = m_elevatorModel.GetPosition();
     const units::turn_t rotor_turns =
-        (position - ElevatorConstants::kMinHeight) * rotor_turns_per_elevator_height;
+        position * rotor_turns_per_elevator_height;
 
     const auto velocity = m_elevatorModel.GetVelocity();
     const units::turns_per_second_t rotor_velocity =
