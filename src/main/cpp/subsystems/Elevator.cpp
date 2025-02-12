@@ -5,20 +5,22 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/simulation/DIOSim.h>
 
+#include <random>
+
 namespace ElevatorConstants {
 // Device Addresses
     int kLeadmotorID = 50;
     int kFollowermotorID = 70;
     int kBottomLimitSwitchID = 60;
     int kReverseLimitID = 1;
-  //int kForwardLimitID = 0;
+    int kForwardLimitID = 0;
 
 // Physical Parameters
     constexpr auto kSpoolRadius = 1.7_in;  // Estimated, confirm with mechanical
     constexpr auto kSpoolCircum = kSpoolRadius * 2 * std::numbers::pi;
     constexpr auto kGearReduction = 8.5;  // Tentative, could change
-    constexpr auto kMinHeight = 2_ft;  // VERY estimated, confirm with CAD
-    constexpr auto kMaxHeight = 6_ft;  // VERY estimated, confirm with CAD
+    constexpr auto kMinHeight = 1_ft;  // VERY estimated, confirm with CAD
+    constexpr auto kMaxHeight = 7_ft;  // VERY estimated, confirm with CAD
     constexpr auto kFirstStageLength = (kMaxHeight - kMinHeight)/3;    //extension length of stage 1
     constexpr auto kMassEffective = 33.86_kg;    // Approximated. Modeling 3-stage elevator as single stage
     //constexpr auto kMassE1 = 3_kg;    // Mass of the first section of the elevator extender
@@ -56,14 +58,18 @@ public:
     ctre::phoenix6::sim::TalonFXSimState m_leadSim, m_followerSim;
 
     frc::sim::DIOSim m_bottomLimitSwitch;
-    //frc::sim::DIOSim m_topBreakBeam;
+#ifdef ELEVATOR_TOP_LIMIT_SWITCH
+    frc::sim::DIOSim m_topLimitSwitch;
+#endif
     
 };
 
 Elevator::Elevator() : m_leadMotor{ElevatorConstants::kLeadmotorID},
                        m_followerMotor{ElevatorConstants::kFollowermotorID},
                        m_reverseLimit{ElevatorConstants::kReverseLimitID},
-                     //m_forwardLimit{ElevatorConstants::kForwardLimitID},
+#ifdef ELEVATOR_TOP_LIMIT_SWITCH
+                       m_forwardLimit{ElevatorConstants::kForwardLimitID},
+#endif
                        m_sim_state{new ElevatorSim{*this}} {
     //Sets the follower motor
     using namespace ctre::phoenix6;
@@ -73,56 +79,67 @@ Elevator::Elevator() : m_leadMotor{ElevatorConstants::kLeadmotorID},
     ctre::phoenix6::configs::HardwareLimitSwitchConfigs LimitConfig{};
     LimitConfig.ReverseLimitAutosetPositionEnable = true;
     LimitConfig.ReverseLimitAutosetPositionValue = 0_tr;
-    LimitConfig.ReverseLimitRemoteSensorID = ElevatorConstants::kBottomLimitSwitchID;
-
-
 
     m_followerMotor.SetControl(controls::Follower{ElevatorConstants::kLeadmotorID, false});
     m_ElevatorConfig.WithSlot0(configs::Slot0Configs{}
-                    .WithKP(ElevatorConstants::kP)
-                    .WithKI(ElevatorConstants::kI)
-                    .WithKD(ElevatorConstants::kD)
-                    .WithKG(ElevatorConstants::kG))
+                        .WithKP(ElevatorConstants::kP)
+                        .WithKI(ElevatorConstants::kI)
+                        .WithKD(ElevatorConstants::kD)
+                        .WithKG(ElevatorConstants::kG))
                     .WithHardwareLimitSwitch(LimitConfig);
-    m_leadMotor.GetConfigurator().Apply(m_ElevatorConfig);    
-};
-
-void Elevator::GoToLevel(Elevator::Level level) {
-    goalLevel = level;
-};
+    m_leadMotor.GetConfigurator().Apply(m_ElevatorConfig);
+}
 
 bool Elevator::IsAtPos(units::length::centimeter_t pos) {
-    return (units::math::abs((pos - GetEncoderPosition())) <= (ElevatorConstants::kTolerance));
+    return (units::math::abs((pos - GetEndEffectorHeight())) <= (ElevatorConstants::kTolerance));
 };
 
 bool Elevator::IsAtLevel(Elevator::Level level) {
     return IsAtPos(ElevatorConstants::goal_heights[level] + ElevatorConstants::kMinHeight);
 };
 
-bool Elevator::getBottomBreakBeam() {
+bool Elevator::isAtBottom() {
     return m_reverseLimit.Get();
 };
 
-//bool Elevator::getTopBreakBeam() {
-//    return m_forwardLimit.Get();
-//};
+bool Elevator::isAtTop() {
+#ifdef ELEVATOR_TOP_LIMIT_SWITCH
+    return m_forwardLimit.Get();
+#else
+    return GetEndEffectorHeight() >= ElevatorConstants::kMaxHeight;
+#endif
+};
 
-units::length::centimeter_t Elevator::GetEncoderPosition() {
-    auto statusSignal = m_leadMotor.GetPosition();
-    auto value = statusSignal.GetDataCopy().value() * 2 * std::numbers::pi * 3_cm;
-    return value;
+units::centimeter_t Elevator::GetEndEffectorHeight() {
+    const auto rotorTurns = m_leadMotor.GetPosition().GetValue();
+    const auto sprocketTurns = rotorTurns / ElevatorConstants::kGearReduction;
+    const auto firstStageHeight = sprocketTurns * ElevatorConstants::kSpoolCircum/1_tr;
+    const auto thirdStageHeight = firstStageHeight * 3;
+    return ElevatorConstants::kMinHeight + thirdStageHeight;
 }
 
-void Elevator::SetMotorPosition(units::length::centimeter_t length) {
-    length -= ElevatorConstants::kMinHeight;
-    ctre::phoenix6::controls::PositionVoltage m_request = 
-        ctre::phoenix6::controls::PositionVoltage{0_tr}.WithSlot(0)
-         .WithLimitReverseMotion(getBottomBreakBeam());
-    m_leadMotor.SetControl(m_request.WithPosition((length / ElevatorConstants::kSpoolCircum * 1_tr)));
+void Elevator::SetGoalHeight(const units::centimeter_t length) {    
+    auto request = ctre::phoenix6::controls::PositionVoltage{0_tr}.WithSlot(0);
+    
+    const auto firstStageHeight = (length - ElevatorConstants::kMinHeight)/3;
+    const auto sprocketTurns = firstStageHeight / ElevatorConstants::kSpoolCircum * 1_tr;
+    const auto rotorTurns = sprocketTurns * ElevatorConstants::kGearReduction;
+    
+    m_leadMotor.SetControl(request
+        .WithPosition(rotorTurns)
+        .WithLimitReverseMotion(isAtBottom())
+#ifdef ELEVATOR_TOP_LIMIT_SWITCH
+        .WithLimitForwardMotion(isAtTop())
+#endif
+    );
 }
 
-void Elevator::SetMotorPosition(Elevator::Level level) {
-    SetMotorPosition(ElevatorConstants::goal_heights[level] + ElevatorConstants::kMinHeight);
+void Elevator::SetGoalHeight(Elevator::Level level) {
+    SetGoalHeight(ElevatorConstants::goal_heights[level]);
+}
+
+void Elevator::SetTargetLevel(Level level) {
+    m_goalLevel = level;
 }
 
 void Elevator::MotorMoveUp() {
@@ -137,19 +154,28 @@ void Elevator::MotorStop() {
     m_leadMotor.SetVoltage(0_V);
 };
 
-frc2::CommandPtr Elevator::WhileUp(){
+frc2::CommandPtr Elevator::MoveUp(){
     return frc2::cmd::RunEnd ([this]{MotorMoveUp(); },
                               [this] {MotorStop(); });
 }
 
-frc2::CommandPtr Elevator::WhileDown(){
+frc2::CommandPtr Elevator::MoveDown(){
     return frc2::cmd::RunEnd ([this]{MotorMoveDown(); },
                               [this] {MotorStop(); });
 }
 
-void Elevator::Periodic() {
-    SetMotorPosition(goalLevel);
+frc2::CommandPtr Elevator::HoldHeight() {
+    return frc2::cmd::None();
 }
+
+frc2::CommandPtr Elevator::GoToLevel(Level goal) {
+    return frc2::cmd::None();
+}
+
+void Elevator::Periodic() {
+    SetGoalHeight(m_goalLevel);
+}
+
 //***************************SIMULATION*****************************
 ElevatorSim::ElevatorSim(Elevator& elevator):
     m_elevatorModel{
@@ -165,7 +191,9 @@ ElevatorSim::ElevatorSim(Elevator& elevator):
     m_leadSim{elevator.m_leadMotor},
     m_followerSim{elevator.m_followerMotor},
     m_bottomLimitSwitch{elevator.m_reverseLimit}
-  //m_topBreakBeam{elevator.m_forwardLimit}
+#ifdef ELEVATOR_TOP_LIMIT_SWITCH
+    , m_topLimitSwitch{elevator.m_forwardLimit}
+#endif
 {
     // Randomize starting height to test limit switch
     static std::random_device rng{};
@@ -209,17 +237,17 @@ void Elevator::SimulationPeriodic() {
     m_leadSim.SetRawRotorPosition(rotor_turns);
     m_leadSim.SetRotorVelocity(rotor_velocity);
     
-    auto &m_bottomBreakbeam = m_sim_state->m_bottomLimitSwitch;
-    //auto &m_topBreakbeam = m_sim_state->m_topBreakBeam;
-    m_bottomBreakbeam.SetValue(m_elevatorModel.HasHitLowerLimit());
-    //m_topBreakbeam.SetValue(m_elevatorModel.HasHitUpperLimit());
+    m_sim_state->m_bottomLimitSwitch.SetValue(m_elevatorModel.HasHitLowerLimit());
+#ifdef ELEVATOR_TOP_LIMIT_SWITCH
+    m_sim_state->m_topLimitSwitch.SetValue(m_elevatorModel.HasHitUpperLimit());
+#endif
 
     // mechanically linked, though we should never read this value
     m_followerSim.SetRawRotorPosition(rotor_turns);
     m_followerSim.SetRotorVelocity(rotor_velocity);
 
     //Publishing data to NetworkTables
-    frc::SmartDashboard::PutNumber("Elevator/Position ", m_leadSim.GetMotorVoltage().value());
+    frc::SmartDashboard::PutNumber("Elevator/Sim Position (m)", units::meter_t{position}.value());
 }
 
 Elevator::~Elevator() {}

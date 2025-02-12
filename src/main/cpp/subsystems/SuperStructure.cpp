@@ -41,7 +41,7 @@ frc2::CommandPtr SuperStructure::prePlace(Elevator::Level level) {
 };
 
 frc2::CommandPtr SuperStructure::moveElevatorTo(Elevator::Level level) {
-    return RunOnce([this, level] {m_elevator.GoToLevel(level); std::cout << "Ran: " << level << std::endl;});
+    return RunOnce([this, level] {m_elevator.SetTargetLevel(level); std::cout << "Ran: " << level << std::endl;});
 };
 
 SuperStructure::~SuperStructure() {}
@@ -51,5 +51,5 @@ SuperStructureSim::SuperStructureSim(SuperStructure& superstructure) {
 }
 
 void SuperStructure::SimulationPeriodic() {
-    m_sim_state->m_elevator->SetLength((m_elevator.GetEncoderPosition() + 2_ft).value()/50);
+    m_sim_state->m_elevator->SetLength((m_elevator.GetEndEffectorHeight()).value()/50);
 }

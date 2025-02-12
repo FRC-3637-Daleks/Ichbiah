@@ -166,6 +166,15 @@ void RobotContainer::ConfigureBindings() {
   traj.has_value() ?
     m_swerveController.Button(11).WhileTrue(m_swerve.FollowPathCommand(traj.value())) :
     m_swerveController.Button(11).WhileTrue(frc2::cmd::None());
+  
+  m_swerveController.Button(3).OnTrue
+    (m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L3));
+
+  m_swerveController.Button(4).OnTrue
+    (m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L4));
+
+  m_swerveController.Button(5).OnTrue
+    (m_superStructure.moveElevatorTo(Elevator::Level::INTAKE));
 }
 
 void RobotContainer::ConfigureDashboard() {

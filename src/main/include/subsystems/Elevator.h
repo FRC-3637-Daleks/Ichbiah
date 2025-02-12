@@ -24,17 +24,14 @@ public:
 
     enum Level {INTAKE = 0, L1, L2, L3, L4, N};
 
-    //Goes to the position, commnand only ends when 
-    // destination is reached within the tolerance
-    void GoToLevel(Level level);
-
     //Return bool on if its at the peram: pos
-    bool IsAtPos(units::length::centimeter_t pos);
+    bool IsAtPos(units::centimeter_t pos);
     bool IsAtLevel(Level level);
 
     //Sets the motor position (ends as soon as run)
-    void SetMotorPosition(units::length::centimeter_t length);
-    void SetMotorPosition(Level level);
+    void SetGoalHeight(units::centimeter_t length);
+    void SetGoalHeight(Level level);
+    void SetTargetLevel(Level level);
 
     //Moves the motor up and down manually
     void MotorMoveUp();
@@ -42,16 +39,21 @@ public:
     void MotorStop();
 
     // Gets the encoder position (used mostly by other functions)
-    units::length::centimeter_t GetEncoderPosition();
+    units::centimeter_t GetEndEffectorHeight();
 
-    //Like the void cmds. but stops on button release
-    frc2::CommandPtr WhileUp();
-    frc2::CommandPtr WhileDown();
-    bool getBottomBreakBeam();
-    bool getTopBreakBeam();
+    bool isAtTop();
+    bool isAtBottom();
 
+public:
+    // Manual Override Commands
+    frc2::CommandPtr MoveUp();
+    frc2::CommandPtr MoveDown();
 
+    // Default command, maintains the height the elevator was at when the command started
+    frc2::CommandPtr HoldHeight();
 
+    // Main command, commands elevator to goal and then ends when it reaches that point
+    frc2::CommandPtr GoToLevel(Level goal);
 
     void Periodic();
 
@@ -59,11 +61,13 @@ private:
     ctre::phoenix6::hardware::TalonFX m_leadMotor;
     ctre::phoenix6::hardware::TalonFX m_followerMotor;
 
-   //frc::DigitalInput m_forwardLimit;
+#ifdef ELEVATOR_TOP_LIMIT_SWITCH
+    frc::DigitalInput m_forwardLimit;
+#endif
     frc::DigitalInput m_reverseLimit;
- 
-    Level goalLevel;
 
+    Level m_goalLevel;
+ 
 private:  // simulation related members
     friend class ElevatorSim;
     std::unique_ptr<ElevatorSim> m_sim_state;
