@@ -88,6 +88,21 @@ Elevator::Elevator() : m_leadMotor{ElevatorConstants::kLeadmotorID},
                         .WithKG(ElevatorConstants::kG))
                     .WithHardwareLimitSwitch(LimitConfig);
     m_leadMotor.GetConfigurator().Apply(m_ElevatorConfig);
+
+    // Ensures sensor is homed on boot.
+    // The motor won't run while disabled, but if the limit switch is hit it should finish
+    // Once the robot enables, if the limit switch hasn't been hit yet, this command
+    // should stay scheduled so that the motor comes on and actually completes the 
+    // homing procedure
+    // Gravity should do this for us while disabled.
+    frc2::CommandScheduler::GetInstance().Schedule(
+        HomeEncoder()
+            .IgnoringDisable(true)
+            .WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming)
+    );
+}
+
+void Elevator::Periodic() {
 }
 
 bool Elevator::IsAtPos(units::length::centimeter_t pos) {
@@ -138,10 +153,6 @@ void Elevator::SetGoalHeight(Elevator::Level level) {
     SetGoalHeight(ElevatorConstants::goal_heights[level]);
 }
 
-void Elevator::SetTargetLevel(Level level) {
-    m_goalLevel = level;
-}
-
 void Elevator::MotorMoveUp() {
     m_leadMotor.SetVoltage(12_V);
 };
@@ -155,25 +166,22 @@ void Elevator::MotorStop() {
 };
 
 frc2::CommandPtr Elevator::MoveUp(){
-    return frc2::cmd::RunEnd ([this]{MotorMoveUp(); },
-                              [this] {MotorStop(); });
+    return RunEnd ([this]{MotorMoveUp(); },
+                   [this] {MotorStop(); });
 }
 
 frc2::CommandPtr Elevator::MoveDown(){
-    return frc2::cmd::RunEnd ([this]{MotorMoveDown(); },
-                              [this] {MotorStop(); });
+    return RunEnd ([this]{MotorMoveDown(); },
+                   [this] {MotorStop(); });
 }
 
-frc2::CommandPtr Elevator::HoldHeight() {
+frc2::CommandPtr Elevator::HomeEncoder() {
     return frc2::cmd::None();
 }
 
 frc2::CommandPtr Elevator::GoToLevel(Level goal) {
-    return frc2::cmd::None();
-}
-
-void Elevator::Periodic() {
-    SetGoalHeight(m_goalLevel);
+    return Run([this, goal] {SetGoalHeight(goal);})
+        .Until([this, goal] {return IsAtLevel(goal);});
 }
 
 //***************************SIMULATION*****************************
