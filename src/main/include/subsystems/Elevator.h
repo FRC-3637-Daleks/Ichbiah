@@ -22,6 +22,8 @@ public:
     Elevator();
     ~Elevator();  // Need for reasons
 
+    void Periodic() override;
+
     enum Level {INTAKE = 0, L1, L2, L3, L4, N};
 
     //Return bool on if its at the peram: pos
@@ -49,13 +51,11 @@ public:
     frc2::CommandPtr MoveUp();
     frc2::CommandPtr MoveDown();
 
-    // Default command, maintains the height the elevator was at when the command started
-    frc2::CommandPtr HoldHeight();
+    // Ensures sensor is homed
+    frc2::CommandPtr HomeEncoder();
 
     // Main command, commands elevator to goal and then ends when it reaches that point
     frc2::CommandPtr GoToLevel(Level goal);
-
-    void Periodic();
 
 private:
     ctre::phoenix6::hardware::TalonFX m_leadMotor;
@@ -65,8 +65,6 @@ private:
     frc::DigitalInput m_forwardLimit;
 #endif
     frc::DigitalInput m_reverseLimit;
-
-    Level m_goalLevel;
  
 private:  // simulation related members
     friend class ElevatorSim;
