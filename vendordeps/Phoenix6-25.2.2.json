@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
     "fileName": "Phoenix6-25.2.2.json",
     "name": "CTRE-Phoenix (v6)",
@@ -8,6 +9,11 @@
     "name": "CTRE-Phoenix (v6)",
     "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+    "fileName": "Phoenix6-25.2.2.json",
+    "name": "CTRE-Phoenix (v6)",
+    "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
     "frcYear": "2025",
     "uuid": "e995de00-2c64-4df5-8831-c1441420ff19",
     "mavenUrls": [
@@ -25,22 +31,30 @@
         {
             "groupId": "com.ctre.phoenix6",
             "artifactId": "wpiapi-java",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2"
 ========
             "version": "25.2.1"
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2"
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
         }
     ],
     "jniDependencies": [
         {
             "groupId": "com.ctre.phoenix6",
             "artifactId": "api-cpp",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "isJar": false,
             "skipInvalidPlatforms": true,
             "validPlatforms": [
@@ -54,11 +68,15 @@
         {
             "groupId": "com.ctre.phoenix6",
             "artifactId": "tools",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "isJar": false,
             "skipInvalidPlatforms": true,
             "validPlatforms": [
@@ -72,11 +90,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "api-cpp-sim",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "isJar": false,
             "skipInvalidPlatforms": true,
             "validPlatforms": [
@@ -90,11 +112,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "tools-sim",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "isJar": false,
             "skipInvalidPlatforms": true,
             "validPlatforms": [
@@ -108,11 +134,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "simTalonSRX",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "isJar": false,
             "skipInvalidPlatforms": true,
             "validPlatforms": [
@@ -126,11 +156,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "simVictorSPX",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "isJar": false,
             "skipInvalidPlatforms": true,
             "validPlatforms": [
@@ -144,11 +178,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "simPigeonIMU",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "isJar": false,
             "skipInvalidPlatforms": true,
             "validPlatforms": [
@@ -162,11 +200,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "simCANCoder",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "isJar": false,
             "skipInvalidPlatforms": true,
             "validPlatforms": [
@@ -180,11 +222,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "simProTalonFX",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "isJar": false,
             "skipInvalidPlatforms": true,
             "validPlatforms": [
@@ -198,11 +244,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "simProTalonFXS",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "isJar": false,
             "skipInvalidPlatforms": true,
             "validPlatforms": [
@@ -216,11 +266,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "simProCANcoder",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "isJar": false,
             "skipInvalidPlatforms": true,
             "validPlatforms": [
@@ -234,11 +288,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "simProPigeon2",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "isJar": false,
             "skipInvalidPlatforms": true,
             "validPlatforms": [
@@ -252,11 +310,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "simProCANrange",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "isJar": false,
             "skipInvalidPlatforms": true,
             "validPlatforms": [
@@ -272,11 +334,15 @@
         {
             "groupId": "com.ctre.phoenix6",
             "artifactId": "wpiapi-cpp",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "libName": "CTRE_Phoenix6_WPI",
             "headerClassifier": "headers",
             "sharedLibrary": true,
@@ -292,11 +358,15 @@
         {
             "groupId": "com.ctre.phoenix6",
             "artifactId": "tools",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "libName": "CTRE_PhoenixTools",
             "headerClassifier": "headers",
             "sharedLibrary": true,
@@ -312,11 +382,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "wpiapi-cpp-sim",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "libName": "CTRE_Phoenix6_WPISim",
             "headerClassifier": "headers",
             "sharedLibrary": true,
@@ -332,11 +406,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "tools-sim",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "libName": "CTRE_PhoenixTools_Sim",
             "headerClassifier": "headers",
             "sharedLibrary": true,
@@ -352,11 +430,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "simTalonSRX",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "libName": "CTRE_SimTalonSRX",
             "headerClassifier": "headers",
             "sharedLibrary": true,
@@ -372,11 +454,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "simVictorSPX",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "libName": "CTRE_SimVictorSPX",
             "headerClassifier": "headers",
             "sharedLibrary": true,
@@ -392,11 +478,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "simPigeonIMU",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "libName": "CTRE_SimPigeonIMU",
             "headerClassifier": "headers",
             "sharedLibrary": true,
@@ -412,11 +502,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "simCANCoder",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "libName": "CTRE_SimCANCoder",
             "headerClassifier": "headers",
             "sharedLibrary": true,
@@ -432,11 +526,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "simProTalonFX",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "libName": "CTRE_SimProTalonFX",
             "headerClassifier": "headers",
             "sharedLibrary": true,
@@ -452,11 +550,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "simProTalonFXS",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "libName": "CTRE_SimProTalonFXS",
             "headerClassifier": "headers",
             "sharedLibrary": true,
@@ -472,11 +574,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "simProCANcoder",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "libName": "CTRE_SimProCANcoder",
             "headerClassifier": "headers",
             "sharedLibrary": true,
@@ -492,11 +598,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "simProPigeon2",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "libName": "CTRE_SimProPigeon2",
             "headerClassifier": "headers",
             "sharedLibrary": true,
@@ -512,11 +622,15 @@
         {
             "groupId": "com.ctre.phoenix6.sim",
             "artifactId": "simProCANrange",
+<<<<<<< HEAD
 <<<<<<<< HEAD:vendordeps/Phoenix6-25.2.2.json
             "version": "25.2.2",
 ========
             "version": "25.2.1",
 >>>>>>>> bdd33c0 (Updated versions):vendordeps/Phoenix6-25.2.1.json
+=======
+            "version": "25.2.2",
+>>>>>>> 37d2548 (Reset to elevator sim header and switched motors to rev)
             "libName": "CTRE_SimProCANrange",
             "headerClassifier": "headers",
             "sharedLibrary": true,

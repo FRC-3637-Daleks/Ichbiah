@@ -6,6 +6,7 @@
 #include <frc2/command/SubsystemBase.h>
 #include <ctre/phoenix6/CANcoder.hpp>
 #include <ctre/phoenix6/TalonFX.hpp>
+#include <rev/SparkFlex.h>
 
 class EndEffector : public frc2::SubsystemBase{
     public:
@@ -30,5 +31,5 @@ class EndEffector : public frc2::SubsystemBase{
     private:
     frc::DigitalInput m_ForwardBreakBeam;
     frc::DigitalInput m_BackwardBreakBeam;
-    ctre::phoenix6::hardware::TalonFX m_EndEffectorMotor;
+    rev::spark::SparkFlex m_EndEffectorMotor;
 };
