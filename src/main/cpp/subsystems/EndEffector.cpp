@@ -18,7 +18,7 @@ namespace EndEffectorConstants {
 EndEffector::EndEffector() :
     m_ForwardBreakBeam{EndEffectorConstants::kForwardBreakBeamID},
     m_BackwardBreakBeam(EndEffectorConstants::kBackwardBreakBeamID),
-    m_EndEffectorMotor{EndEffectorConstants::kMotorID}
+    m_EndEffectorMotor{EndEffectorConstants::kMotorID,rev::spark::SparkFlex::MotorType::kBrushless}
 {}
 
 /**
