@@ -1,4 +1,6 @@
 #pragma once
+#include <ctre/phoenix6/CANcoder.hpp>
+#include <ctre/phoenix6/TalonFX.hpp>
 #include <frc/DigitalInput.h>
 #include <frc/Solenoid.h>
 #include <frc2/command/CommandPtr.h>
@@ -12,18 +14,24 @@
 
 class EndEffectorSim;
 
-class EndEffector : public frc2::SubsystemBase{
-    public:
+class EndEffector : public frc2::SubsystemBase {
+public:
+  EndEffector();
+  ~EndEffector();
 
-    EndEffector();
-    ~EndEffector();
+  void MotorForward();
+  void MotorBack();
+  void MotorStop();
 
-    void MotorForward();
-    void MotorBack();
-    void MotorStop();
+  bool isForwardBreakBeamBroken();
+  bool isBackwardBreakBeamBroken();
 
-    bool isForwardBreakBeamBroken();
-    bool isBackwardBreakBeamBroken();
+  frc2::CommandPtr WhileOut();
+  frc2::CommandPtr WhileIn();
+  frc2::CommandPtr EffectorIn();
+  frc2::CommandPtr EffectorContinue();
+  frc2::CommandPtr EffectorOut();
+  frc2::CommandPtr Intake();
 
     frc2::CommandPtr WhileOut();
     frc2::CommandPtr WhileIn();

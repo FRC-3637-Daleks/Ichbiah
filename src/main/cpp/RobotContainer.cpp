@@ -4,25 +4,25 @@
 
 #include "RobotContainer.h"
 
-#include <units/math.h>
 #include <units/acceleration.h>
 #include <units/angle.h>
 #include <units/angular_acceleration.h>
 #include <units/angular_velocity.h>
 #include <units/length.h>
+#include <units/math.h>
 #include <units/moment_of_inertia.h>
 #include <units/velocity.h>
 #include <units/voltage.h>
 
 #include <numbers>
 
-#include <frc/RobotBase.h>
 #include <frc/DataLogManager.h>
 #include <frc/DriverStation.h>
+#include <frc/RobotBase.h>
+#include <frc/filter/SlewRateLimiter.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc2/command/Commands.h>
 #include <frc2/command/button/Trigger.h>
-#include <frc/filter/SlewRateLimiter.h>
 #include <iostream>
 
 #include <choreo/Choreo.h>
@@ -33,8 +33,9 @@ constexpr auto kMaxSpeed = 4.5_mps;
 constexpr auto kMaxAcceleration = 6_mps_sq;
 constexpr auto kPathMaxAcceleration = 4_mps_sq;
 // Swerve Constants (NEED TO BE INTEGRATED)
-// constexpr auto kMaxSpeed = PracticeModuleConstants::kPhysicalMaxSpeed / 3; // left
-// out as these are repeat values constexpr auto kMaxAcceleration = 10_fps_sq;
+// constexpr auto kMaxSpeed = PracticeModuleConstants::kPhysicalMaxSpeed / 3; //
+// left out as these are repeat values constexpr auto kMaxAcceleration =
+// 10_fps_sq;
 constexpr auto kMaxAngularSpeed = std::numbers::pi * 1_rad_per_s;
 constexpr auto kMaxAngularAcceleration = std::numbers::pi * 2_rad_per_s_sq;
 
@@ -64,10 +65,8 @@ constexpr auto mid_line = field_length / 2;
 
 } // namespace FieldConstants
 
-
 RobotContainer::RobotContainer()
-  : m_swerveController(OperatorConstants::kSwerveControllerPort)
-  {
+    : m_swerveController(OperatorConstants::kSwerveControllerPort) {
 
   fmt::println("made it to robot container");
   // Initialize all of your commands and subsystems here
@@ -113,104 +112,113 @@ RobotContainer::RobotContainer()
 }
 
 void RobotContainer::ConfigureBindings() {
-    auto throttle = [this]() -> double { 
+  auto throttle = [this]() -> double {
     double input = m_swerveController.GetHID().GetThrottle();
-    double ret = ((-input +1))/2;
+    double ret = ((-input + 1)) / 2;
     return ret;
   };
   // Configure Swerve Bindings.
   auto fwd = [this, throttle]() -> units::meters_per_second_t {
-    auto input = frc::ApplyDeadband(
-        m_swerveController.GetHID().GetY(),
-        OperatorConstants::kStrafeDeadband);
+    auto input = frc::ApplyDeadband(m_swerveController.GetHID().GetY(),
+                                    OperatorConstants::kStrafeDeadband);
     auto squaredInput = input * std::abs(input);
-    auto alliance_flip = IsRed()? -1:1;
-    return OperatorConstants::kMaxTeleopSpeed 
-      * squaredInput
-      * alliance_flip
-      * throttle();
+    auto alliance_flip = IsRed() ? -1 : 1;
+    return OperatorConstants::kMaxTeleopSpeed * squaredInput * alliance_flip *
+           throttle();
   };
 
   auto strafe = [this, throttle]() -> units::meters_per_second_t {
-    auto input = frc::ApplyDeadband(
-        m_swerveController.GetHID().GetX(),
-        OperatorConstants::kStrafeDeadband);
+    auto input = frc::ApplyDeadband(m_swerveController.GetHID().GetX(),
+                                    OperatorConstants::kStrafeDeadband);
     auto squaredInput = input * std::abs(input);
-    auto alliance_flip = IsRed()? -1:1;
-    return OperatorConstants::kMaxTeleopSpeed
-      * squaredInput
-      * alliance_flip
-      * throttle();
+    auto alliance_flip = IsRed() ? -1 : 1;
+    return OperatorConstants::kMaxTeleopSpeed * squaredInput * alliance_flip *
+           throttle();
   };
-
 
   auto rot = [this, throttle]() -> units::revolutions_per_minute_t {
-    auto input = frc::ApplyDeadband(
-        -m_swerveController.GetHID().GetTwist(),
-        OperatorConstants::kRotDeadband);
+    auto input = frc::ApplyDeadband(-m_swerveController.GetHID().GetTwist(),
+                                    OperatorConstants::kRotDeadband);
     auto squaredInput = input * std::abs(input);
-    return OperatorConstants::kMaxTeleopTurnSpeed
-      * squaredInput
-      * throttle();
+    return OperatorConstants::kMaxTeleopTurnSpeed * squaredInput * throttle();
   };
 
-  m_swerve.SetDefaultCommand(
-      m_swerve.CustomSwerveCommand(fwd, strafe, rot));
-  
+  m_swerve.SetDefaultCommand(m_swerve.CustomSwerveCommand(fwd, strafe, rot));
+
   m_swerveController.Button(12).OnTrue(m_swerve.ZeroHeadingCommand());
 
   m_swerveController.POVDown().WhileTrue(
-    m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));
-  
+      m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));
+
   try {
     auto traj = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("Square");
     if (traj.has_value())
-      m_swerveController.Button(11).WhileTrue(m_swerve.FollowPathCommand(traj.value()));
+      m_swerveController.Button(11).WhileTrue(
+          m_swerve.FollowPathCommand(traj.value()));
   } catch (const std::exception &e) {
     fmt::println("Failed to load trajectory Square because of:\n{}", e.what());
   } catch (...) {
     fmt::println("Failed to load trajectory but we don't know why\
     because the choreo devs doesn't understand C++ exception handling");
   }
-  
-  m_swerveController.Button(1).OnTrue
-    (m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L1));
 
-  m_swerveController.Button(2).OnTrue
-    (m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L2));
+  m_swerveController.Button(1).OnTrue(
+      m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L1));
 
-  m_swerveController.Button(3).OnTrue
-    (m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L3));
+  m_swerveController.Button(2).OnTrue(
+      m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L2));
 
-  m_swerveController.Button(4).OnTrue
-    (m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L4));
+  m_swerveController.Button(3).OnTrue(
+      m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L3));
+  m_swerveController.Button(4).OnTrue(
+      m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L4));
 
-  m_swerveController.Button(5).OnTrue
-    (m_superStructure.moveElevatorTo(Elevator::Level::INTAKE));
+  m_swerveController.Button(5).OnTrue(
+      m_superStructure.moveElevatorTo(Elevator::Level::INTAKE));
 
   m_swerveController.Button(6).WhileTrue(m_endeffector.WhileIn());
   m_swerveController.Button(7).WhileTrue(m_endeffector.WhileOut());
 
-  //Test commands
+  // Test commands
   m_swerveController.Button(8).WhileTrue(m_superStructure.m_elevator.MoveUp());
-  m_swerveController.Button(9).WhileTrue(m_superStructure.m_elevator.MoveDown());
-  
-  auto traj = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("BasicAuto1");
-  auto traj1 = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("BasicAuto2");
-  auto traj2 = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("BasicAuto3");
+  m_swerveController.Button(9).WhileTrue(
+      m_superStructure.m_elevator.MoveDown());
 
-  frc2::CommandPtr autonTest = frc2::cmd::Sequence(
-                                  frc2::cmd::Parallel(m_swerve.FollowPathCommand(traj.value()), 
-                                                      m_superStructure.moveElevatorTo(Elevator::Level::L4)).WithTimeout(3_s),
-                                  frc2::cmd::Parallel(m_swerve.FollowPathCommand(traj1.value()), 
-                                                      m_superStructure.moveElevatorTo(Elevator::Level::INTAKE)).WithTimeout(3_s),
-                                  frc2::cmd::Parallel(m_swerve.FollowPathCommand(traj2.value()),
-                                                      m_superStructure.moveElevatorTo(Elevator::Level::L4))).WithTimeout(3_s);
-                                
+  auto traj =
+      choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("BasicAuto1");
+  auto traj1 =
+      choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("BasicAuto2");
+  auto traj2 =
+      choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("BasicAuto3");
 
-  traj.has_value() ?
-    m_swerveController.Button(11).WhileTrue(std::move(autonTest)) :
-    m_swerveController.Button(11).WhileTrue(frc2::cmd::None());
+  m_swerveController.Button(5).OnTrue(
+      m_superStructure.moveElevatorTo(Elevator::Level::INTAKE));
+
+  auto traj =
+      choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("BasicAuto1");
+  auto traj1 =
+      choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("BasicAuto2");
+  auto traj2 =
+      choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("BasicAuto3");
+
+  frc2::CommandPtr autonTest =
+      frc2::cmd::Sequence(
+          frc2::cmd::Parallel(
+              m_swerve.FollowPathCommand(traj.value()),
+              m_superStructure.moveElevatorTo(Elevator::Level::L4))
+              .WithTimeout(3_s),
+          frc2::cmd::Parallel(
+              m_swerve.FollowPathCommand(traj1.value()),
+              m_superStructure.moveElevatorTo(Elevator::Level::INTAKE))
+              .WithTimeout(3_s),
+          frc2::cmd::Parallel(
+              m_swerve.FollowPathCommand(traj2.value()),
+              m_superStructure.moveElevatorTo(Elevator::Level::L4)))
+          .WithTimeout(3_s);
+
+  traj.has_value()
+      ? m_swerveController.Button(11).WhileTrue(std::move(autonTest))
+      : m_swerveController.Button(11).WhileTrue(frc2::cmd::None());
 }
 
 void RobotContainer::ConfigureDashboard() {
@@ -224,22 +232,14 @@ void RobotContainer::ConfigureContinuous() {
 
   // FMS info to ROS
   frc2::CommandScheduler::GetInstance().Schedule(
-    frc2::cmd::Run([this] {
-      m_ros.CheckFMS();
-    })
-    .IgnoringDisable(true)
-  );
+      frc2::cmd::Run([this] { m_ros.CheckFMS(); }).IgnoringDisable(true));
 
   // Odom to ROS
   frc2::CommandScheduler::GetInstance().Schedule(
-    frc2::cmd::Run([this] {
-      m_ros.PubOdom(
-        m_swerve.GetOdomPose(),
-        m_swerve.GetChassisSpeed(),
-        m_swerve.GetOdomTimestamp());
-    })
-    .IgnoringDisable(true)
-  );
+      frc2::cmd::Run([this] {
+        m_ros.PubOdom(m_swerve.GetOdomPose(), m_swerve.GetChassisSpeed(),
+                      m_swerve.GetOdomTimestamp());
+      }).IgnoringDisable(true));
 
   /* NOTE: It's a little weird to have a command adjust the pose estimate
    * since 2 other commands might observe different pose estimates.
@@ -247,20 +247,16 @@ void RobotContainer::ConfigureContinuous() {
    * any races there.
    */
   // ROS to swerve
-  frc2::CommandScheduler::GetInstance().Schedule(
-    frc2::cmd::Run([this] {
-      m_swerve.SetMapToOdom(m_ros.GetMapToOdom());
-    })
-    .IgnoringDisable(true)
-  );
+  frc2::CommandScheduler::GetInstance().Schedule(frc2::cmd::Run([this] {
+                                                   m_swerve.SetMapToOdom(
+                                                       m_ros.GetMapToOdom());
+                                                 }).IgnoringDisable(true));
 
   if constexpr (frc::RobotBase::IsSimulation()) {
     frc2::CommandScheduler::GetInstance().Schedule(
-      frc2::cmd::Run([this] {
-        m_ros.PubSim(m_swerve.GetSimulatedGroundTruth());
-      })
-      .IgnoringDisable(true)
-    );
+        frc2::cmd::Run([this] {
+          m_ros.PubSim(m_swerve.GetSimulatedGroundTruth());
+        }).IgnoringDisable(true));
   }
 }
 
@@ -272,9 +268,9 @@ frc2::CommandPtr RobotContainer::GetDisabledCommand() {
   return frc2::cmd::None();
 }
 
-bool RobotContainer::IsRed()
-{
-  m_isRed = (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed);
+bool RobotContainer::IsRed() {
+  m_isRed =
+      (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed);
 
   return m_isRed;
 }

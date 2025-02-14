@@ -18,11 +18,10 @@
 
 #include <numbers>
 
+#include "PathFollower.h"
 #include "subsystems/Drivetrain.h"
 #include "subsystems/ROSBridge.h"
-#include "PathFollower.h"
 #include "subsystems/SuperStructure.h"
-
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -38,8 +37,6 @@ public:
   frc2::CommandPtr GetDisabledCommand();
   frc2::CommandPtr GetAutonomousCommand();
 
-
-
 public:
   // Replace with CommandPS4Controller or CommandJoystick if needed
 
@@ -49,10 +46,11 @@ public:
 
   Drivetrain m_swerve;
   ROSBridge m_ros;
-  
+
   /* Pass elevator and end effector by reference to super structure
-   * Allows us to directly control or query elevator and endeffector for diagnostics
-   * while allowing super structure to define high level controls in another file
+   * Allows us to directly control or query elevator and endeffector for
+   * diagnostics while allowing super structure to define high level controls in
+   * another file
    */
   Elevator m_elevator;
   EndEffector m_endeffector;

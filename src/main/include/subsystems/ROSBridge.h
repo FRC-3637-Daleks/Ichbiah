@@ -20,8 +20,7 @@ public:
   ROSBridge();
 
 public:
-  void PubOdom(const frc::Pose2d &pose,
-               const frc::ChassisSpeeds &vel,
+  void PubOdom(const frc::Pose2d &pose, const frc::ChassisSpeeds &twist,
                units::second_t timestamp);
   
   // publishes the ground truth pose in sim for external use

@@ -5,9 +5,9 @@
 #include "Robot.h"
 
 #include <frc/DriverStation.h>
-#include <frc/smartdashboard/SmartDashboard.h>
-#include <frc/shuffleboard/Shuffleboard.h>
 #include <frc/RobotController.h>
+#include <frc/shuffleboard/Shuffleboard.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 #include <frc2/command/CommandScheduler.h>
 
 void Robot::RobotInit() {}
@@ -24,7 +24,6 @@ void Robot::DriverStationConnected() {}
  */
 void Robot::RobotPeriodic() {
   frc2::CommandScheduler::GetInstance().Run();
-
 
   // Log the RIO states.
   frc::SmartDashboard::PutNumber(
@@ -95,7 +94,7 @@ void Robot::AutonomousInit() {}
 
 void Robot::AutonomousPeriodic() {}
 
-void Robot::TeleopInit() { }
+void Robot::TeleopInit() {}
 
 /**
  * This function is called periodically during operator control.
