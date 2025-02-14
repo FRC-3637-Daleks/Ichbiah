@@ -138,8 +138,7 @@ public:
 
   bool AtPose(
     const frc::Pose2d &desiredPose,
-    const frc::Pose2d &tolerance={0.06_m, 0.06_m, 2_deg},
-    const units::meters_per_second_t endVelo);
+    const frc::Pose2d &tolerance={0.06_m, 0.06_m, 2_deg});
 
   bool IsStopped();
 
