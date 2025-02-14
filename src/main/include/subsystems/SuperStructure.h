@@ -1,7 +1,7 @@
 #pragma once
 
-
 #include <frc2/command/SubsystemBase.h>
+
 #include "subsystems/Elevator.h"
 #include "subsystems/EndEffector.h"
 

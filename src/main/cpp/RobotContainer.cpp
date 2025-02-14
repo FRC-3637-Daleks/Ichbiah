@@ -190,15 +190,27 @@ void RobotContainer::ConfigureBindings() {
 
   m_swerveController.Button(6).WhileTrue(m_endeffector.WhileIn());
   m_swerveController.Button(7).WhileTrue(m_endeffector.WhileOut());
-  units::time::second_t events = traj.value().GetEvents("ScoreCoralA").at(0).timestamp;
-
-  double time_of_event = events.value();
-
-  fmt::println("timestamp of event! => {}", time_of_event);
 
   //Test commands
   m_swerveController.Button(8).WhileTrue(m_superStructure.m_elevator.MoveUp());
   m_swerveController.Button(9).WhileTrue(m_superStructure.m_elevator.MoveDown());
+  
+  auto traj = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("BasicAuto1");
+  auto traj1 = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("BasicAuto2");
+  auto traj2 = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("BasicAuto3");
+
+  frc2::CommandPtr autonTest = frc2::cmd::Sequence(
+                                  frc2::cmd::Parallel(m_swerve.FollowPathCommand(traj.value()), 
+                                                      m_superStructure.moveElevatorTo(Elevator::Level::L4)).WithTimeout(3_s),
+                                  frc2::cmd::Parallel(m_swerve.FollowPathCommand(traj1.value()), 
+                                                      m_superStructure.moveElevatorTo(Elevator::Level::INTAKE)).WithTimeout(3_s),
+                                  frc2::cmd::Parallel(m_swerve.FollowPathCommand(traj2.value()),
+                                                      m_superStructure.moveElevatorTo(Elevator::Level::L4))).WithTimeout(3_s);
+                                
+
+  traj.has_value() ?
+    m_swerveController.Button(11).WhileTrue(std::move(autonTest)) :
+    m_swerveController.Button(11).WhileTrue(frc2::cmd::None());
 }
 
 void RobotContainer::ConfigureDashboard() {
