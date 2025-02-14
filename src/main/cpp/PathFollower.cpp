@@ -21,6 +21,7 @@ void PathFollower::Initialize() {
   m_timer.Reset();
   m_timer.Start();
   m_field->GetObject("Trajectory")->SetPoses(m_trajectory.GetPoses());
+  std::cout << "Initializing " << m_trajectory.name << std::endl;
 }
 
 void PathFollower::Execute() {
@@ -47,10 +48,15 @@ void PathFollower::Execute() {
 void PathFollower::End(bool interrupted) {
   m_timer.Stop();
   m_field->GetObject("Trajectory")->SetPose(100_m, 100_m, 0_deg);
+
+  std::cout << "Finishing " << m_trajectory.name << std::endl;
 }
 
 bool PathFollower::IsFinished() {
   auto finalPose = m_trajectory.GetFinalPose();
+  if (!finalPose.has_value()) {
+    std::cout << "No Final Pose for " << m_trajectory.name << "\n";
+  }
   return finalPose.has_value() && m_driveSubsystem.AtPose(finalPose.value()) &&
          m_driveSubsystem.IsStopped();
 }

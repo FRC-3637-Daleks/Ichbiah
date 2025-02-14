@@ -201,22 +201,19 @@ void RobotContainer::ConfigureBindings() {
   auto traj2 =
       choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("BasicAuto3");
 
-  frc2::CommandPtr autonTest =
-      frc2::cmd::Sequence(
-          frc2::cmd::Parallel(
-              m_swerve.FollowPathCommand(traj.value()),
-              m_superStructure.moveElevatorTo(Elevator::Level::L4))
-              .WithTimeout(3_s),
-          frc2::cmd::Parallel(
-              m_swerve.FollowPathCommand(traj1.value()),
-              m_superStructure.moveElevatorTo(Elevator::Level::INTAKE))
-              .WithTimeout(3_s),
-          frc2::cmd::Parallel(
-              m_swerve.FollowPathCommand(traj2.value()),
-              m_superStructure.moveElevatorTo(Elevator::Level::L4)))
-          .WithTimeout(3_s);
+  frc2::CommandPtr autonTest = frc2::cmd::Sequence(
+      frc2::cmd::Parallel(m_swerve.FollowPathCommand(traj.value()),
+                          m_superStructure.moveElevatorTo(Elevator::Level::L4))
+          .WithTimeout(3_s),
+      frc2::cmd::Parallel(
+          m_swerve.FollowPathCommand(traj1.value()),
+          m_superStructure.moveElevatorTo(Elevator::Level::INTAKE))
+          .WithTimeout(3_s),
+      frc2::cmd::Parallel(m_swerve.FollowPathCommand(traj2.value()),
+                          m_superStructure.moveElevatorTo(Elevator::Level::L4))
+          .WithTimeout(3_s));
 
-  traj.has_value()
+  traj.has_value() && traj1.has_value() && traj2.has_value()
       ? m_swerveController.Button(11).WhileTrue(std::move(autonTest))
       : m_swerveController.Button(11).WhileTrue(frc2::cmd::None());
 }
