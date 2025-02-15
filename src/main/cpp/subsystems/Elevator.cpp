@@ -16,8 +16,9 @@ namespace ElevatorConstants {
     int kForwardLimitID = 0;
 
 // Physical Parameters
-    constexpr auto kSpoolRadius = 1.7_in;  // Estimated, confirm with mechanical
-    constexpr auto kSpoolCircum = kSpoolRadius * 2 * std::numbers::pi;
+    constexpr auto kSprocketTeeth = 22;
+    constexpr auto kDistancePerChainLink = 0.25_in;  // 25H "pitch" value
+    constexpr auto kSprocketCircum = kSprocketTeeth * kDistancePerChainLink;
     constexpr auto kGearReduction = 8.5;  // Tentative, could change
     constexpr auto kMinHeight = 1_ft;  // VERY estimated, confirm with CAD
     constexpr auto kMaxHeight = 7_ft;  // VERY estimated, confirm with CAD
@@ -87,6 +88,9 @@ Elevator::Elevator() : m_leadMotor{ElevatorConstants::kLeadmotorID},
                         .WithKD(ElevatorConstants::kD)
                         .WithKG(ElevatorConstants::kG))
                     .WithHardwareLimitSwitch(LimitConfig);
+    m_ElevatorConfig.WithMotorOutput(configs::MotorOutputConfigs{}
+        .WithNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake)
+        .WithInverted(signals::InvertedValue::Clockwise_Positive));
     m_leadMotor.GetConfigurator().Apply(m_ElevatorConfig);
 
     // Ensures sensor is homed on boot.
@@ -128,7 +132,7 @@ bool Elevator::isAtTop() {
 units::centimeter_t Elevator::GetEndEffectorHeight() {
     const auto rotorTurns = m_leadMotor.GetPosition().GetValue();
     const auto sprocketTurns = rotorTurns / ElevatorConstants::kGearReduction;
-    const auto firstStageHeight = sprocketTurns * ElevatorConstants::kSpoolCircum/1_tr;
+    const auto firstStageHeight = sprocketTurns * ElevatorConstants::kSprocketCircum/1_tr;
     const auto thirdStageHeight = firstStageHeight * 3;
     return ElevatorConstants::kMinHeight + thirdStageHeight;
 }
@@ -137,7 +141,7 @@ void Elevator::SetGoalHeight(const units::centimeter_t length) {
     auto request = ctre::phoenix6::controls::PositionVoltage{0_tr}.WithSlot(0);
     
     const auto firstStageHeight = (length - ElevatorConstants::kMinHeight)/3;
-    const auto sprocketTurns = firstStageHeight / ElevatorConstants::kSpoolCircum * 1_tr;
+    const auto sprocketTurns = firstStageHeight / ElevatorConstants::kSprocketCircum * 1_tr;
     const auto rotorTurns = sprocketTurns * ElevatorConstants::kGearReduction;
     
     m_leadMotor.SetControl(request
@@ -190,7 +194,7 @@ ElevatorSim::ElevatorSim(Elevator& elevator):
         frc::DCMotor::KrakenX60FOC(2),
         ElevatorConstants::kGearReduction,
         ElevatorConstants::kMassEffective,
-        ElevatorConstants::kSpoolRadius,
+        ElevatorConstants::kSprocketCircum/(2*std::numbers::pi),  // drum radius
         0_m,    // min height
         ElevatorConstants::kFirstStageLength,
         true,   // simulate gravity
@@ -223,7 +227,7 @@ void Elevator::SimulationPeriodic() {
     m_followerSim.SetSupplyVoltage(supply_voltage);
 
     // Set inputs into model
-    m_elevatorModel.SetInputVoltage(m_leadSim.GetMotorVoltage());
+    m_elevatorModel.SetInputVoltage(-m_leadSim.GetMotorVoltage());
     
     // Simulate the model over the next 20ms
     m_elevatorModel.Update(20_ms);
@@ -231,7 +235,7 @@ void Elevator::SimulationPeriodic() {
     // The motor turns kGearReduction times to turn the spool once
     // This raises the elevator one spool circumference up
     constexpr auto rotor_turns_per_elevator_height = 
-        ElevatorConstants::kGearReduction * 1_tr / ElevatorConstants::kSpoolCircum;
+        ElevatorConstants::kGearReduction * 1_tr / ElevatorConstants::kSprocketCircum;
     
     // Feed simulated outputs of model back into user program
     const auto position = m_elevatorModel.GetPosition();
@@ -242,8 +246,8 @@ void Elevator::SimulationPeriodic() {
     const units::turns_per_second_t rotor_velocity =
         velocity * rotor_turns_per_elevator_height;
     
-    m_leadSim.SetRawRotorPosition(rotor_turns);
-    m_leadSim.SetRotorVelocity(rotor_velocity);
+    m_leadSim.SetRawRotorPosition(-rotor_turns);
+    m_leadSim.SetRotorVelocity(-rotor_velocity);
     
     m_sim_state->m_bottomLimitSwitch.SetValue(m_elevatorModel.HasHitLowerLimit());
 #ifdef ELEVATOR_TOP_LIMIT_SWITCH
@@ -251,8 +255,8 @@ void Elevator::SimulationPeriodic() {
 #endif
 
     // mechanically linked, though we should never read this value
-    m_followerSim.SetRawRotorPosition(rotor_turns);
-    m_followerSim.SetRotorVelocity(rotor_velocity);
+    m_followerSim.SetRawRotorPosition(-rotor_turns);
+    m_followerSim.SetRotorVelocity(-rotor_velocity);
 
     //Publishing data to NetworkTables
     frc::SmartDashboard::PutNumber("Elevator/Sim Position (m)", units::meter_t{position}.value());
