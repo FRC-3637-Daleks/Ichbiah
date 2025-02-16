@@ -13,7 +13,7 @@
 #include <ctre/phoenix6/TalonFX.hpp>
 
 // Only place constants here needed by other components
-namespace PracticeModuleConstants {
+namespace ModuleConstants {
 
 // Values measured with the drivetrain suspended.
 constexpr auto kPhysicalMaxSpeed = 15.7_fps;
