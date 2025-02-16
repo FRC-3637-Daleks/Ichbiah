@@ -154,17 +154,22 @@ void RobotContainer::ConfigureBindings() {
       * throttle();
   };
 
+  std::map<std::string, frc2::CommandPtr> commands;
+  commands.emplace("cmd",
+   frc2::InstantCommand([this] {
+      std::cout << "running pretend command! \n";}));
+
   m_swerve.SetDefaultCommand(
       m_swerve.CustomSwerveCommand(fwd, strafe, rot));
-  
+
   m_swerveController.Button(12).OnTrue(m_swerve.ZeroHeadingCommand());
 
   m_swerveController.POVDown().WhileTrue(
-    m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));
-  
+    m_swerve.DriveToPoseCommand(AutoConstants::desiredPose, {0_mps, 0_mps, 0_rpm}, {0.06_m, 0.06_m, 3_deg}, {2_mps}, {6_mps_sq}));
+
   auto traj = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("Square");
   traj.has_value() ?
-    m_swerveController.Button(11).WhileTrue(m_swerve.FollowPathCommand(traj.value())) :
+    m_swerveController.Button(11).WhileTrue(m_swerve.FollowPathCommand(traj.value(), commands)) :
     m_swerveController.Button(11).WhileTrue(frc2::cmd::None());
 }
 

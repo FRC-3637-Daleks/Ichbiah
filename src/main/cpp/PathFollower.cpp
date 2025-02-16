@@ -10,14 +10,26 @@
 #include <iostream>
 #include <numbers>
 #include <random>
+#include <map>
 
 PathFollower::PathFollower(
-  trajectory_t trajectory, Drivetrain &subsystem) 
+  trajectory_t trajectory, Drivetrain &subsystem,
+  std::map<std::string, frc2::CommandPtr> commands,
+  units::meters_per_second_t maxVelocity,
+  units::meters_per_second_squared_t maxAcceleration) 
   : m_trajectory{std::move(trajectory)}, 
     m_driveSubsystem{subsystem},
-    m_field{&m_driveSubsystem.GetField()}
+    m_field{&m_driveSubsystem.GetField()},
+    m_commands{commands},
+    maxVelo{maxVelocity}, maxAccel{maxAcceleration}
 {
     AddRequirements(&m_driveSubsystem);
+    auto events = m_trajectory.events;
+    for(auto &e : events) {
+      m_eventPoses.emplace(
+        e.event, m_trajectory.SampleAt(e.timestamp, false)
+        ->GetPose());
+    }
 };
 
 void PathFollower::Initialize() {
@@ -32,7 +44,12 @@ void PathFollower::Execute() {
     if (auto desiredState = m_trajectory.SampleAt(currentTime, /* mirror */ false)) {
       auto desiredPose = desiredState->GetPose();
       auto feedForward = desiredState->GetChassisSpeeds();
-      m_driveSubsystem.DriveToPose(desiredPose, feedForward, {0.0_m, 0.0_m, 0_deg});
+      for(auto &e : m_eventPoses) {
+        if(m_driveSubsystem.AtPose(e.second)){
+          m_commands.find(e.first)->second.get()->Schedule();
+        }
+      } //error yo
+      m_driveSubsystem.DriveToPose(desiredPose, feedForward, {0.0_m, 0.0_m, 0_deg}, maxVelo, maxAccel);
     }
 }
 
@@ -49,6 +66,9 @@ bool PathFollower::IsFinished() {
 }
 
 frc2::CommandPtr Drivetrain::FollowPathCommand(
-  PathFollower::trajectory_t trajectory) {
-  return PathFollower{std::move(trajectory), *this}.ToPtr();
+  choreo::Trajectory<choreo::SwerveSample> trajectory,
+  std::map<std::string, frc2::CommandPtr> &commands,
+  units::meters_per_second_t maxVelo,
+  units::meters_per_second_squared_t maxAccel) {
+  return PathFollower{std::move(trajectory), *this, commands, maxVelo, maxAccel}.ToPtr();
 }

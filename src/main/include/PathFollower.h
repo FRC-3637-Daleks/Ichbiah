@@ -31,7 +31,10 @@ public:
    * @param desiredPoseSupplier A function that returns the desired pose
    * @param subsystem The subsystem used by this command.
    */
-    PathFollower(trajectory_t trajectory, Drivetrain &subsystem);
+    PathFollower(trajectory_t trajectory, Drivetrain &subsystem,
+                std::map<std::string, frc2::CommandPtr> commands,
+                units::meters_per_second_t maxVelocity = 15.7_mps,
+                units::meters_per_second_squared_t maxAccel = 6_mps_sq);
 
     void Initialize() override;
 
@@ -46,6 +49,10 @@ private:
     Drivetrain& m_driveSubsystem;
     frc::Timer m_timer;
     frc::Field2d* m_field;
+    std::map<std::string, frc2::CommandPtr> m_commands{};
+    std::map<std::string, frc::Pose2d> m_eventPoses{};
+    units::meters_per_second_t maxVelo;
+    units::meters_per_second_squared_t maxAccel;
 };
 
 
