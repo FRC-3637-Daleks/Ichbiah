@@ -111,7 +111,9 @@ public:
   void DriveToPose(
     const frc::Pose2d &desiredPose,
     frc::ChassisSpeeds feedForward = {0_mps, 0_mps, 0_rpm},
-    const frc::Pose2d &tolerance = {0.06_m, 0.06_m, 3_deg});
+    const frc::Pose2d &tolerance = {0.06_m, 0.06_m, 3_deg},
+    units::meters_per_second_t maxVelo = {15.7_mps},
+    units::meters_per_second_squared_t maxAccel = {6_mps_sq});
 
   // Returns the rotational velocity of the robot in degrees per second.
   units::degrees_per_second_t GetTurnRate();
@@ -166,9 +168,11 @@ public:
   frc2::CommandPtr DriveToPoseCommand(
     pose_supplier_t desiredPoseSupplier,
     frc::ChassisSpeeds feedForward = {0_mps, 0_mps, 0_rpm},
-    const frc::Pose2d &tolerance = {0.06_m, 0.06_m, 3_deg}){
+    const frc::Pose2d &tolerance = {0.06_m, 0.06_m, 3_deg},
+    units::meters_per_second_t maxVelo = {15.7_mps},
+    units::meters_per_second_squared_t maxAccel = {6_mps_sq}){
   return this->RunEnd(
-    [=, this] {DriveToPose(desiredPoseSupplier(), feedForward, tolerance);
+    [=, this] {DriveToPose(desiredPoseSupplier(), feedForward, tolerance, maxVelo, maxAccel);
     },
     [this] {
       m_field.GetObject("Desired Pose")->SetPose({80_m, 80_m, 0_deg});
@@ -184,9 +188,11 @@ public:
   frc2::CommandPtr DriveToPoseCommand(
     const frc::Pose2d &desiredPose,
     frc::ChassisSpeeds feedForward = {0_mps, 0_mps, 0_rpm},
-    const frc::Pose2d &tolerance = {0.06_m, 0.06_m, 3_deg}) {
+    const frc::Pose2d &tolerance = {0.06_m, 0.06_m, 3_deg},
+    units::meters_per_second_t maxVelo = {15.7_mps},
+    units::meters_per_second_squared_t maxAccel = {6_mps_sq}) {
     return DriveToPoseCommand(
-      [desiredPose] {return desiredPose;}, feedForward, tolerance);
+      [desiredPose] {return desiredPose;}, feedForward, tolerance, maxVelo, maxAccel);
   }
   
   // Drives the robot toward 'desiredPose()'
@@ -196,7 +202,7 @@ public:
   frc2::CommandPtr DriveToPoseIndefinitelyCommand(
     pose_supplier_t desiredPoseSupplier,
     units::second_t timeout = 3.0_s) {
-    return DriveToPoseCommand(std::move(desiredPoseSupplier), {0_mps, 0_mps, 0_rpm}, {}).WithTimeout(timeout);
+    return DriveToPoseCommand(std::move(desiredPoseSupplier), {0_mps, 0_mps, 0_rpm}, {}, {15.7_mps}, {6_mps_sq}).WithTimeout(timeout);
   }
 
   frc2::CommandPtr DriveToPoseIndefinitelyCommand(
@@ -210,18 +216,26 @@ public:
     pose_supplier_t desiredPoseSupplier,
     const std::vector<frc::Translation2d> &waypoints,
     units::meters_per_second_t endVelo = 0.0_mps,
-    const frc::Pose2d &tolerance = {0.06_m, 0.06_m, 3_deg});
+    const frc::Pose2d &tolerance = {0.06_m, 0.06_m, 3_deg},
+    units::meters_per_second_t maxVelo = 15.7_mps,
+    units::meters_per_second_squared_t maxAccel = 6_mps_sq);
 
   frc2::CommandPtr FollowPathCommand(
     const frc::Pose2d &desiredPose,
     const std::vector<frc::Translation2d> &waypoints,
+    
     units::meters_per_second_t endVelo = 0.0_mps,
-    const frc::Pose2d &tolerance = {0.06_m, 0.06_m, 3_deg})
+    const frc::Pose2d &tolerance = {0.06_m, 0.06_m, 3_deg},
+    units::meters_per_second_t maxVelo = 15.7_mps,
+    units::meters_per_second_squared_t maxAccel = 6_mps_sq)
     {return FollowPathCommand([desiredPose] {return desiredPose;},
-     waypoints, endVelo, tolerance);}
+     waypoints, endVelo, tolerance, maxVelo, maxAccel);}
 
   frc2::CommandPtr FollowPathCommand(
-    choreo::Trajectory<choreo::SwerveSample> trajectory);
+    choreo::Trajectory<choreo::SwerveSample> trajectory,
+    std::map<std::string, frc2::CommandPtr> &commands,
+    units::meters_per_second_t maxVelo = 15.7_mps,
+    units::meters_per_second_squared_t maxAccel = 6_mps_sq);
   
   /* Constructs a swerve control command from 3 independent controls
    * Each 'cmd' can be one of the following:

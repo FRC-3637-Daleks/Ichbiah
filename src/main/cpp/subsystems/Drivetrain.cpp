@@ -268,7 +268,9 @@ void Drivetrain::CoastMode(bool coast) {
 void Drivetrain::DriveToPose(
     const frc::Pose2d &desiredPose,
     frc::ChassisSpeeds feedForward,
-    const frc::Pose2d &tolerance) {
+    const frc::Pose2d &tolerance,
+    units::meters_per_second_t maxVelo,
+    units::meters_per_second_squared_t maxAccel) {
       auto currentPose = GetPose();
       auto endVelo = units::math::sqrt(
         units::math::pow<2>(feedForward.vx) + 
@@ -279,6 +281,9 @@ void Drivetrain::DriveToPose(
       m_field.GetObject("Desired Pose")->SetPose(desiredPose);
        auto speeds = m_holonomicController.Calculate(
         currentPose, newPose, endVelo, desiredPose.Rotation());
+
+      speeds.vx = std::clamp(speeds.vx, -maxVelo, maxVelo);
+      speeds.vy = std::clamp(speeds.vy, -maxVelo, maxVelo);
       frc::ChassisSpeeds finalSpeeds = 
         {speeds.vx, speeds.vy, (speeds.omega + feedForward.omega)};
       RobotRelativeDrive(finalSpeeds);
