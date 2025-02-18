@@ -180,6 +180,10 @@ void RobotContainer::ConfigureBindings() {
 
   m_swerveController.Button(6).WhileTrue(m_endeffector.WhileIn());
   m_swerveController.Button(7).WhileTrue(m_endeffector.WhileOut());
+
+  //Test commands
+  m_swerveController.Button(8).WhileTrue(m_superStructure.m_elevator.MoveUp());
+  m_swerveController.Button(9).WhileTrue(m_superStructure.m_elevator.MoveDown());
 }
 
 void RobotContainer::ConfigureDashboard() {
