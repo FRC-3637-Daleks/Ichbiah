@@ -159,10 +159,12 @@ void Elevator::SetGoalHeight(Elevator::Level level) {
 
 void Elevator::MotorMoveUp() {
     m_leadMotor.SetVoltage(12_V);
+    frc::SmartDashboard::PutNumber("Elevator Voltage", m_leadMotor.GetSupplyVoltage().GetValue().value());
 };
 
 void Elevator::MotorMoveDown() {
     m_leadMotor.SetVoltage(-12_V);
+    frc::SmartDashboard::PutNumber("Elevator Voltage", m_leadMotor.GetSupplyVoltage().GetValue().value());
 };
 
 void Elevator::MotorStop() {
@@ -213,9 +215,11 @@ ElevatorSim::ElevatorSim(Elevator& elevator):
     const auto start_height = start_height_dist(rng)*ElevatorConstants::kFirstStageLength;
     m_elevatorModel.SetState(start_height, 0_mps);
 }
-
+#include <iostream>
 void Elevator::SimulationPeriodic() {
     if (!m_sim_state) return;
+
+    std::cout << "Elevator voltage: " << (m_leadMotor.GetSupplyVoltage()) << std::endl;
 
     // reduce code clutter
     auto &m_elevatorModel = m_sim_state->m_elevatorModel;
