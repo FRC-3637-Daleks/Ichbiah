@@ -115,7 +115,24 @@ void Robot::SimulationInit() {}
 /**
  * This function is called periodically whilst in simulation.
  */
-void Robot::SimulationPeriodic() {}
+void Robot::SimulationPeriodic() {
+  constexpr auto field_width = 26_ft + 5_in;
+  constexpr auto field_length = 57_ft + 6.875_in;
+  constexpr frc::Translation2d corners[] = {
+    {0_m, 0_m}, {0_m, field_width}, {field_length, 0_m}, {field_length, field_width}
+  };
+  constexpr frc::Translation2d robot_intake{0_in, 15_in};
+
+  const auto robot_pose = m_container.m_swerve.GetSimulatedGroundTruth();
+  const auto intake_pose = robot_pose.TransformBy({robot_intake, 0_deg});
+  
+  for (const auto corner : corners) {
+    if (intake_pose.Translation().Distance(corner) < 4_ft) {
+      // TODO: send it to intake first
+      m_container.m_endeffector.SimulateNewCoral();
+    }
+  }
+}
 
 #ifndef RUNNING_FRC_TESTS
 int main() { return frc::StartRobot<Robot>(); }

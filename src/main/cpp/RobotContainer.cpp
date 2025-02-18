@@ -177,6 +177,9 @@ void RobotContainer::ConfigureBindings() {
 
   m_swerveController.Button(5).OnTrue
     (m_superStructure.moveElevatorTo(Elevator::Level::INTAKE));
+
+  m_swerveController.Button(6).WhileTrue(m_endeffector.WhileIn());
+  m_swerveController.Button(7).WhileTrue(m_endeffector.WhileOut());
 }
 
 void RobotContainer::ConfigureDashboard() {
