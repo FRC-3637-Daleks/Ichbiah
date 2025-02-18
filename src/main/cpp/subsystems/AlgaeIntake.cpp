@@ -42,3 +42,5 @@ frc2::CommandPtr AlgaeIntake::IntakeIn() {
             return isBreakbeamBroken();
         });
 }
+
+AlgaeIntake::~AlgaeIntake() {}
