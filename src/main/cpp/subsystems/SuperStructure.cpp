@@ -30,8 +30,10 @@ class SuperStructureSim {
           "wrist", 1, 90_deg, 6, frc::Color8Bit{frc::Color::kGreen});
 };
 
-SuperStructure::SuperStructure() :
-                                    m_sim_state{new SuperStructureSim{*this}}
+SuperStructure::SuperStructure(Elevator& elevator, EndEffector& end_effector) :
+  m_elevator(elevator),
+  m_endeffector(end_effector),
+  m_sim_state{new SuperStructureSim{*this}}
 {
     frc::SmartDashboard::PutData("Mech2d", &m_sim_state->m_mech);
 };
