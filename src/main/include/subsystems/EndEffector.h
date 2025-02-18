@@ -8,6 +8,10 @@
 #include <ctre/phoenix6/TalonFX.hpp>
 #include <rev/SparkFlex.h>
 
+#include <memory>
+
+class EndEffectorSim;
+
 class EndEffector : public frc2::SubsystemBase{
     public:
 
@@ -32,4 +36,14 @@ class EndEffector : public frc2::SubsystemBase{
     frc::DigitalInput m_ForwardBreakBeam;
     frc::DigitalInput m_BackwardBreakBeam;
     rev::spark::SparkFlex m_EndEffectorMotor;
+
+// simulation stuff
+private:
+    friend class EndEffectorSim;
+    std::unique_ptr<EndEffectorSim> m_sim_state;
+
+public:
+    void SimulationPeriodic() override;
+    void SimulateNewCoral();
+    void SimulatePreloadCoral();
 };
