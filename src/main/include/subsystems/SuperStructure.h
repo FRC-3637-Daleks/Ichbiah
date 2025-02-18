@@ -11,11 +11,11 @@ class SuperStructureSim;
 
 class SuperStructure: public frc2::SubsystemBase {
 public:
-    SuperStructure();
+    SuperStructure(Elevator& elevator, EndEffector& end_effector);
     ~SuperStructure();  // Need for reasons
 
-    Elevator m_elevator;
-    EndEffector m_endeffector;
+    Elevator& m_elevator;
+    EndEffector& m_endeffector;
 
     frc2::CommandPtr moveElevatorTo(Elevator::Level level);
     bool baseAtPos;
