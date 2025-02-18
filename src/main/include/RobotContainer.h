@@ -52,7 +52,14 @@ public:
 
   Drivetrain m_swerve;
   ROSBridge m_ros;
-  SuperStructure m_superStructure;
+  
+  /* Pass elevator and end effector by reference to super structure
+   * Allows us to directly control or query elevator and endeffector for diagnostics
+   * while allowing super structure to define high level controls in another file
+   */
+  Elevator m_elevator;
+  EndEffector m_endeffector;
+  SuperStructure m_superStructure{m_elevator, m_endeffector};
 
   bool m_isRed;
 
