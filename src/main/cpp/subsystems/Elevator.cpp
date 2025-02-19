@@ -65,8 +65,8 @@ public:
     
 };
 
-Elevator::Elevator() : m_leadMotor{ElevatorConstants::kLeadmotorID},
-                       m_followerMotor{ElevatorConstants::kFollowermotorID},
+Elevator::Elevator() : m_leadMotor{ElevatorConstants::kLeadmotorID, "Drivebase"},
+                       m_followerMotor{ElevatorConstants::kFollowermotorID, "Drivebase"},
                        m_reverseLimit{ElevatorConstants::kReverseLimitID},
 #ifdef ELEVATOR_TOP_LIMIT_SWITCH
                        m_forwardLimit{ElevatorConstants::kForwardLimitID},
@@ -158,12 +158,12 @@ void Elevator::SetGoalHeight(Elevator::Level level) {
 }
 
 void Elevator::MotorMoveUp() {
-    m_leadMotor.SetVoltage(12_V);
+    m_leadMotor.SetVoltage(3_V);
     frc::SmartDashboard::PutNumber("Elevator Voltage", m_leadMotor.GetSupplyVoltage().GetValue().value());
 };
 
 void Elevator::MotorMoveDown() {
-    m_leadMotor.SetVoltage(-12_V);
+    m_leadMotor.SetVoltage(-3_V);
     frc::SmartDashboard::PutNumber("Elevator Voltage", m_leadMotor.GetSupplyVoltage().GetValue().value());
 };
 
@@ -262,6 +262,7 @@ void Elevator::SimulationPeriodic() {
 
     //Publishing data to NetworkTables
     frc::SmartDashboard::PutNumber("Elevator/Sim Position (m)", units::meter_t{position}.value());
+    frc::SmartDashboard::PutNumber("Elevator Voltage", 1);
 }
 
 Elevator::~Elevator() {}
