@@ -164,10 +164,16 @@ void RobotContainer::ConfigureBindings() {
   m_swerveController.POVDown().WhileTrue(
     m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));
   PathFollower::registerCommand("test", std::move(testCmd));
-  auto traj = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("Square");
-  traj.has_value() ?
-    m_swerveController.Button(11).WhileTrue(m_swerve.FollowPathCommand(traj.value())) :
-    m_swerveController.Button(11).WhileTrue(frc2::cmd::None());
+  try {
+    auto traj = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("Square");
+    if (traj.has_value())
+      m_swerveController.Button(11).WhileTrue(m_swerve.FollowPathCommand(traj.value()));
+  } catch (const std::exception &e) {
+    fmt::println("Failed to load trajectory Square because of:\n{}", e.what());
+  } catch (...) {
+    fmt::println("Failed to load trajectory but we don't know why\
+    because the choreo devs doesn't understand C++ exception handling");
+  }
   
   m_swerveController.Button(3).OnTrue
     (m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L3));
