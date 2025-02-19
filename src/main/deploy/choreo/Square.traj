@@ -1,6 +1,6 @@
 {
  "name":"Square",
- "version":0,
+ "version":1,
  "snapshot":{
   "waypoints":[
     {"x":1.0, "y":2.5, "heading":0.0, "intervals":43, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
