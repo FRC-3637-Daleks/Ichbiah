@@ -79,6 +79,7 @@ Elevator::Elevator()
   using namespace ctre::phoenix6;
   // Sets and defines the Elevator motor PID config
   configs::TalonFXConfiguration m_ElevatorConfig;
+  configs::TalonFXConfiguration m_leadMotorConfigs{};
 
   ctre::phoenix6::configs::HardwareLimitSwitchConfigs LimitConfig{};
   LimitConfig.ReverseLimitAutosetPositionEnable = true;
@@ -108,6 +109,33 @@ Elevator::Elevator()
   frc2::CommandScheduler::GetInstance().Schedule(
       HomeEncoder().IgnoringDisable(true).WithInterruptBehavior(
           frc2::Command::InterruptionBehavior::kCancelIncoming));
+
+    m_followerMotor.SetControl(controls::Follower{ElevatorConstants::kLeadmotorID, false});
+    m_ElevatorConfig.WithSlot0(configs::Slot0Configs{}
+                    .WithKP(ElevatorConstants::kP)
+                    .WithKI(ElevatorConstants::kI)
+                    .WithKD(ElevatorConstants::kD)
+                    .WithKG(ElevatorConstants::kG))
+                    .WithHardwareLimitSwitch(LimitConfig);
+
+    auto& motionMagicConfigs = m_leadMotorConfigs.MotionMagic;
+    motionMagicConfigs.MotionMagicCruiseVelocity = units::angular_velocity::turns_per_second_t{80.0/ElevatorConstants::kSprocketCircum.value()}; 
+    motionMagicConfigs.MotionMagicAcceleration = units::angular_acceleration::turns_per_second_squared_t{160.0/ElevatorConstants::kSprocketCircum.value()}; 
+    motionMagicConfigs.MotionMagicJerk = units::angular_jerk::turns_per_second_cubed_t{1600.0/ElevatorConstants::kSprocketCircum.value()};
+    m_leadMotor.GetConfigurator().Apply(m_leadMotorConfigs);
+    m_leadMotor.GetConfigurator().Apply(m_ElevatorConfig);    
+}
+
+void Elevator::MotorMoveUp() {
+    m_leadMotor.SetVoltage(12_V);
+}
+
+void Elevator::MotorMoveDown() {
+    m_leadMotor.SetVoltage(-12_V);
+}
+
+void Elevator::MotorStop() {
+    m_leadMotor.SetVoltage(0_V);
 }
 
 void Elevator::Periodic() {

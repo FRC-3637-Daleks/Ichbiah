@@ -191,16 +191,6 @@ void RobotContainer::ConfigureBindings() {
   auto traj2 =
       choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("BasicAuto3");
 
-  m_swerveController.Button(5).OnTrue(
-      m_superStructure.moveElevatorTo(Elevator::Level::INTAKE));
-
-  auto traj =
-      choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("BasicAuto1");
-  auto traj1 =
-      choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("BasicAuto2");
-  auto traj2 =
-      choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("BasicAuto3");
-
   frc2::CommandPtr autonTest = frc2::cmd::Sequence(
       frc2::cmd::Parallel(m_swerve.FollowPathCommand(traj.value()),
                           m_superStructure.moveElevatorTo(Elevator::Level::L4))
