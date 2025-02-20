@@ -57,10 +57,10 @@ public:
         return GetNamedCommands().contains(name);
     }
  
-    static frc2::CommandPtr getCommand(std::string name);
+    static frc2::Command* getCommand(std::string name);
  
     static std::unordered_map<std::string, std::shared_ptr<frc2::Command>>& GetNamedCommands()
-    {return m_namedCommands;}
+        {return m_namedCommands;}
 
 private:
     static std::unordered_map<std::string, std::shared_ptr<frc2::Command>> m_namedCommands;
