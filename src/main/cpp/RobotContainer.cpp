@@ -196,6 +196,11 @@ void RobotContainer::ConfigureBindings() {
   //Test commands
   m_swerveController.Button(8).WhileTrue(m_superStructure.m_elevator.MoveUp());
   m_swerveController.Button(9).WhileTrue(m_superStructure.m_elevator.MoveDown());
+  PathFollower::registerCommand("test", std::move(testCmd));
+  auto traj = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("Square");
+  traj.has_value() ?
+    m_swerveController.Button(11).WhileTrue(m_swerve.FollowPathCommand(traj.value())) :
+    m_swerveController.Button(11).WhileTrue(frc2::cmd::None());
 }
 
 void RobotContainer::ConfigureDashboard() {
