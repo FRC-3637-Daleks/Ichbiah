@@ -9,8 +9,8 @@
 
 namespace ElevatorConstants {
 // Device Addresses
-    int kLeadmotorID = 50;
-    int kFollowermotorID = 70;
+    int kLeadmotorID = 14;
+    int kFollowermotorID = 15;
     int kBottomLimitSwitchID = 60;
     int kReverseLimitID = 1;
     int kForwardLimitID = 0;
@@ -107,6 +107,12 @@ Elevator::Elevator() : m_leadMotor{ElevatorConstants::kLeadmotorID, "Drivebase"}
 }
 
 void Elevator::Periodic() {
+  frc::SmartDashboard::PutNumber(
+      "EndEffector Height (cm)",
+      ((units::inch_t)GetEndEffectorHeight()).value());
+
+  frc::SmartDashboard::PutNumber(
+      "Motor Voltage (V)", m_leadMotor.GetSupplyVoltage().GetValue().value());
 }
 
 bool Elevator::IsAtPos(units::length::centimeter_t pos) {
@@ -154,6 +160,10 @@ void Elevator::SetGoalHeight(const units::centimeter_t length) {
 }
 
 void Elevator::SetGoalHeight(Elevator::Level level) {
+    frc::SmartDashboard::PutNumber(
+      "GoalLevel",
+      ((units::inch_t)ElevatorConstants::goal_heights[level]).value());
+
     SetGoalHeight(ElevatorConstants::goal_heights[level]);
 }
 
