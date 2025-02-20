@@ -173,6 +173,12 @@ void RobotContainer::ConfigureBindings() {
     because the choreo devs doesn't understand C++ exception handling");
   }
   
+  m_swerveController.Button(1).OnTrue
+    (m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L1));
+
+  m_swerveController.Button(2).OnTrue
+    (m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L2));
+
   m_swerveController.Button(3).OnTrue
     (m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L3));
 
