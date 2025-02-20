@@ -114,6 +114,10 @@ void RobotContainer::ConfigureBindings() {
     fmt::print("Test Command\n");
   });
 
+  frc2::CommandPtr testCmd = frc2::cmd::Run([] {
+    fmt::print("Test Command\n");
+  });
+
   m_swerve.SetDefaultCommand(
       m_swerve.CustomSwerveCommand(
         [this] { return m_oi.fwd(); }, 
