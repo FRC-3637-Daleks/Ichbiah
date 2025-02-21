@@ -126,14 +126,6 @@ Elevator::Elevator()
     m_leadMotor.GetConfigurator().Apply(m_ElevatorConfig);    
 }
 
-void Elevator::MotorMoveUp() {
-    m_leadMotor.SetVoltage(12_V);
-}
-
-void Elevator::MotorMoveDown() {
-    m_leadMotor.SetVoltage(-12_V);
-}
-
 void Elevator::MotorStop() {
     m_leadMotor.SetVoltage(0_V);
 }
@@ -211,8 +203,6 @@ void Elevator::MotorMoveDown() {
   frc::SmartDashboard::PutNumber(
       "Elevator Voltage", m_leadMotor.GetSupplyVoltage().GetValue().value());
 };
-
-void Elevator::MotorStop() { m_leadMotor.SetVoltage(0_V); };
 
 frc2::CommandPtr Elevator::MoveUp() {
   return RunEnd([this] { MotorMoveUp(); }, [this] { MotorStop(); });

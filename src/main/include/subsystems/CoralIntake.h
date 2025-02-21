@@ -26,5 +26,5 @@ private:
   bool intakeState;
 
 private:
-  frc::DigitalInput m_breakbeam{CoralIntakeConstants::kBreakbeamID};
+  frc::DigitalInput m_breakbeam;
 };

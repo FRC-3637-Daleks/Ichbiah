@@ -9,7 +9,7 @@ class SuperStructureSim;
 
 class SuperStructure : public frc2::SubsystemBase {
 public:
-  SuperStructure();
+  SuperStructure(Elevator& elevator, EndEffector& end_effector);
   ~SuperStructure(); // Need for reasons
 
   Elevator m_elevator;

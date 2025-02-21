@@ -31,7 +31,7 @@
 #include <iostream>
 #include <numeric>
 
-namespace DriveConstants {
+namespace PracticeDriveConstants {
 constexpr auto kMaxSpeed = 15.7_fps;
 constexpr auto kMaxAccel = 6_mps_sq;
 constexpr auto kWeight = 70_lb;
@@ -149,7 +149,7 @@ void Drivetrain::RobotRelativeDrive(const frc::ChassisSpeeds &cmd_vel) {
   // output can sustain. Desaturation lowers the module speeds so that no motor
   // is driven above its maximum speed, while preserving the intended motion.
   kDriveKinematics.DesaturateWheelSpeeds(&states,
-                                         ModuleConstants::kPhysicalMaxSpeed);
+                                         PracticeModuleConstants::kPhysicalMaxSpeed);
 
   // Finally each of the desired states can be sent as commands to the modules.
   SetModuleStates(states);

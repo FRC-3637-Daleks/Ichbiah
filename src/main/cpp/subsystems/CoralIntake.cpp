@@ -1,16 +1,16 @@
 #include "subsystems/CoralIntake.h"
 
 namespace CoralIntakeConstants {
-int kBreakbeamID = 30;
-int kBreakbeam2ID = 40;
-int kBreakbeam3ID = 50;
-int kintakeStateID = 60;
+constexpr int kBreakbeamID = 3;
+constexpr int kBreakbeam2ID = 4;
+constexpr int kBreakbeam3ID = 5;
+constexpr int kintakeStateID = 6;
 } // namespace CoralIntakeConstants
 CoralIntake::CoralIntake()
     : m_Breakbeam{CoralIntakeConstants::kBreakbeamID},
       m_Breakbeam2{CoralIntakeConstants::kBreakbeam2ID},
       m_Breakbeam3{CoralIntakeConstants::kBreakbeam3ID},
-      m_intakeState{CoralIntakeConstants::kintakeStateID} {};
+      m_intakeState{CoralIntakeConstants::kintakeStateID}, intakeState{false} {}
 
 bool CoralIntake::getBreakbeamState() { return m_Breakbeam.Get(); }
 

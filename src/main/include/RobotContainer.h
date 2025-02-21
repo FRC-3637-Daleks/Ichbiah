@@ -52,9 +52,9 @@ public:
    * diagnostics while allowing super structure to define high level controls in
    * another file
    */
-  Elevator m_elevator;
-  EndEffector m_endeffector;
-  SuperStructure m_superStructure{m_elevator, m_endeffector};
+  Elevator m_elevator{};
+  EndEffector m_endeffector{};
+  SuperStructure m_superStructure{&m_elevator, &m_endeffector};
 
   bool m_isRed;
 
