@@ -1,6 +1,7 @@
 #include "subsystems/EndEffector.h"
 
 #include <rev/sim/SparkFlexSim.h>
+#include <rev/sim/SparkLimitSwitchSim.h>
 #include <frc/simulation/FlywheelSim.h>
 #include <frc/simulation/DIOSim.h>
 #include <frc/system/plant/LinearSystemId.h>
@@ -47,15 +48,18 @@ public:
     frc::DCMotor m_motor;
     rev::spark::SparkFlexSim m_motor_sim;
     frc::sim::FlywheelSim m_ee_model;
-    frc::sim::DIOSim m_fwd_bb_sim, m_back_bb_sim;
+    //frc::sim::DIOSim m_fwd_bb_sim, m_back_bb_sim;
+    rev::spark::SparkLimitSwitchSim m_fwd_bb_sim, m_back_bb_sim;
 
     units::inch_t m_coral_pos;
     bool m_has_coral;
 };
 
 EndEffector::EndEffector() :
-    m_ForwardBreakBeam{EndEffectorConstants::kForwardBreakBeamID},
-    m_BackwardBreakBeam(EndEffectorConstants::kBackwardBreakBeamID),
+    //m_ForwardBreakBeam{EndEffectorConstants::kForwardBreakBeamID},
+    //m_BackwardBreakBeam(EndEffectorConstants::kBackwardBreakBeamID),
+    m_ForwardBreakBeam{m_EndEffectorMotor.GetForwardLimitSwitch()},
+    m_BackwardBreakBeam{m_EndEffectorMotor.GetReverseLimitSwitch()},
     m_EndEffectorMotor{EndEffectorConstants::kMotorID,rev::spark::SparkFlex::MotorType::kBrushless},
     m_sim_state(new EndEffectorSim(*this)) {
     
@@ -224,8 +228,8 @@ EndEffectorSim::EndEffectorSim(EndEffector& ee):
             EndEffectorConstants::kEEMoment,
             EndEffectorConstants::kEEGearing),
         m_motor),
-    m_fwd_bb_sim(ee.m_ForwardBreakBeam),
-    m_back_bb_sim(ee.m_BackwardBreakBeam),
+    m_fwd_bb_sim(&ee.m_EndEffectorMotor, true),
+    m_back_bb_sim(&ee.m_EndEffectorMotor, false),
     m_coral_pos(0),
     m_has_coral(false) {
 }
@@ -259,13 +263,17 @@ void EndEffector::SimulationPeriodic() {
             m_sim_state->m_has_coral = false;
         }
 
-        m_sim_state->m_back_bb_sim.SetValue(
+        //m_sim_state->m_back_bb_sim.SetValue(
+        m_sim_state->m_back_bb_sim.SetPressed(
             (m_sim_state->m_coral_pos - kCoralLength < kBackBeamPos) == kBeamBroken);
-        m_sim_state->m_fwd_bb_sim.SetValue(
+        //m_sim_state->m_fwd_bb_sim.SetValue(
+        m_sim_state->m_fwd_bb_sim.SetPressed(
             (m_sim_state->m_coral_pos > kFrontBeamPos) == kBeamBroken);
     } else {
-        m_sim_state->m_back_bb_sim.SetValue(!kBeamBroken);
-        m_sim_state->m_fwd_bb_sim.SetValue(!kBeamBroken);
+        //m_sim_state->m_back_bb_sim.SetValue(!kBeamBroken);
+        m_sim_state->m_back_bb_sim.SetPressed(!kBeamBroken);
+        //m_sim_state->m_fwd_bb_sim.SetValue(!kBeamBroken);
+        m_sim_state->m_fwd_bb_sim.SetPressed(!kBeamBroken);
     }
 
     frc::SmartDashboard::PutNumber("EndEffector/sim coral inches", 

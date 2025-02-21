@@ -40,9 +40,11 @@ class EndEffector : public frc2::SubsystemBase{
     frc2::CommandPtr Intake();
     
     private:
-    frc::DigitalInput m_ForwardBreakBeam;
-    frc::DigitalInput m_BackwardBreakBeam;
+    //frc::DigitalInput m_ForwardBreakBeam;
+    //frc::DigitalInput m_BackwardBreakBeam;
     rev::spark::SparkFlex m_EndEffectorMotor;
+    rev::spark::SparkLimitSwitch& m_ForwardBreakBeam;
+    rev::spark::SparkLimitSwitch& m_BackwardBreakBeam;
 
 // visualization stuff
 private:
