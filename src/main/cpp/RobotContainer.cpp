@@ -126,21 +126,14 @@ void RobotContainer::ConfigureBindings() {
 
   m_oi.DriveToPoseTrigger.WhileTrue(
     m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));
-  
-  PathFollower::registerCommand("test", std::move(testCmd));
-  try {
-    auto traj = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("Square");
-    if (traj.has_value())
-      m_oi.FollowPathTrigger.WhileTrue(m_swerve.FollowPathCommand(traj.value()));
-  } catch (const std::exception &e) {
-    fmt::println("Failed to load trajectory Square because of:\n{}", e.what());
-  } catch (...) {
-    fmt::println("Failed to load trajectory but we don't know why\
-    because the choreo devs doesn't understand C++ exception handling");
-  }
-  
   m_oi.zeroHeadingTrigger.OnTrue(
     frc2::cmd::Parallel(m_swerve.ZeroHeadingCommand(), frc2::cmd::Print("Zeroed Heading")));
+  PathFollower::registerCommand("test", std::move(testCmd));
+  auto traj = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("Square");
+  traj.has_value() ?
+    m_oi.FollowPathTrigger.WhileTrue(m_swerve.FollowPathCommand(traj.value())) :
+    m_oi.FollowPathTrigger.WhileTrue(frc2::cmd::None());
+
 
   // Elevator
   m_oi.ElevatorIntakeTrigger.OnTrue(
@@ -161,16 +154,12 @@ void RobotContainer::ConfigureBindings() {
   
   //End Effector
   m_oi.EndEffectorInTrigger.WhileTrue(
-    m_superStructure.m_endeffector.WhileIn());
+    m_superStructure.m_endeffector.EffectorIn());
   m_oi.EndEffectorOutTrigger.WhileTrue(
-    m_superStructure.m_endeffector.WhileOut());
+    m_superStructure.m_endeffector.EffectorOut());
 
   //Climb
-  m_oi.ClimbDownTrigger.OnTrue(
-    m_climb.ExtendClimb());
-  
-  m_oi.ClimbUpTrigger.OnTrue(
-    m_climb.RetractClimb());
+
 
 }
 
