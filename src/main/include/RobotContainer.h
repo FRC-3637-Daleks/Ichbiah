@@ -24,6 +24,7 @@
 #include "PathFollower.h"
 #include "subsystems/SuperStructure.h"
 #include "subsystems/Climb.h"
+#include "subsystems/OperatorInterface.h"
 
 
 /**
@@ -45,12 +46,11 @@ public:
 public:
   // Replace with CommandPS4Controller or CommandJoystick if needed
 
-  frc2::CommandJoystick m_swerveController;
-
   // The robot's subsystems are defined here...
 
   Drivetrain m_swerve;
   ROSBridge m_ros;
+  OperatorInterface m_oi;
   
   /* Pass elevator and end effector by reference to super structure
    * Allows us to directly control or query elevator and endeffector for diagnostics

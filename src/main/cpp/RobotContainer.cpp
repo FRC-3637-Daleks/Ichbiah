@@ -65,10 +65,7 @@ constexpr auto mid_line = field_length / 2;
 } // namespace FieldConstants
 
 
-RobotContainer::RobotContainer()
-  : m_swerveController(OperatorConstants::kSwerveControllerPort)
-  {
-
+RobotContainer::RobotContainer() { 
   fmt::println("made it to robot container");
   // Initialize all of your commands and subsystems here
   frc::DataLogManager::Start();
@@ -113,64 +110,26 @@ RobotContainer::RobotContainer()
 }
 
 void RobotContainer::ConfigureBindings() {
-    auto throttle = [this]() -> double { 
-    double input = m_swerveController.GetHID().GetThrottle();
-    double ret = ((-input +1))/2;
-    return ret;
-  };
-  // Configure Swerve Bindings.
-  auto fwd = [this, throttle]() -> units::meters_per_second_t {
-    auto input = frc::ApplyDeadband(
-        m_swerveController.GetHID().GetY(),
-        OperatorConstants::kStrafeDeadband);
-    auto squaredInput = input * std::abs(input);
-    auto alliance_flip = IsRed()? -1:1;
-    return OperatorConstants::kMaxTeleopSpeed 
-      * squaredInput
-      * alliance_flip
-      * throttle();
-  };
 
-  auto strafe = [this, throttle]() -> units::meters_per_second_t {
-    auto input = frc::ApplyDeadband(
-        m_swerveController.GetHID().GetX(),
-        OperatorConstants::kStrafeDeadband);
-    auto squaredInput = input * std::abs(input);
-    auto alliance_flip = IsRed()? -1:1;
-    return OperatorConstants::kMaxTeleopSpeed
-      * squaredInput
-      * alliance_flip
-      * throttle();
-  };
-
-
-  auto rot = [this, throttle]() -> units::revolutions_per_minute_t {
-    auto input = frc::ApplyDeadband(
-        -m_swerveController.GetHID().GetTwist(),
-        OperatorConstants::kRotDeadband);
-    auto squaredInput = input * std::abs(input);
-    return OperatorConstants::kMaxTeleopTurnSpeed
-      * squaredInput
-      * throttle();
-  };
 
   frc2::CommandPtr testCmd = frc2::cmd::Run([] {
     fmt::print("Test Command\n");
   });
 
   m_swerve.SetDefaultCommand(
-      m_swerve.CustomSwerveCommand(fwd, strafe, rot));
-  
-  m_swerveController.Button(12).OnTrue(m_swerve.ZeroHeadingCommand());
+      m_swerve.CustomSwerveCommand(
+        [this] { return m_oi.fwd(); }, 
+        [this] { return m_oi.strafe(); }, 
+        [this] { return m_oi.rot(); }));
 
-  m_swerveController.POVDown().WhileTrue(
+  m_oi.DriveToPoseTrigger.WhileTrue(
     m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));
   
   PathFollower::registerCommand("test", std::move(testCmd));
   try {
     auto traj = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("Square");
     if (traj.has_value())
-      m_swerveController.Button(11).WhileTrue(m_swerve.FollowPathCommand(traj.value()));
+      m_oi.FollowPathTrigger.WhileTrue(m_swerve.FollowPathCommand(traj.value()));
   } catch (const std::exception &e) {
     fmt::println("Failed to load trajectory Square because of:\n{}", e.what());
   } catch (...) {
@@ -178,31 +137,6 @@ void RobotContainer::ConfigureBindings() {
     because the choreo devs doesn't understand C++ exception handling");
   }
   
-  m_swerveController.Button(1).OnTrue
-    (m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L1));
-
-  m_swerveController.Button(2).OnTrue
-    (m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L2));
-
-  m_swerveController.Button(3).OnTrue
-    (m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L3));
-
-  m_swerveController.Button(4).OnTrue
-    (m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L4));
-
-  m_swerveController.Button(5).OnTrue
-    (m_superStructure.moveElevatorTo(Elevator::Level::INTAKE));
-
-  m_swerveController.Button(6).WhileTrue(m_endeffector.WhileIn());
-  m_swerveController.Button(7).WhileTrue(m_endeffector.WhileOut());
-
-  //Test commands
-  m_swerveController.Button(8).WhileTrue(m_superStructure.m_elevator.MoveUp());
-  m_swerveController.Button(9).WhileTrue(m_superStructure.m_elevator.MoveDown());
-
-  m_swerveController.Button(10).WhileTrue(m_superStructure.m_endeffector.EffectorIn());
-  m_swerveController.Button(13).WhileTrue(m_superStructure.m_endeffector.EffectorContinue());
-  m_swerveController.Button(14).WhileTrue(m_superStructure.m_endeffector.EffectorOut());
 }
 
 void RobotContainer::ConfigureDashboard() {
