@@ -40,9 +40,11 @@ namespace ElevatorConstants {
 
 // Feedback/Feedforward Gains
     double kP = 1.0;
-    double kI = 0.0007;
-    double kD = 0.06;
-    double kG = 0.04053;
+    double kI = 0.0;
+    double kD = 0.0;
+    double kG = 0.351;
+    double kS = 0.04;
+    double kV = 0.125;
 }
 
 class ElevatorSim {
@@ -86,12 +88,20 @@ Elevator::Elevator() : m_leadMotor{ElevatorConstants::kLeadmotorID, "Drivebase"}
                         .WithKP(ElevatorConstants::kP)
                         .WithKI(ElevatorConstants::kI)
                         .WithKD(ElevatorConstants::kD)
-                        .WithKG(ElevatorConstants::kG))
+                        .WithKG(ElevatorConstants::kG)
+                        .WithKS(ElevatorConstants::kS)
+                        .WithKV(ElevatorConstants::kV))
                     .WithHardwareLimitSwitch(LimitConfig);
     m_ElevatorConfig.WithMotorOutput(configs::MotorOutputConfigs{}
         .WithNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake)
         .WithInverted(signals::InvertedValue::Clockwise_Positive));
-    m_leadMotor.GetConfigurator().Apply(m_ElevatorConfig);
+        
+// set Motion Magic settings
+auto& motionMagicConfigs = m_ElevatorConfig.MotionMagic;
+motionMagicConfigs.MotionMagicCruiseVelocity = units::angular_velocity::turns_per_second_t{65};
+motionMagicConfigs.MotionMagicAcceleration = units::angular_acceleration::turns_per_second_squared_t{200}; 
+
+m_leadMotor.GetConfigurator().Apply(m_ElevatorConfig);
 
     // Ensures sensor is homed on boot.
     // The motor won't run while disabled, but if the limit switch is hit it should finish
