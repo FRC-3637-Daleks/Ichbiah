@@ -25,6 +25,7 @@
 #include "subsystems/SuperStructure.h"
 #include "subsystems/Climb.h"
 #include "subsystems/OperatorInterface.h"
+#include "subsystems/Climb.h"
 
 
 /**
