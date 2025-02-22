@@ -137,6 +137,35 @@ void RobotContainer::ConfigureBindings() {
     because the choreo devs doesn't understand C++ exception handling");
   }
   
+  m_oi.zeroHeadingTrigger.OnTrue(
+    frc2::cmd::Parallel(m_swerve.ZeroHeadingCommand(), frc2::cmd::Print("Zeroed Heading")));
+
+  // Elevator
+  m_oi.ElevatorIntakeTrigger.OnTrue(
+    m_superStructure.moveElevatorTo(m_superStructure.m_elevator.INTAKE));
+  m_oi.ElevatorL1Trigger.OnTrue(
+    m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L1));
+  m_oi.ElevatorL2Trigger.OnTrue(
+    m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L2));
+  m_oi.ElevatorL3Trigger.OnTrue(
+    m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L3));
+  m_oi.ElevatorL4Trigger.OnTrue(
+    m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L4));
+  //Test Commands for Elevator
+  m_oi.ElevatorUpTrigger.WhileTrue(
+    m_superStructure.m_elevator.MoveUp());
+  m_oi.ElevatorDownTrigger.WhileTrue(
+    m_superStructure.m_elevator.MoveDown());
+  
+  //End Effector
+  m_oi.EndEffectorInTrigger.WhileTrue(
+    m_superStructure.m_endeffector.EffectorIn());
+  m_oi.EndEffectorOutTrigger.WhileTrue(
+    m_superStructure.m_endeffector.EffectorOut());
+
+  //Climb
+
+
 }
 
 void RobotContainer::ConfigureDashboard() {
