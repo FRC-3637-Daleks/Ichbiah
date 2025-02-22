@@ -34,32 +34,20 @@ public:
     units::meters_per_second_t strafe();
     units::meters_per_second_t fwd();
     units::revolutions_per_minute_t rot();
-    frc2::Trigger zeroHeadingTrigger{
-        [this]() ->bool { return m_swerveController.Button(12).Get(); }};
-    frc2::Trigger ElevatorL1Trigger{
-        [this]() ->bool { return m_swerveController.Button(11).Get(); }};
-    frc2::Trigger ElevatorL2Trigger{
-        [this]() ->bool { return m_swerveController.Button(9).Get(); }};
-    frc2::Trigger ElevatorL3Trigger{
-        [this]() ->bool { return m_swerveController.Button(7).Get(); }};
-    frc2::Trigger ElevatorL4Trigger{
-        [this]() ->bool { return m_swerveController.Button(2).Get(); }};
-    frc2::Trigger EndEffectorInTrigger{
-        [this]() ->bool { return m_swerveController.Button(3).Get(); }};
-    frc2::Trigger EndEffectorOutTrigger{
-        [this]() ->bool { return m_swerveController.Button(5).Get(); }};
-    frc2::Trigger ElevatorUpTrigger{
-        [this]() ->bool { return m_swerveController.Button(4).Get(); }};
-    frc2::Trigger ElevatorDownTrigger{
-        [this]() ->bool { return m_swerveController.Button(6).Get(); }};
-    frc2::Trigger ClimbUpTrigger{
-        [this]() ->bool { return m_swerveController.Button(8).Get(); }};
-    frc2::Trigger ClimbDownTrigger{
-        [this]() ->bool { return m_swerveController.Button(10).Get(); }};
-    frc2::Trigger FollowPathTrigger{
-        [this]() ->bool { return m_swerveController.POVDown().Get(); }};
-    frc2::Trigger DriveToPoseTrigger{
-        [this]() ->bool { return m_swerveController.POVDown().Get(); }};
+    frc2::Trigger ElevatorL1Trigger = m_swerveController.Button(11);
+    frc2::Trigger ElevatorL2Trigger = m_swerveController.Button(9);
+    frc2::Trigger ElevatorL3Trigger = m_swerveController.Button(7);
+    frc2::Trigger ElevatorL4Trigger = m_swerveController.Button(2);
+    frc2::Trigger ElevatorUpTrigger = m_swerveController.Button(4);
+    frc2::Trigger ElevatorDownTrigger = m_swerveController.Button(6);
+    frc2::Trigger EndEffectorInTrigger= m_swerveController.Button(3);
+    frc2::Trigger EndEffectorOutTrigger = m_swerveController.Button(5);
+    frc2::Trigger ClimbUpTrigger = m_swerveController.Button(8);
+    frc2::Trigger ClimbDownTrigger = m_swerveController.Button(10);
+    frc2::Trigger ElevatorIntakeTrigger = m_swerveController.Button(1);
+    frc2::Trigger FollowPathTrigger = m_swerveController.POVDown();
+    frc2::Trigger DriveToPoseTrigger = m_swerveController.POVDown();
+    frc2::Trigger zeroHeadingTrigger = m_swerveController.Button(12);
 
 private:
     frc2::CommandJoystick m_swerveController;
