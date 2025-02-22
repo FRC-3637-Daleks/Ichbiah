@@ -23,6 +23,7 @@
 #include "PathFollower.h"
 #include "subsystems/SuperStructure.h"
 #include "subsystems/OperatorInterface.h"
+#include "subsystems/Climb.h"
 
 
 /**
@@ -57,6 +58,7 @@ public:
   Elevator m_elevator;
   EndEffector m_endeffector;
   SuperStructure m_superStructure{m_elevator, m_endeffector};
+  Climb m_climb;
 
   bool m_isRed;
 
