@@ -154,6 +154,10 @@ void RobotContainer::ConfigureBindings() {
       * throttle();
   };
 
+  frc2::CommandPtr testCmd = frc2::cmd::Run([] {
+    fmt::print("Test Command\n");
+  });
+
   m_swerve.SetDefaultCommand(
       m_swerve.CustomSwerveCommand(fwd, strafe, rot));
   
@@ -162,6 +166,7 @@ void RobotContainer::ConfigureBindings() {
   m_swerveController.POVDown().WhileTrue(
     m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));
   
+  PathFollower::registerCommand("test", std::move(testCmd));
   try {
     auto traj = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("Square");
     if (traj.has_value())
