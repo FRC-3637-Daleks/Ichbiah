@@ -38,6 +38,8 @@ namespace ElevatorConstants {
     constexpr units::length::centimeter_t kL4 = 180_cm;
     constexpr units::length::centimeter_t kTolerance = 2_cm;
 
+    constexpr units::length::centimeter_t softLimit = kL4 + 3_cm;
+
 // Feedback/Feedforward Gains
     double kP = 1.0;
     double kI = 0.0;
@@ -92,6 +94,9 @@ Elevator::Elevator() : m_leadMotor{ElevatorConstants::kLeadmotorID, "Drivebase"}
                         .WithKS(ElevatorConstants::kS)
                         .WithKV(ElevatorConstants::kV))
                     .WithHardwareLimitSwitch(LimitConfig);
+    m_ElevatorConfig.WithSoftwareLimitSwitch(configs::SoftwareLimitSwitchConfigs{}
+                        .WithForwardSoftLimitEnable(true)
+                        .WithForwardSoftLimitThreshold(ElevatorConstants::softLimit));
     m_ElevatorConfig.WithMotorOutput(configs::MotorOutputConfigs{}
         .WithNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake)
         .WithInverted(signals::InvertedValue::Clockwise_Positive));
@@ -146,12 +151,16 @@ bool Elevator::isAtTop() {
 };
 
 units::centimeter_t Elevator::GetEndEffectorHeight() {
-    const auto rotorTurns = m_leadMotor.GetPosition().GetValue();
+    return turnsToRobotHeight(m_leadMotor.GetPosition().GetValue());
+}
+
+units::centimeter_t turnsToRobotHeight(units::angle::turn_t rotorTurns) {
     const auto sprocketTurns = rotorTurns / ElevatorConstants::kGearReduction;
     const auto firstStageHeight = sprocketTurns * ElevatorConstants::kSprocketCircum/1_tr;
     const auto thirdStageHeight = firstStageHeight * 3;
     return ElevatorConstants::kMinHeight + thirdStageHeight;
 }
+
 
 void Elevator::SetGoalHeight(const units::centimeter_t length) {    
     auto request = ctre::phoenix6::controls::PositionVoltage{0_tr}.WithSlot(0);
@@ -188,7 +197,7 @@ void Elevator::MotorMoveDown() {
 };
 
 void Elevator::MotorStop() {
-    m_leadMotor.SetVoltage(0_V);
+    m_leadMotor.SetVoltage(units::voltage::volt_t(ElevatorConstants::kG));
 };
 
 frc2::CommandPtr Elevator::MoveUp(){
