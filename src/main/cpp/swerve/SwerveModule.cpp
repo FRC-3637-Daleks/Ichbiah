@@ -104,7 +104,7 @@ const auto MotorModel = [] (int N=1) {return frc::DCMotor::Falcon500FOC(N);};
 
 } // namespace PracticeModuleConstants
 
-using namespace PracticeModuleConstants;
+using namespace KrakenModuleConstants;
 
 class SwerveModuleSim {
 public:

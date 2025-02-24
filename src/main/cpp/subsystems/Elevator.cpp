@@ -20,8 +20,8 @@ namespace ElevatorConstants {
     constexpr auto kDistancePerChainLink = 0.25_in;  // 25H "pitch" value
     constexpr auto kSprocketCircum = kSprocketTeeth * kDistancePerChainLink;
     constexpr auto kGearReduction = 8.5;  // Tentative, could change
-    constexpr auto kMinHeight = 1_ft;  // VERY estimated, confirm with CAD
-    constexpr auto kMaxHeight = 7_ft;  // VERY estimated, confirm with CAD
+    constexpr auto kMinHeight = 9.5_in;  // VERY estimated, confirm with CAD
+    constexpr auto kMaxHeight = 89.5_in;  // VERY estimated, confirm with CAD
     constexpr auto kFirstStageLength = (kMaxHeight - kMinHeight)/3;    //extension length of stage 1
     constexpr auto kMassEffective = 33.86_kg;    // Approximated. Modeling 3-stage elevator as single stage
     //constexpr auto kMassE1 = 3_kg;    // Mass of the first section of the elevator extender
@@ -30,7 +30,6 @@ namespace ElevatorConstants {
 
 //Level Height
     
-    constexpr units::length::centimeter_t goal_heights[] = {0_cm, 70_cm, 81_cm, 121_cm, 183_cm};
 
     constexpr units::length::centimeter_t kL1 = 90_cm;
     constexpr units::length::centimeter_t kL2 = 127_cm;
@@ -38,13 +37,30 @@ namespace ElevatorConstants {
     constexpr units::length::centimeter_t kL4 = 180_cm;
     constexpr units::length::centimeter_t kTolerance = 2_cm;
 
+    constexpr units::length::centimeter_t goal_heights[] = {kMinHeight, kL1, kL2, kL3, kL4};
+
+
+    constexpr units::length::centimeter_t softLimit = 85_in;
+
 // Feedback/Feedforward Gains
     double kP = 1.0;
     double kI = 0.0;
     double kD = 0.0;
-    double kG = 0.351;
+    constexpr auto kG = 0.351_V;
     double kS = 0.04;
-    double kV = 0.125;
+    double kV = 0.11;
+}
+
+units::angle::turn_t lengthToRotorTurns(const units::centimeter_t height) {
+  return (height - ElevatorConstants::kMinHeight) / (3 * ElevatorConstants::kSprocketCircum) 
+        * ElevatorConstants::kGearReduction * 1_tr;
+}
+
+units::centimeter_t turnsToRobotHeight(units::angle::turn_t rotorTurns) {
+    const auto sprocketTurns = rotorTurns / ElevatorConstants::kGearReduction;
+    const auto firstStageHeight = sprocketTurns * ElevatorConstants::kSprocketCircum/1_tr;
+    const auto thirdStageHeight = firstStageHeight * 3;
+    return ElevatorConstants::kMinHeight + thirdStageHeight;
 }
 
 class ElevatorSim {
@@ -88,10 +104,13 @@ Elevator::Elevator() : m_leadMotor{ElevatorConstants::kLeadmotorID, "Drivebase"}
                         .WithKP(ElevatorConstants::kP)
                         .WithKI(ElevatorConstants::kI)
                         .WithKD(ElevatorConstants::kD)
-                        .WithKG(ElevatorConstants::kG)
+                        .WithKG(ElevatorConstants::kG.value())
                         .WithKS(ElevatorConstants::kS)
                         .WithKV(ElevatorConstants::kV))
                     .WithHardwareLimitSwitch(LimitConfig);
+    m_ElevatorConfig.WithSoftwareLimitSwitch(configs::SoftwareLimitSwitchConfigs{}
+                        .WithForwardSoftLimitEnable(true)
+                        .WithForwardSoftLimitThreshold(lengthToRotorTurns(ElevatorConstants::softLimit)));
     m_ElevatorConfig.WithMotorOutput(configs::MotorOutputConfigs{}
         .WithNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake)
         .WithInverted(signals::InvertedValue::Clockwise_Positive));
@@ -109,11 +128,11 @@ m_leadMotor.GetConfigurator().Apply(m_ElevatorConfig);
     // should stay scheduled so that the motor comes on and actually completes the 
     // homing procedure
     // Gravity should do this for us while disabled.
-    frc2::CommandScheduler::GetInstance().Schedule(
-        HomeEncoder()
-            .IgnoringDisable(true)
-            .WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming)
-    );
+    //frc2::CommandScheduler::GetInstance().Schedule(
+    //    HomeEncoder()
+    //        .IgnoringDisable(true)
+    //        .WithInterruptBehavior(frc2::Command::InterruptionBehavior::kCancelIncoming)
+    //);
 }
 
 void Elevator::Periodic() {
@@ -134,7 +153,7 @@ bool Elevator::IsAtLevel(Elevator::Level level) {
 };
 
 bool Elevator::isAtBottom() {
-    return m_reverseLimit.Get();
+    return !(m_reverseLimit.Get());
 };
 
 bool Elevator::isAtTop() {
@@ -145,23 +164,17 @@ bool Elevator::isAtTop() {
 #endif
 };
 
+
 units::centimeter_t Elevator::GetEndEffectorHeight() {
-    const auto rotorTurns = m_leadMotor.GetPosition().GetValue();
-    const auto sprocketTurns = rotorTurns / ElevatorConstants::kGearReduction;
-    const auto firstStageHeight = sprocketTurns * ElevatorConstants::kSprocketCircum/1_tr;
-    const auto thirdStageHeight = firstStageHeight * 3;
-    return ElevatorConstants::kMinHeight + thirdStageHeight;
+    return turnsToRobotHeight(m_leadMotor.GetPosition().GetValue());
 }
 
+
 void Elevator::SetGoalHeight(const units::centimeter_t length) {    
-    auto request = ctre::phoenix6::controls::PositionVoltage{0_tr}.WithSlot(0);
-    
-    const auto firstStageHeight = (length - ElevatorConstants::kMinHeight)/3;
-    const auto sprocketTurns = firstStageHeight / ElevatorConstants::kSprocketCircum * 1_tr;
-    const auto rotorTurns = sprocketTurns * ElevatorConstants::kGearReduction;
+    auto request = ctre::phoenix6::controls::MotionMagicVoltage{0_tr}.WithSlot(0);
     
     m_leadMotor.SetControl(request
-        .WithPosition(rotorTurns)
+        .WithPosition(lengthToRotorTurns(length))
         .WithLimitReverseMotion(isAtBottom())
 #ifdef ELEVATOR_TOP_LIMIT_SWITCH
         .WithLimitForwardMotion(isAtTop())
@@ -178,17 +191,33 @@ void Elevator::SetGoalHeight(Elevator::Level level) {
 }
 
 void Elevator::MotorMoveUp() {
-    m_leadMotor.SetVoltage(3_V);
-    frc::SmartDashboard::PutNumber("Elevator Voltage", m_leadMotor.GetSupplyVoltage().GetValue().value());
+    auto request = ctre::phoenix6::controls::VoltageOut{3_V};
+    m_leadMotor.SetControl(request
+        .WithLimitReverseMotion(isAtBottom())
+#ifdef ELEVATOR_TOP_LIMIT_SWITCH
+        .WithLimitForwardMotion(isAtTop())
+#endif
+    );
 };
 
 void Elevator::MotorMoveDown() {
-    m_leadMotor.SetVoltage(-3_V);
-    frc::SmartDashboard::PutNumber("Elevator Voltage", m_leadMotor.GetSupplyVoltage().GetValue().value());
+    auto request = ctre::phoenix6::controls::VoltageOut{-1.5_V};
+    m_leadMotor.SetControl(request
+        .WithLimitReverseMotion(isAtBottom())
+#ifdef ELEVATOR_TOP_LIMIT_SWITCH
+        .WithLimitForwardMotion(isAtTop())
+#endif
+    );
 };
 
 void Elevator::MotorStop() {
-    m_leadMotor.SetVoltage(0_V);
+    auto request = ctre::phoenix6::controls::VoltageOut{ElevatorConstants::kG};
+    m_leadMotor.SetControl(request
+        .WithLimitReverseMotion(isAtBottom())
+#ifdef ELEVATOR_TOP_LIMIT_SWITCH
+        .WithLimitForwardMotion(isAtTop())
+#endif
+    );
 };
 
 frc2::CommandPtr Elevator::MoveUp(){
@@ -201,9 +230,9 @@ frc2::CommandPtr Elevator::MoveDown(){
                    [this] {MotorStop(); });
 }
 
-frc2::CommandPtr Elevator::HomeEncoder() {
-    return frc2::cmd::None();
-}
+//frc2::CommandPtr Elevator::HomeEncoder() {
+//    return MoveDown().Until([this] {return isAtBottom();});
+//}
 
 frc2::CommandPtr Elevator::GoToLevel(Level goal) {
     return Run([this, goal] {SetGoalHeight(goal);})

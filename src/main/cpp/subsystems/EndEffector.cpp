@@ -18,7 +18,7 @@
  */
 
 namespace EndEffectorConstants {
-    constexpr int kMotorID = 5;
+    constexpr int kMotorID = 1;
     constexpr int kBreakBeamID = 6;
     constexpr int kForwardBreakBeamID = 7;
     constexpr int kBackwardBreakBeamID = 8;
