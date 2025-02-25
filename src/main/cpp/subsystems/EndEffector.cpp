@@ -174,10 +174,6 @@ bool EndEffector::isBackwardBreakBeamBroken(){
     return !(m_BackwardBreakBeam.Get());
 }
 
-bool EndEffector::hasCoral() {
-    return isForwardBreakBeamBroken() || isBackwardBreakBeamBroken();
-}
-
 /*
              ______  _ Motor
 __                  \x|_______
