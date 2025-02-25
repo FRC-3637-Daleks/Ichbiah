@@ -300,9 +300,9 @@ void Elevator::SimulationPeriodic() {
     m_leadSim.SetRawRotorPosition(-rotor_turns);
     m_leadSim.SetRotorVelocity(-rotor_velocity);
     
-    m_sim_state->m_bottomLimitSwitch.SetValue(m_elevatorModel.HasHitLowerLimit());
+    m_sim_state->m_bottomLimitSwitch.SetValue(!m_elevatorModel.HasHitLowerLimit());
 #ifdef ELEVATOR_TOP_LIMIT_SWITCH
-    m_sim_state->m_topLimitSwitch.SetValue(m_elevatorModel.HasHitUpperLimit());
+    m_sim_state->m_topLimitSwitch.SetValue(!m_elevatorModel.HasHitUpperLimit());
 #endif
 
     // mechanically linked, though we should never read this value
