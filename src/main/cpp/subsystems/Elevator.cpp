@@ -38,6 +38,7 @@ namespace ElevatorConstants {
 
     // Index 0 is intake height
     constexpr units::length::centimeter_t goal_heights[] = {kMinHeight, kL1, kL2, kL3, kL4};
+    constexpr std::string_view goal_names[] = {"INTAKE", "L1", "L2", "L3", "L4"};
 
     // Measured from top, few inches off
     constexpr units::length::centimeter_t softLimit = 85_in;
@@ -136,12 +137,33 @@ Elevator::Elevator() : m_leadMotor{ElevatorConstants::kLeadmotorID, "Drivebase"}
 }
 
 void Elevator::Periodic() {
-  frc::SmartDashboard::PutNumber(
-      "EndEffector Height (cm)",
-      ((units::inch_t)GetEndEffectorHeight()).value());
+    UpdateDashboard();
+}
 
-  frc::SmartDashboard::PutNumber(
-      "Motor Voltage (V)", m_leadMotor.GetSupplyVoltage().GetValue().value());
+void Elevator::UpdateDashboard() {
+    frc::SmartDashboard::PutNumber(
+        "Elevator/Height (in)",
+        units::inch_t{GetEndEffectorHeight()}.value());
+    
+    frc::SmartDashboard::PutNumber(
+        "Elevator/Height Setpoint (in)",
+        units::inch_t{turnsToRobotHeight(
+            units::turn_t{m_leadMotor.GetClosedLoopReference().GetValue()})}.value());
+
+    frc::SmartDashboard::PutNumber(
+        "Elevator/Output Voltage (V)",
+        m_leadMotor.GetMotorVoltage().GetValue().value());
+    
+    frc::SmartDashboard::PutNumber(
+        "Elevator/Stator Current (A)",
+        m_leadMotor.GetStatorCurrent().GetValue().value());
+    
+    frc::SmartDashboard::PutNumber(
+        "Elevator/Supply Current (A)",
+        m_leadMotor.GetSupplyCurrent().GetValue().value());
+    
+    frc::SmartDashboard::PutBoolean("Elevator/Bottom", isAtBottom());
+    frc::SmartDashboard::PutBoolean("Elevator/Top", isAtTop());
 }
 
 bool Elevator::IsAtPos(units::length::centimeter_t pos) {
@@ -160,19 +182,20 @@ bool Elevator::isAtTop() {
 #ifdef ELEVATOR_TOP_LIMIT_SWITCH
     return m_forwardLimit.Get();
 #else
-    return GetEndEffectorHeight() >= ElevatorConstants::kMaxHeight;
+    return GetEndEffectorHeight() >= ElevatorConstants::softLimit - ElevatorConstants::kTolerance;
 #endif
 };
-
 
 units::centimeter_t Elevator::GetEndEffectorHeight() {
     return turnsToRobotHeight(m_leadMotor.GetPosition().GetValue());
 }
 
+void Elevator::SetGoalHeight(const units::centimeter_t length) {
+    frc::SmartDashboard::PutNumber(
+        "Elevator/Goal Height (in)",
+        units::inch_t{length}.value());
 
-void Elevator::SetGoalHeight(const units::centimeter_t length) {    
     auto request = ctre::phoenix6::controls::MotionMagicVoltage{0_tr}.WithSlot(0);
-    
     m_leadMotor.SetControl(request
         .WithPosition(lengthToRotorTurns(length))
         .WithLimitReverseMotion(isAtBottom())
@@ -183,9 +206,8 @@ void Elevator::SetGoalHeight(const units::centimeter_t length) {
 }
 
 void Elevator::SetGoalHeight(Elevator::Level level) {
-    frc::SmartDashboard::PutNumber(
-      "GoalLevel",
-      ((units::inch_t)ElevatorConstants::goal_heights[level]).value());
+    frc::SmartDashboard::PutString(
+        "Elevator/Target Level", ElevatorConstants::goal_names[level]);
 
     SetGoalHeight(ElevatorConstants::goal_heights[level]);
 }
