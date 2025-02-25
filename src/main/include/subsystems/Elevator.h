@@ -2,6 +2,8 @@
 
 #include <frc/DigitalInput.h>
 #include <frc/Solenoid.h>
+#include <frc/smartdashboard/MechanismRoot2d.h>
+#include <frc/smartdashboard/MechanismLigament2d.h>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/Commands.h>
 #include <frc2/command/SubsystemBase.h>
@@ -24,6 +26,9 @@ public:
 
     void Periodic() override;
     void UpdateDashboard();
+    void InitVisualization(frc::MechanismObject2d *elevator_base);
+    frc::MechanismLigament2d* GetElevatorLigament() {return m_mech_current;}
+    void UpdateVisualization();
 
     enum Level {INTAKE = 0, L1, L2, L3, L4, N};
 
@@ -66,6 +71,9 @@ private:
     frc::DigitalInput m_forwardLimit;
 #endif
     frc::DigitalInput m_reverseLimit;
+
+private:  // visualization members
+    frc::MechanismLigament2d *m_mech_current, *m_mech_goal;
  
 private:  // simulation related members
     friend class ElevatorSim;

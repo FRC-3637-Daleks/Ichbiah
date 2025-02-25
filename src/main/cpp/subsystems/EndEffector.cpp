@@ -70,6 +70,52 @@ EndEffector::EndEffector() :
  */
 EndEffector::~EndEffector() {}
 
+void EndEffector::Periodic() {
+    UpdateDashboard();
+}
+
+void EndEffector::UpdateDashboard() {
+    UpdateVisualization();
+}
+
+void EndEffector::InitVisualization(frc::MechanismObject2d *elevator_end) {
+    if (!elevator_end) return;
+
+    m_mech_endeffector_base = elevator_end->Append<frc::MechanismLigament2d>(
+        "endeffector_base", 0.0, -90_deg - 35_deg, 4, frc::Color::kGreen);
+    
+    m_mech_endeffector_base->Append<frc::MechanismLigament2d>(
+        "endeffector_intake", 0.5, 180_deg, 4, frc::Color::kGreen);
+    m_mech_endeffector_base->Append<frc::MechanismLigament2d>(
+        "endeffector_outtake", 0.5, 0_deg, 4, frc::Color::kGreen);
+    
+    m_mech_backbeam = m_mech_endeffector_base->Append<frc::MechanismLigament2d>(
+        "backbeam", 0.0, 180_deg, 16, frc::Color::kWhiteSmoke);
+    m_mech_frontbeam = m_mech_endeffector_base->Append<frc::MechanismLigament2d>(
+        "frontbeam", 0.0, 0_deg, 16, frc::Color::kWhiteSmoke);
+    
+    m_mech_spinner = m_mech_endeffector_base->Append<frc::MechanismLigament2d>(
+        "spinner_strut", 0.3, 90_deg, 2, frc::Color::kGreen)->Append<frc::MechanismLigament2d>(
+            "spinner", 0.2, 10_deg, 3, frc::Color::kGreenYellow);
+}
+
+void EndEffector::UpdateVisualization() {
+    if (!m_mech_backbeam) return;
+
+    bool back = isBackwardBreakBeamBroken();
+    bool front = isForwardBreakBeamBroken();
+    double back_length = 0.0, front_length = 0.0;
+
+    if (back && front) back_length = front_length = 0.5;
+    else if (back) back_length = 1.0;
+    else if (front) front_length = 1.0;
+
+    m_mech_backbeam->SetLength(back_length);
+    m_mech_frontbeam->SetLength(front_length);
+    
+    m_mech_spinner->SetAngle(1_deg*(m_mech_spinner->GetAngle() + m_EndEffectorMotor.GetAppliedOutput() * 100));
+}
+
 void EndEffector::MotorForward() {
     m_EndEffectorMotor.SetVoltage(12_V);
 }

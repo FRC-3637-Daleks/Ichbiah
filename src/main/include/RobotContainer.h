@@ -9,6 +9,7 @@
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Pose3d.h>
 #include <frc/trajectory/TrapezoidProfile.h>
+#include <frc/smartdashboard/Mechanism2d.h>
 #include <frc2/command/Command.h>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/button/CommandJoystick.h>
@@ -61,6 +62,8 @@ public:
   Climb m_climb;
 
   bool m_isRed;
+
+  frc::Mechanism2d m_mech{4, 8};  // scaled to feet
 
 public:
   void ConfigureBindings();

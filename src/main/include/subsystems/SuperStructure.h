@@ -14,6 +14,11 @@ public:
     SuperStructure(Elevator& elevator, EndEffector& end_effector);
     ~SuperStructure();  // Need for reasons
 
+    void Periodic() override;
+    void UpdateDashboard();
+    void InitVisualization(frc::MechanismObject2d *elevator_root);
+    void UpdateVisualization();
+
     Elevator& m_elevator;
     EndEffector& m_endeffector;
 
