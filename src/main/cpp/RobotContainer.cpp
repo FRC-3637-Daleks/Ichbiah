@@ -207,6 +207,11 @@ void RobotContainer::ConfigureBindings() {
 
 void RobotContainer::ConfigureDashboard() {
   frc::SmartDashboard::PutData("Drivebase", &m_swerve);
+
+  m_superStructure.InitVisualization(
+    m_mech.GetRoot("Elevator", 2.0, 0)->Append<frc::MechanismLigament2d>(
+      "Base", 0, 0_deg));
+  frc::SmartDashboard::PutData("Visualization", &m_mech);
 }
 
 void RobotContainer::ConfigureAuto() {}

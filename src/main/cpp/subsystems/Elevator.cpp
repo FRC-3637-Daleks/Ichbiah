@@ -164,6 +164,24 @@ void Elevator::UpdateDashboard() {
     
     frc::SmartDashboard::PutBoolean("Elevator/Bottom", isAtBottom());
     frc::SmartDashboard::PutBoolean("Elevator/Top", isAtTop());
+
+    UpdateVisualization();
+}
+
+void Elevator::InitVisualization(frc::MechanismObject2d *elevator_base) {
+    if (!elevator_base) return;
+
+    m_mech_goal = elevator_base->Append<frc::MechanismLigament2d>(
+        "goal", 0, 90_deg, 8, frc::Color::kBlue);
+    
+    m_mech_current = elevator_base->Append<frc::MechanismLigament2d>(
+        "current", 0, 90_deg, 4, frc::Color::kSkyBlue);
+    
+}
+
+void Elevator::UpdateVisualization() {
+    if (!m_mech_current) return;
+    m_mech_current->SetLength(units::foot_t{GetEndEffectorHeight()}.value());
 }
 
 bool Elevator::IsAtPos(units::length::centimeter_t pos) {
@@ -191,6 +209,7 @@ units::centimeter_t Elevator::GetEndEffectorHeight() {
 }
 
 void Elevator::SetGoalHeight(const units::centimeter_t length) {
+    if (m_mech_goal) m_mech_goal->SetLength(units::foot_t{length}.value());
     frc::SmartDashboard::PutNumber(
         "Elevator/Goal Height (in)",
         units::inch_t{length}.value());
