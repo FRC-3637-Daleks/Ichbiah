@@ -19,17 +19,16 @@ namespace ElevatorConstants {
     constexpr auto kSprocketTeeth = 22;
     constexpr auto kDistancePerChainLink = 0.25_in;  // 25H "pitch" value
     constexpr auto kSprocketCircum = kSprocketTeeth * kDistancePerChainLink;
-    constexpr auto kGearReduction = 8.5;  // Tentative, could change
-    constexpr auto kMinHeight = 9.5_in;  // VERY estimated, confirm with CAD
-    constexpr auto kMaxHeight = 89.5_in;  // VERY estimated, confirm with CAD
-    constexpr auto kFirstStageLength = (kMaxHeight - kMinHeight)/3;    //extension length of stage 1
-    constexpr auto kMassEffective = 33.86_kg;    // Approximated. Modeling 3-stage elevator as single stage
-    //constexpr auto kMassE1 = 3_kg;    // Mass of the first section of the elevator extender
-    //constexpr auto kMassE2 = 3_kg;    // Mass of the second section
-    //constexpr auto kMassE3 = 3_kg;    // Mass of the third section
+    constexpr auto kGearReduction = 62.0/10.0*30.0/22.0;  // Exact gears used
+    // End-Effector heights measured to tip of the V plate from floor
+    constexpr auto kMinHeight = 9.5_in;
+    constexpr auto kMaxHeight = 89.5_in;
+    constexpr auto kFirstStageLength = (kMaxHeight - kMinHeight)/3;  // extension length of stage 1
 
-//Level Height
-    
+    // Approximated. Models the 3-stage elevator as single stage
+    // The weight on the end-effector is multiplied by 3 to produce a greater mass here
+    constexpr auto kMassEffective = 21.0_kg;
+
 
     constexpr units::length::centimeter_t kL1 = 90_cm;
     constexpr units::length::centimeter_t kL2 = 127_cm;
