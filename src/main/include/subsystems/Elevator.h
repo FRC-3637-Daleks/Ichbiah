@@ -23,6 +23,7 @@ public:
     ~Elevator();  // Need for reasons
 
     void Periodic() override;
+    void UpdateDashboard();
 
     enum Level {INTAKE = 0, L1, L2, L3, L4, N};
 
