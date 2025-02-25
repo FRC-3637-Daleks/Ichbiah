@@ -199,6 +199,10 @@ void RobotContainer::ConfigureBindings() {
   //Test commands
   m_swerveController.Button(8).WhileTrue(m_superStructure.m_elevator.MoveUp());
   m_swerveController.Button(9).WhileTrue(m_superStructure.m_elevator.MoveDown());
+
+  m_swerveController.Button(10).WhileTrue(m_superStructure.m_endeffector.EffectorIn());
+  m_swerveController.Button(13).WhileTrue(m_superStructure.m_endeffector.EffectorContinue());
+  m_swerveController.Button(14).WhileTrue(m_superStructure.m_endeffector.EffectorOut());
 }
 
 void RobotContainer::ConfigureDashboard() {
