@@ -110,30 +110,38 @@ bool EndEffector::isBackwardBreakBeamBroken(){
     return !(m_BackwardBreakBeam.Get());
 }
 
+/*
+             ______  _ Motor
+__                  \x|_______
+   \ ______  X Front Break Beam
+            \ ______
+                     \ ____ X Back Break Beam
+                            \ ____
+                                    ||
+                                    ||
+                                    || Reef
+ */
+
 frc2::CommandPtr EndEffector::EffectorIn() {
-    return Run([this] { WhileIn(); })
-    .Until([this]() -> bool {
-        return isForwardBreakBeamBroken();
+    return WhileIn().Until([this]() -> bool {
+         return isForwardBreakBeamBroken();
     });
 }
 
 frc2::CommandPtr EndEffector::EffectorContinue() {
-    return Run([this] { WhileIn(); })
-    .Until([this]() -> bool {
+    return WhileIn().Until([this]() -> bool {
         return !isBackwardBreakBeamBroken();
     });
 }
 
 frc2::CommandPtr EndEffector::EffectorOut() {
-    return Run([this] { WhileOut(); })
-    .Until([this]() -> bool {
+    return WhileOut().Until([this]() -> bool {
         return !isForwardBreakBeamBroken();
     });
 }
 
 frc2::CommandPtr EndEffector::Intake(){
-    return Run([this]{WhileIn();})
-    .Until([this]() -> bool {
+    return WhileIn().Until([this]() -> bool {
         return isForwardBreakBeamBroken();
     });
 } 
