@@ -8,14 +8,14 @@
 #include <random>
 
 namespace ElevatorConstants {
-// Device Addresses
+    // Device Addresses
     int kLeadmotorID = 14;
     int kFollowermotorID = 15;
     int kBottomLimitSwitchID = 60;
     int kReverseLimitID = 1;
     int kForwardLimitID = 0;
 
-// Physical Parameters
+    // Physical Parameters
     constexpr auto kSprocketTeeth = 22;
     constexpr auto kDistancePerChainLink = 0.25_in;  // 25H "pitch" value
     constexpr auto kSprocketCircum = kSprocketTeeth * kDistancePerChainLink;
@@ -29,19 +29,20 @@ namespace ElevatorConstants {
     // The weight on the end-effector is multiplied by 3 to produce a greater mass here
     constexpr auto kMassEffective = 21.0_kg;
 
-
+    //Level Heights
     constexpr units::length::centimeter_t kL1 = 90_cm;
     constexpr units::length::centimeter_t kL2 = 127_cm;
     constexpr units::length::centimeter_t kL3 = 150_cm;
     constexpr units::length::centimeter_t kL4 = 180_cm;
     constexpr units::length::centimeter_t kTolerance = 2_cm;
 
+    // Index 0 is intake height
     constexpr units::length::centimeter_t goal_heights[] = {kMinHeight, kL1, kL2, kL3, kL4};
 
-
+    // Measured from top, few inches off
     constexpr units::length::centimeter_t softLimit = 85_in;
 
-// Feedback/Feedforward Gains
+    // Feedback/Feedforward Gains
     double kP = 1.0;
     double kI = 0.0;
     double kD = 0.0;
@@ -106,20 +107,20 @@ Elevator::Elevator() : m_leadMotor{ElevatorConstants::kLeadmotorID, "Drivebase"}
                         .WithKG(ElevatorConstants::kG.value())
                         .WithKS(ElevatorConstants::kS)
                         .WithKV(ElevatorConstants::kV))
-                    .WithHardwareLimitSwitch(LimitConfig);
-    m_ElevatorConfig.WithSoftwareLimitSwitch(configs::SoftwareLimitSwitchConfigs{}
+                    .WithHardwareLimitSwitch(LimitConfig)
+                    .WithSoftwareLimitSwitch(configs::SoftwareLimitSwitchConfigs{}
                         .WithForwardSoftLimitEnable(true)
                         .WithForwardSoftLimitThreshold(lengthToRotorTurns(ElevatorConstants::softLimit)));
     m_ElevatorConfig.WithMotorOutput(configs::MotorOutputConfigs{}
         .WithNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake)
         .WithInverted(signals::InvertedValue::Clockwise_Positive));
         
-// set Motion Magic settings
-auto& motionMagicConfigs = m_ElevatorConfig.MotionMagic;
-motionMagicConfigs.MotionMagicCruiseVelocity = units::angular_velocity::turns_per_second_t{65};
-motionMagicConfigs.MotionMagicAcceleration = units::angular_acceleration::turns_per_second_squared_t{200}; 
+    // set Motion Magic settings
+    auto& motionMagicConfigs = m_ElevatorConfig.MotionMagic;
+    motionMagicConfigs.MotionMagicCruiseVelocity = units::angular_velocity::turns_per_second_t{65};
+    motionMagicConfigs.MotionMagicAcceleration = units::angular_acceleration::turns_per_second_squared_t{200}; 
 
-m_leadMotor.GetConfigurator().Apply(m_ElevatorConfig);
+    m_leadMotor.GetConfigurator().Apply(m_ElevatorConfig);
 
     // Ensures sensor is homed on boot.
     // The motor won't run while disabled, but if the limit switch is hit it should finish
