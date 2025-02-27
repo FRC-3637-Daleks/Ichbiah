@@ -57,8 +57,24 @@ EndEffector::EndEffector() :
     m_ForwardBreakBeam{EndEffectorConstants::kForwardBreakBeamID},
     m_BackwardBreakBeam(EndEffectorConstants::kBackwardBreakBeamID),
     m_EndEffectorMotor{EndEffectorConstants::kMotorID,rev::spark::SparkFlex::MotorType::kBrushless},
-    m_sim_state(new EndEffectorSim(*this))
-{}
+    m_sim_state(new EndEffectorSim(*this)) {
+    
+    rev::spark::SparkBaseConfig config;
+    config
+        .SetIdleMode(rev::spark::SparkBaseConfig::IdleMode::kBrake)
+        .SmartCurrentLimit(30)
+        .OpenLoopRampRate(0.2);
+    config.limitSwitch
+        .ForwardLimitSwitchEnabled(false)
+        .ReverseLimitSwitchEnabled(false);
+            
+    m_EndEffectorMotor.Configure(
+        config,
+        rev::spark::SparkBase::ResetMode::kNoResetSafeParameters,
+        rev::spark::SparkBase::PersistMode::kPersistParameters
+    );
+
+}
 
 /**
  * Note from Visvam:
@@ -74,6 +90,8 @@ void EndEffector::Periodic() {
 }
 
 void EndEffector::UpdateDashboard() {
+    frc::SmartDashboard::PutBoolean("EndEffector/has coral?", hasCoral());
+    frc::SmartDashboard::PutNumber("EndEffector/output", m_EndEffectorMotor.GetAppliedOutput());
     UpdateVisualization();
 }
 
@@ -112,11 +130,11 @@ void EndEffector::UpdateVisualization() {
     m_mech_backbeam->SetLength(back_length);
     m_mech_frontbeam->SetLength(front_length);
     
-    m_mech_spinner->SetAngle(1_deg*(m_mech_spinner->GetAngle() + m_EndEffectorMotor.GetAppliedOutput() * 100));
+    m_mech_spinner->SetAngle(1_deg*(m_mech_spinner->GetAngle() + m_EndEffectorMotor.GetAppliedOutput() * 200));
 }
 
 void EndEffector::MotorForward() {
-    m_EndEffectorMotor.SetVoltage(12_V);
+    m_EndEffectorMotor.SetVoltage(3_V);
 }
 
 void EndEffector::MotorBack() {
@@ -153,6 +171,10 @@ bool EndEffector::isForwardBreakBeamBroken(){
 }
 bool EndEffector::isBackwardBreakBeamBroken(){
     return !(m_BackwardBreakBeam.Get());
+}
+
+bool EndEffector::hasCoral() {
+    return isForwardBreakBeamBroken() || isBackwardBreakBeamBroken();
 }
 
 /*
@@ -234,7 +256,6 @@ void EndEffector::SimulationPeriodic() {
             m_sim_state->m_coral_pos = 0_in;
         if (m_sim_state->m_coral_pos > kCoralLength) {
             m_sim_state->m_has_coral = false;
-            m_sim_state->m_coral_pos = 0_in;
         }
 
         m_sim_state->m_back_bb_sim.SetValue(
