@@ -159,9 +159,9 @@ void RobotContainer::ConfigureBindings() {
   
   //End Effector
   m_oi.EndEffectorInTrigger.WhileTrue(
-    m_superStructure.m_endeffector.EffectorIn());
+    m_superStructure.m_endeffector.WhileIn());
   m_oi.EndEffectorOutTrigger.WhileTrue(
-    m_superStructure.m_endeffector.EffectorOut());
+    m_superStructure.m_endeffector.WhileOut());
 
   //Climb
   m_oi.ClimbDownTrigger.OnTrue(
