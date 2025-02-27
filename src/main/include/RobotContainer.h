@@ -65,6 +65,7 @@ public:
   bool m_isRed;
 
   frc::Mechanism2d m_mech{4, 8};  // scaled to feet
+  std::optional<choreo::Trajectory<choreo::SwerveSample>> m_test;
 
 public:
   void ConfigureBindings();
