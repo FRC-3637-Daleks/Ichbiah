@@ -11,23 +11,29 @@ Piston::Piston(int forwardChannel, int reverseChannel, units::second_t delay)
 
 frc2::CommandPtr Piston::Extend() {
     
-    return frc2::cmd::Run([this]{m_state = State::Extending;
-    m_solenoid.Set(frc::DoubleSolenoid::Value::kForward);})
-    .AndThen(frc2::cmd::Wait(stroke_delay))
-    .AndThen([this]{m_state = State::Extended;});
+    return Run(
+        [this]{
+            m_state = State::Extending;
+            m_solenoid.Set(frc::DoubleSolenoid::Value::kForward);
+        })
+        .WithTimeout(stroke_delay)
+        .AndThen([this]{m_state = State::Extended;});
 }
 
 frc2::CommandPtr Piston::Retract() {
-    return frc2::cmd::Run([this]{m_state = State::Retracting;
-    m_solenoid.Set(frc::DoubleSolenoid::Value::kReverse);})
-    .AndThen(frc2::cmd::Wait(stroke_delay))
-    .AndThen([this]{m_state = State::Retracted;});
+    return Run(
+        [this]{
+            m_state = State::Retracting;
+            m_solenoid.Set(frc::DoubleSolenoid::Value::kReverse);
+        })
+        .WithTimeout(stroke_delay)
+        .AndThen([this]{m_state = State::Retracted;});
 }
 
 frc2::CommandPtr Piston::Off() {
-    return frc2::cmd::Run([this]{m_solenoid.Set(frc::DoubleSolenoid::Value::kOff);});
+    return Run([this]{m_solenoid.Set(frc::DoubleSolenoid::Value::kOff);});
 }
 
-inline Piston::State Piston::getState() {
+Piston::State Piston::getState() {
     return m_state;
 }

@@ -164,7 +164,11 @@ void RobotContainer::ConfigureBindings() {
     m_superStructure.m_endeffector.EffectorOut());
 
   //Climb
-
+  m_oi.ClimbDownTrigger.OnTrue(
+    m_climb.ExtendClimb());
+  
+  m_oi.ClimbUpTrigger.OnTrue(
+    m_climb.RetractClimb());
 
 }
 

@@ -8,7 +8,10 @@
 class Climb : public frc2::SubsystemBase {
     public:
         Climb();
-        frc2::CommandPtr StartClimb();
+        frc2::CommandPtr ExtendClimb();
+        frc2::CommandPtr RetractClimb();
+
+        void Periodic() override;
 
     private:
         Piston m_dualPistons;
