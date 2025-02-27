@@ -11,14 +11,15 @@ class LEDSubsystem : public frc2::SubsystemBase {
 
     private:
     static constexpr int kPort = 0;
-    static constexpr int kLength = 300;
 
-    static constexpr int baseFrontLength = 50;
-    static constexpr int baseRightLength = 50;
-    static constexpr int baseBackLength = 50;
-    static constexpr int baseLeftLength = 50;
-    static constexpr int elevLeftLength = 50;
-    static constexpr int elevRightLength = 50;
+    static constexpr int baseFrontLength = 10;
+    static constexpr int baseRightLength = 10;
+    static constexpr int baseBackLength = 10;
+    static constexpr int baseLeftLength = 10;
+    static constexpr int elevLeftLength = 10;
+    static constexpr int elevRightLength = 10;
+
+    static constexpr int kLength = baseFrontLength + baseRightLength + baseBackLength + baseLeftLength + elevLeftLength + elevRightLength;
 
     frc::AddressableLED m_led{kPort};
     std::array<frc::AddressableLED::LEDData, kLength> m_ledBuffer;
@@ -30,5 +31,8 @@ class LEDSubsystem : public frc2::SubsystemBase {
     std::span<frc::AddressableLED::LEDData, elevLeftLength> elevLeft{baseLeft.end(), elevLeftLength};
     std::span<frc::AddressableLED::LEDData, elevRightLength> elevRight{elevLeft.end(), elevRightLength};
 
+    static constexpr int numSpans = 6;
+    std::array<std::span<frc::AddressableLED::LEDData>, numSpans> m_ledSegments;
+    std::array<int, numSpans> m_ledSegmentLengths{10, 10, 10, 10, 10, 10};
 
 };
