@@ -38,12 +38,12 @@ public:
     frc2::Trigger ElevatorL2Trigger = m_copilotController.B();
     frc2::Trigger ElevatorL3Trigger = m_copilotController.X();
     frc2::Trigger ElevatorL4Trigger = m_copilotController.Y();
-    frc2::Trigger ElevatorUpTrigger = m_copilotController.RightStick();
-    frc2::Trigger ElevatorDownTrigger = m_copilotController.RightStick();
-    frc2::Trigger EndEffectorInTrigger= m_copilotController.RightTrigger();
+    frc2::Trigger ElevatorUpTrigger{[this] {return m_copilotController.GetRightY() > 0.5;}};
+    frc2::Trigger ElevatorDownTrigger{[this] {return m_copilotController.GetRightY() < -0.5;}};
+    frc2::Trigger EndEffectorInTrigger = m_copilotController.RightTrigger();
     frc2::Trigger EndEffectorOutTrigger = m_copilotController.LeftTrigger();
-    frc2::Trigger ClimbUpTrigger = m_swerveController.LeftStick();
-    frc2::Trigger ClimbDownTrigger = m_swerveController.LeftStick();
+    frc2::Trigger ClimbUpTrigger = m_copilotController.POVUp();
+    frc2::Trigger ClimbDownTrigger = m_copilotController.POVDown();
     frc2::Trigger ElevatorIntakeTrigger = m_copilotController.A();
     frc2::Trigger FollowPathTrigger = m_swerveController.POVDown();
     frc2::Trigger DriveToPoseTrigger = m_swerveController.POVDown();
