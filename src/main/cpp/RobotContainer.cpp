@@ -108,16 +108,6 @@ RobotContainer::RobotContainer() {
 }
 
 void RobotContainer::ConfigureBindings() {
-
-
-  frc2::CommandPtr testCmd = frc2::cmd::Run([] {
-    fmt::print("Test Command\n");
-  });
-
-  frc2::CommandPtr testCmd = frc2::cmd::Run([] {
-    fmt::print("Test Command\n");
-  });
-
   m_swerve.SetDefaultCommand(
       m_swerve.CustomSwerveCommand(
         [this] { return m_oi.fwd(); }, 
@@ -128,12 +118,6 @@ void RobotContainer::ConfigureBindings() {
     m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));
   m_oi.zeroHeadingTrigger.OnTrue(
     frc2::cmd::Parallel(m_swerve.ZeroHeadingCommand(), frc2::cmd::Print("Zeroed Heading")));
-  PathFollower::registerCommand("test", std::move(testCmd));
-  auto traj = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("Square");
-  traj.has_value() ?
-    m_oi.FollowPathTrigger.WhileTrue(m_swerve.FollowPathCommand(traj.value())) :
-    m_oi.FollowPathTrigger.WhileTrue(frc2::cmd::None());
-
 
   // Elevator
   m_oi.ElevatorIntakeTrigger.OnTrue(
