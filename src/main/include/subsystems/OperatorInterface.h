@@ -34,23 +34,23 @@ public:
     units::meters_per_second_t strafe();
     units::meters_per_second_t fwd();
     units::revolutions_per_minute_t rot();
-    frc2::Trigger ElevatorL1Trigger = m_swerveController.Button(11);
-    frc2::Trigger ElevatorL2Trigger = m_swerveController.Button(9);
-    frc2::Trigger ElevatorL3Trigger = m_swerveController.Button(7);
-    frc2::Trigger ElevatorL4Trigger = m_swerveController.Button(2);
-    frc2::Trigger ElevatorUpTrigger = m_swerveController.Button(4);
-    frc2::Trigger ElevatorDownTrigger = m_swerveController.Button(6);
-    frc2::Trigger EndEffectorInTrigger= m_swerveController.Button(3);
-    frc2::Trigger EndEffectorOutTrigger = m_swerveController.Button(5);
-    frc2::Trigger ClimbUpTrigger = m_swerveController.Button(8);
-    frc2::Trigger ClimbDownTrigger = m_swerveController.Button(10);
-    frc2::Trigger ElevatorIntakeTrigger = m_swerveController.Button(1);
+    frc2::Trigger ElevatorL1Trigger = m_copilotController.RightBumper();
+    frc2::Trigger ElevatorL2Trigger = m_copilotController.B();
+    frc2::Trigger ElevatorL3Trigger = m_copilotController.X();
+    frc2::Trigger ElevatorL4Trigger = m_copilotController.Y();
+    frc2::Trigger ElevatorUpTrigger = m_copilotController.RightStick();
+    frc2::Trigger ElevatorDownTrigger = m_copilotController.RightStick();
+    frc2::Trigger EndEffectorInTrigger= m_copilotController.RightTrigger();
+    frc2::Trigger EndEffectorOutTrigger = m_copilotController.LeftTrigger();
+    frc2::Trigger ClimbUpTrigger = m_swerveController.LeftStick();
+    frc2::Trigger ClimbDownTrigger = m_swerveController.LeftStick();
+    frc2::Trigger ElevatorIntakeTrigger = m_copilotController.A();
     frc2::Trigger FollowPathTrigger = m_swerveController.POVDown();
     frc2::Trigger DriveToPoseTrigger = m_swerveController.POVDown();
     frc2::Trigger zeroHeadingTrigger = m_swerveController.Button(12);
 
 private:
-    frc2::CommandJoystick m_swerveController;
-    //frc2::CommandXboxController m_copilotController;
+    frc2::CommandXboxController m_swerveController;
+    frc2::CommandXboxController m_copilotController;
     bool IsRed();
 };
