@@ -211,6 +211,22 @@ void RobotContainer::ConfigureDashboard() {
   m_superStructure.InitVisualization(
     m_mech.GetRoot("Elevator", 2.0, 0)->Append<frc::MechanismLigament2d>(
       "Base", 0, 0_deg));
+  
+  constexpr auto pipe_thickness = 10;
+  constexpr auto pipe_color = frc::Color::kPurple;
+  auto reef = m_mech.GetRoot("Reef", 2.65, 0);
+  reef->Append<frc::MechanismLigament2d>("Base", 1.2, 90_deg, 4, frc::Color::kGray)
+      ->Append<frc::MechanismLigament2d>("Trough", 1, -75_deg, 4, frc::Color::kGray)
+      ->Append<frc::MechanismLigament2d>("Branch", 3.0, 75_deg, pipe_thickness, pipe_color);
+  
+  reef->Append<frc::MechanismLigament2d>("L2Tip", 2.65, 90_deg, 0, frc::Color::kBlack)
+      ->Append<frc::MechanismLigament2d>("L2", 1.2, -125_deg, pipe_thickness, pipe_color);
+  reef->Append<frc::MechanismLigament2d>("L3Tip", 3.95, 90_deg, 0, frc::Color::kBlack)
+      ->Append<frc::MechanismLigament2d>("L3", 1.2, -125_deg, pipe_thickness, pipe_color);
+  reef->Append<frc::MechanismLigament2d>("L4Tip", 6, 90_deg, 0, frc::Color::kBlack)
+      ->Append<frc::MechanismLigament2d>("L4", 0.85, -180_deg, pipe_thickness, pipe_color)
+      ->Append<frc::MechanismLigament2d>("L4Base", 1.2, 55_deg, pipe_thickness, pipe_color);  
+
   frc::SmartDashboard::PutData("Visualization", &m_mech);
 }
 

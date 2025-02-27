@@ -98,8 +98,9 @@ void EndEffector::UpdateDashboard() {
 void EndEffector::InitVisualization(frc::MechanismObject2d *elevator_end) {
     if (!elevator_end) return;
 
-    m_mech_endeffector_base = elevator_end->Append<frc::MechanismLigament2d>(
-        "endeffector_base", 0.0, -90_deg - 35_deg, 4, frc::Color::kGreen);
+    m_mech_endeffector_base = elevator_end
+        ->Append<frc::MechanismLigament2d>("endeffector_base", 0.4, 0_deg, 4, frc::Color::kGreen)
+        ->Append<frc::MechanismLigament2d>("endeffector_ramp", 0.0, -90_deg - 35_deg, 4, frc::Color::kGreen);
     
     m_mech_endeffector_base->Append<frc::MechanismLigament2d>(
         "endeffector_intake", 0.5, 180_deg, 4, frc::Color::kGreen);
