@@ -1,8 +1,7 @@
 #include "subsystems/Piston.h"
 
-//Forward Channal = ID 1, Reverse Channal = ID 2
-Piston::Piston(frc::PneumaticsModuleType moduleType, int forwardChannel, int reverseChannel, units::second_t delay)
-: m_solenoid{moduleType,
+Piston::Piston(int forwardChannel, int reverseChannel, units::second_t delay)
+: m_solenoid{frc::PneumaticsModuleType::REVPH,
             forwardChannel, 
             reverseChannel},
   stroke_delay{delay} {

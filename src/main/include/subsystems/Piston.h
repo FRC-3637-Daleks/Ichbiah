@@ -18,7 +18,7 @@ class Piston : public frc2::SubsystemBase {
             Retracted
         };
 
-        Piston(frc::PneumaticsModuleType mType, int fChannel, int rChannel, units::second_t delay);
+        Piston(int fChannel, int rChannel, units::second_t delay);
         frc2::CommandPtr Extend();
         frc2::CommandPtr Retract();
         frc2::CommandPtr Off();

@@ -11,9 +11,8 @@ namespace ElevatorConstants {
     // Device Addresses
     int kLeadmotorID = 14;
     int kFollowermotorID = 15;
-    int kBottomLimitSwitchID = 60;
-    int kReverseLimitID = 1;
-    int kForwardLimitID = 0;
+    int kReverseLimitID = 0;
+    int kForwardLimitID = 3;
 
     // Physical Parameters
     constexpr auto kSprocketTeeth = 22;

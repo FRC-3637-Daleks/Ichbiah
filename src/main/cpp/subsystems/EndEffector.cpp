@@ -18,10 +18,9 @@
  */
 
 namespace EndEffectorConstants {
-    constexpr int kMotorID = 1;
-    constexpr int kBreakBeamID = 6;
-    constexpr int kForwardBreakBeamID = 7;
-    constexpr int kBackwardBreakBeamID = 8;
+    constexpr int kMotorID = 2;
+    constexpr int kForwardBreakBeamID = 1;
+    constexpr int kBackwardBreakBeamID = 2;
 
     // Sensor is low when the beam is obstructed
     constexpr bool kBeamBroken = false;

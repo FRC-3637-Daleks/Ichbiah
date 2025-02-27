@@ -11,6 +11,5 @@ class Climb : public frc2::SubsystemBase {
         frc2::CommandPtr StartClimb();
 
     private:
-        Piston m_pistonLeft;
-        Piston m_pistonRight;
+        Piston m_dualPistons;
 };
