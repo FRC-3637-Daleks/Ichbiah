@@ -49,6 +49,7 @@ public:
 
   Drivetrain m_swerve;
   ROSBridge m_ros;
+  LEDSubsystem m_ledSubsystem;
 
   bool m_isRed;
 
