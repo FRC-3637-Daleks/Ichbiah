@@ -36,13 +36,13 @@ void PathFollower::Initialize() {
 
 void PathFollower::Execute() {
     auto currentTime = m_timer.Get();
-    std::cout << "Running!!\n";
     if (auto desiredState = m_trajectory.SampleAt(currentTime, /* mirror */ false)) {
       auto desiredPose = desiredState->GetPose();
       auto feedForward = desiredState->GetChassisSpeeds();
       for(auto &e : m_eventPoses) {
-        if(m_driveSubsystem.AtPose(e.second)) {
+        if(m_driveSubsystem.AtPose(e.second, {.1_m, .1_m, 20_deg})) {
           auto command = getCommand(e.first);
+          std::cout << "Running!!\n";
             command->Schedule();
         }
       } //error yo
