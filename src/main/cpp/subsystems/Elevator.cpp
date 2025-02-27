@@ -29,11 +29,11 @@ namespace ElevatorConstants {
     constexpr auto kMassEffective = 21.0_kg;
 
     //Level Heights
-    constexpr units::length::centimeter_t kL1 = 90_cm;
-    constexpr units::length::centimeter_t kL2 = 127_cm;
-    constexpr units::length::centimeter_t kL3 = 150_cm;
-    constexpr units::length::centimeter_t kL4 = 180_cm;
-    constexpr units::length::centimeter_t kTolerance = 2_cm;
+    constexpr units::length::centimeter_t kL1 = 1_ft + 6_in;
+    constexpr units::length::centimeter_t kL2 = 2_ft + 7.875_in;
+    constexpr units::length::centimeter_t kL3 = 3_ft + 11.625_in;
+    constexpr units::length::centimeter_t kL4 = 6_ft;
+    constexpr units::length::centimeter_t kTolerance = 1_in;
 
     // Index 0 is intake height
     constexpr units::length::centimeter_t goal_heights[] = {kMinHeight, kL1, kL2, kL3, kL4};
