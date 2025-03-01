@@ -42,8 +42,6 @@ public:
   frc2::CommandPtr GetDisabledCommand();
   frc2::CommandPtr GetAutonomousCommand();
 
-
-
 public:
   // Replace with CommandPS4Controller or CommandJoystick if needed
 
