@@ -1,4 +1,5 @@
 #pragma once
+
 #include <frc/DigitalInput.h>
 #include <frc/Solenoid.h>
 #include <ctre/phoenix6/CANcoder.hpp>
