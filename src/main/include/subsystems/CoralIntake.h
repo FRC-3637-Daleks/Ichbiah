@@ -1,4 +1,5 @@
 #pragma once
+
 #include <frc/DigitalInput.h>
 #include <frc/Solenoid.h>
 #include <frc2/command/SubsystemBase.h>
