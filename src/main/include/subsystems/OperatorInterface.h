@@ -29,8 +29,17 @@
 #include <numbers>
 
 namespace OperatorConstants {
+constexpr auto kMatchTimeStdError = 20_ms;
 constexpr auto kClimbExtendTime = 2_min;
 constexpr auto kClimbRetractTime = 2_min + 29_s;
+
+constexpr auto kMinClimbExtendTime = kClimbExtendTime - 2 * kMatchTimeStdError;
+constexpr auto kMaxClimbExtendTime = kClimbExtendTime + 2 * kMatchTimeStdError;
+
+constexpr auto kMinClimbRetractTime =
+    kClimbRetractTime - 2 * kMatchTimeStdError;
+constexpr auto kMaxClimbRetractTime =
+    kClimbRetractTime + 2 * kMatchTimeStdError;
 } // namespace OperatorConstants
 
 class OperatorInterface {
@@ -58,12 +67,14 @@ public:
   frc2::Trigger DriveToPoseTrigger = m_swerveController.POVDown();
   frc2::Trigger zeroHeadingTrigger = m_swerveController.Button(12);
   frc2::Trigger ClimbExtendTrigger{[this]() -> bool {
-    return frc::DriverStation::GetMatchTime() ==
-           OperatorConstants::kClimbExtendTime;
+    auto time = frc::DriverStation::GetMatchTime();
+    return time >= OperatorConstants::kMinClimbExtendTime &&
+           time <= OperatorConstants::kMaxClimbExtendTime;
   }};
   frc2::Trigger ClimbRetractTrigger{[this]() -> bool {
-    return frc::DriverStation::GetMatchTime() ==
-           OperatorConstants::kClimbRetractTime;
+    auto time = frc::DriverStation::GetMatchTime();
+    return time >= OperatorConstants::kMinClimbRetractTime &&
+           time <= OperatorConstants::kMaxClimbExtendTime;
   }};
 
 private:
