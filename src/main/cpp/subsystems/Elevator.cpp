@@ -280,6 +280,10 @@ frc2::CommandPtr Elevator::GoToLevel(Level goal) {
         .Until([this, goal] {return IsAtLevel(goal);});
 }
 
+frc2::CommandPtr Elevator::MoveToLevel(Level goal) {
+    return Run([this, goal] {SetGoalHeight(goal);});
+}
+
 //***************************SIMULATION*****************************
 ElevatorSim::ElevatorSim(Elevator& elevator):
     m_elevatorModel{

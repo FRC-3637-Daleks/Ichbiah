@@ -142,15 +142,15 @@ void RobotContainer::ConfigureBindings() {
 
   // Elevator
   m_oi.ElevatorIntakeTrigger.OnTrue(
-    m_superStructure.moveElevatorTo(m_superStructure.m_elevator.INTAKE));
+    m_superStructure.m_elevator.MoveToLevel(m_superStructure.m_elevator.INTAKE));
   m_oi.ElevatorL1Trigger.OnTrue(
-    m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L1));
+    m_superStructure.m_elevator.MoveToLevel(m_superStructure.m_elevator.L1));
   m_oi.ElevatorL2Trigger.OnTrue(
-    m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L2));
+    m_superStructure.m_elevator.MoveToLevel(m_superStructure.m_elevator.L2));
   m_oi.ElevatorL3Trigger.OnTrue(
-    m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L3));
+    m_superStructure.m_elevator.MoveToLevel(m_superStructure.m_elevator.L3));
   m_oi.ElevatorL4Trigger.OnTrue(
-    m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L4));
+    m_superStructure.m_elevator.MoveToLevel(m_superStructure.m_elevator.L4));
   //Test Commands for Elevator
   m_oi.ElevatorUpTrigger.WhileTrue(
     m_superStructure.m_elevator.MoveUp());

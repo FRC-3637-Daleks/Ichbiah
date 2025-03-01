@@ -22,7 +22,6 @@ public:
     Elevator& m_elevator;
     EndEffector& m_endeffector;
 
-    frc2::CommandPtr moveElevatorTo(Elevator::Level level);
     bool baseAtPos;
     frc2::CommandPtr prePlace(Elevator::Level level);
 

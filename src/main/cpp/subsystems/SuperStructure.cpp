@@ -41,11 +41,7 @@ void SuperStructure::UpdateVisualization() {
 }
 
 frc2::CommandPtr SuperStructure::prePlace(Elevator::Level level) {
-    return m_endeffector.EffectorContinue().AlongWith(m_elevator.GoToLevel(level));
-};
-
-frc2::CommandPtr SuperStructure::moveElevatorTo(Elevator::Level level) {
-    return m_elevator.GoToLevel(level);
+    return m_endeffector.EffectorContinue().AlongWith(m_elevator.MoveToLevel(level));
 };
 
 SuperStructure::~SuperStructure() {}
