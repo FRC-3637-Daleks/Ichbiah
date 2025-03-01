@@ -31,6 +31,8 @@ class EndEffector : public frc2::SubsystemBase{
     bool isForwardBreakBeamBroken();
     bool isBackwardBreakBeamBroken();
 
+    bool hasCoral();
+
     frc2::CommandPtr WhileOut();
     frc2::CommandPtr WhileIn();
     frc2::CommandPtr EffectorIn();

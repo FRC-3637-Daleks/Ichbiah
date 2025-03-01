@@ -62,6 +62,8 @@ public:
 
     // Main command, commands elevator to goal and then ends when it reaches that point
     frc2::CommandPtr GoToLevel(Level goal);
+    frc2::CommandPtr MoveToLevel(Level goal);
+    frc2::CommandPtr RumbleDriver(double intensity, units::time::seconds duration);
 
 private:
     ctre::phoenix6::hardware::TalonFX m_leadMotor;

@@ -165,6 +165,12 @@ void RobotContainer::ConfigureBindings() {
 
   //Climb
 
+  //Rumble
+
+  frc2::Trigger RumbleTrigger([this]() -> bool { return m_endeffector.hasCoral(); });
+  RumbleTrigger.WhileTrue(m_oi.RumbleDriver(0.5_s, 1.0));
+  RumbleTrigger.OnFalse(m_oi.SetRumbleCountToZero());
+
 
 }
 

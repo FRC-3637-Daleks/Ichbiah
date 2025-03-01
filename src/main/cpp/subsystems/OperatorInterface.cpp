@@ -8,6 +8,10 @@
 #include <frc/filter/SlewRateLimiter.h>
 #include <iostream>
 
+//FEALS WRONG ERIC PLEASE FIX
+#include <frc2/command/CommandPtr.h>
+#include <frc2/command/Commands.h>
+
 #include <units/math.h>
 
     namespace OperatorConstants {
@@ -65,6 +69,27 @@ units::revolutions_per_minute_t OperatorInterface::rot() {
     * squaredInput
     * throttle();
   };
+
+//FEELS WRONG PLEASE ERIC FIX
+frc2::CommandPtr OperatorInterface::RumbleDriver(units::time::second_t time, double intensity) {
+  return frc2::cmd::Run([this, time, intensity] {
+    if (RumbleCount < time.value()/0.020) {
+      m_swerveController.SetRumble(frc::GenericHID::RumbleType::kLeftRumble, intensity); 
+      m_swerveController.SetRumble(frc::GenericHID::RumbleType::kRightRumble, intensity); 
+    } else {
+      m_swerveController.SetRumble(frc::GenericHID::RumbleType::kLeftRumble, intensity); 
+      m_swerveController.SetRumble(frc::GenericHID::RumbleType::kLeftRumble, intensity);
+    }
+    RumbleCount++;
+    });
+  
+}
+
+frc2::CommandPtr OperatorInterface::SetRumbleCountToZero() {
+  return frc2::cmd::Run([this] {
+    RumbleCount = 0;
+  });
+}
 
 bool OperatorInterface::IsRed()
 {

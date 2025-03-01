@@ -31,6 +31,7 @@ class OperatorInterface {
 public: 
     OperatorInterface();
     double throttle();
+    
     units::meters_per_second_t strafe();
     units::meters_per_second_t fwd();
     units::revolutions_per_minute_t rot();
@@ -49,8 +50,13 @@ public:
     frc2::Trigger DriveToPoseTrigger = m_swerveController.POVDown();
     frc2::Trigger zeroHeadingTrigger = m_swerveController.Button(12);
 
+    frc2::CommandPtr RumbleDriver(units::time::second_t time, double intensity);
+    int RumbleCount = 0;
+    frc2::CommandPtr SetRumbleCountToZero();
 private:
+
     frc2::CommandXboxController m_swerveController;
     frc2::CommandXboxController m_copilotController;
     bool IsRed();
 };
+
