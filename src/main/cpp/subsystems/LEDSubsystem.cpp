@@ -2,44 +2,32 @@
 
 LEDSubsystem::LEDSubsystem()
 {
+    // Get total LEDs
+    int  totalLEDs = 0;
+    for(int i = 0; i < kNumSpans; i++){
+        totalLEDs += m_ledSegmentLengths[i];
+    }
+
+    // Setup LED Segments
     m_ledSegments[0] = std::span<frc::AddressableLED::LEDData>{m_ledBuffer.begin(), m_ledSegmentLengths[0]};
 
     auto currIter{m_ledSegments[0].end()};
-    int totalLeds{m_ledSegmentLengths[0]};
-
-    for (int i = 1; i < numSpans; i++) {
+    for (int i = 1; i < kNumSpans; i++) {
         m_ledSegments[i] = std::span<frc::AddressableLED::LEDData>{currIter, m_ledSegmentLengths[i]};
         currIter = m_ledSegments[i].end();
-        totalLeds += m_ledSegmentLengths[i];
     }
-    
-    m_led.SetLength(kLength);
+
+    // Setup AddressibleLED Object 
+    m_led.SetLength(totalLEDs);
     m_led.SetData(m_ledBuffer);
     m_led.Start();
-
-    frc::LEDPattern red = frc::LEDPattern::Solid(frc::Color::kRed);
-    frc::LEDPattern orange = frc::LEDPattern::Solid(frc::Color::kOrange);
-    frc::LEDPattern yellow = frc::LEDPattern::Solid(frc::Color::kYellow);
-    frc::LEDPattern green = frc::LEDPattern::Solid(frc::Color::kGreen);
-    frc::LEDPattern blue = frc::LEDPattern::Solid(frc::Color::kBlue);
-    frc::LEDPattern purple = frc::LEDPattern::Solid(frc::Color::kPurple);
-
-    frc::LEDPattern white = frc::LEDPattern::Solid(frc::Color::kWhite);
-    frc::LEDPattern black = frc::LEDPattern::Solid(frc::Color{0,0,0});
-
-    red.ApplyTo(baseFront);
-    orange.ApplyTo(baseRight);
-    yellow.ApplyTo(baseBack);
-    green.ApplyTo(baseLeft);
-    blue.ApplyTo(elevLeft);
-    purple.ApplyTo(elevRight);
-
-    // red.ApplyTo(m_ledBuffer);
-    // black.ApplyTo(m_ledBuffer);
-    // white.ApplyTo(m_ledBuffer);
-}
+ }
 
 void LEDSubsystem::Periodic()
 {
+    frc::LEDPattern m_rainbow = frc::LEDPattern::Rainbow(255, 128);
+    frc::LEDPattern m_scrollingRainbow = m_rainbow.ScrollAtAbsoluteSpeed(1_mps, kLedSpacing);
+    m_scrollingRainbow.ApplyTo(m_ledBuffer);
+   
     m_led.SetData(m_ledBuffer);
 }
