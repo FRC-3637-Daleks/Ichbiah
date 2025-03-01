@@ -1,5 +1,7 @@
 #include "subsystems/LEDSubsystem.h"
 
+#include "frc/smartdashboard/SmartDashboard.h"
+
 LEDSubsystem::LEDSubsystem()
 {
     // Get total LEDs
@@ -30,4 +32,25 @@ void LEDSubsystem::Periodic()
     m_scrollingRainbow.ApplyTo(m_ledBuffer);
    
     m_led.SetData(m_ledBuffer);
+
+
+}
+
+void LEDSubsystem::setState(LEDSTATE state)
+{
+    switch(state){
+        case LEDSTATE::BaseNoCoral: break;
+        case LEDSTATE::CoralEntersRobot: break;
+        case LEDSTATE::CoralEntersIntake: break;
+        case LEDSTATE::BaseWithCoral: break;
+        case LEDSTATE::ElevatorLevel_1: break;
+        case LEDSTATE::ElevatorLevel_2: break;
+        case LEDSTATE::ElevatorLevel_3: break;
+        case LEDSTATE::ElevatorLevel_4: break;
+    }
+}
+
+std::span<frc::AddressableLED::LEDData> LEDSubsystem::getSegment(LEDSEGMENT segment)
+{
+    return m_ledSegments[static_cast<uint32_t>(segment)];
 }
