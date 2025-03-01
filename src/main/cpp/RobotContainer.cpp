@@ -38,7 +38,7 @@ constexpr auto kPathMaxAcceleration = 4_mps_sq;
 constexpr auto kMaxAngularSpeed = std::numbers::pi * 1_rad_per_s;
 constexpr auto kMaxAngularAcceleration = std::numbers::pi * 2_rad_per_s_sq;
 
-constexpr frc::Pose2d desiredPose{0_m, 0_m, 0_deg};
+constexpr frc::Pose2d desiredPose{3.22_m, 3.89_m, 0_deg};
 } // namespace AutoConstants
 
 namespace OperatorConstants {
@@ -161,7 +161,7 @@ void RobotContainer::ConfigureBindings() {
   m_oi.EndEffectorInTrigger.WhileTrue(
     m_superStructure.m_endeffector.WhileIn());
   m_oi.EndEffectorOutTrigger.WhileTrue(
-    m_superStructure.m_endeffector.WhileOut());
+    m_superStructure.m_endeffector.WhileIn2());
 
   //Climb
   m_oi.ClimbDownTrigger.OnTrue(

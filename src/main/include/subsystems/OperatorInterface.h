@@ -31,6 +31,7 @@ class OperatorInterface {
 public: 
     OperatorInterface();
     double throttle();
+    double throttleL();
     units::meters_per_second_t strafe();
     units::meters_per_second_t fwd();
     units::revolutions_per_minute_t rot();
@@ -38,8 +39,8 @@ public:
     frc2::Trigger ElevatorL2Trigger = m_copilotController.B();
     frc2::Trigger ElevatorL3Trigger = m_copilotController.X();
     frc2::Trigger ElevatorL4Trigger = m_copilotController.Y();
-    frc2::Trigger ElevatorUpTrigger{[this] {return m_copilotController.GetRightY() > 0.5;}};
-    frc2::Trigger ElevatorDownTrigger{[this] {return m_copilotController.GetRightY() < -0.5;}};
+    frc2::Trigger ElevatorUpTrigger{[this] {return m_copilotController.GetRightY() < -0.5;}};
+    frc2::Trigger ElevatorDownTrigger{[this] {return m_copilotController.GetRightY() < 0.5;}};
     frc2::Trigger EndEffectorInTrigger = m_copilotController.RightTrigger();
     frc2::Trigger EndEffectorOutTrigger = m_copilotController.LeftTrigger();
     frc2::Trigger ClimbUpTrigger = m_copilotController.POVUp();
@@ -47,7 +48,8 @@ public:
     frc2::Trigger ElevatorIntakeTrigger = m_copilotController.A();
     frc2::Trigger FollowPathTrigger = m_swerveController.POVDown();
     frc2::Trigger DriveToPoseTrigger = m_swerveController.POVDown();
-    frc2::Trigger zeroHeadingTrigger = m_swerveController.Button(12);
+    frc2::Trigger zeroHeadingTrigger = m_swerveController.Start();
+    frc2::Trigger robotOrientDriveTrigger = m_swerveController.A();
 
 private:
     frc2::CommandXboxController m_swerveController;

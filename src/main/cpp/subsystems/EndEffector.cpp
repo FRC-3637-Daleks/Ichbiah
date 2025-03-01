@@ -138,6 +138,10 @@ void EndEffector::MotorForward() {
     m_EndEffectorMotor.SetVoltage(3_V);
 }
 
+void EndEffector::MotorForward2() {
+    m_EndEffectorMotor.SetVoltage(1_V);
+}
+
 void EndEffector::MotorBack() {
     m_EndEffectorMotor.SetVoltage(-12_V);
 }
@@ -149,6 +153,11 @@ void EndEffector::MotorStop() {
 
 frc2::CommandPtr EndEffector::WhileIn(){
     return RunEnd([this]{ EndEffector::MotorForward(); },
+                  [this] {EndEffector::MotorStop(); });
+}
+
+frc2::CommandPtr EndEffector::WhileIn2(){
+    return RunEnd([this]{ EndEffector::MotorForward2(); },
                   [this] {EndEffector::MotorStop(); });
 }
 

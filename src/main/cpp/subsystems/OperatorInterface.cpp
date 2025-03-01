@@ -32,33 +32,44 @@ double OperatorInterface::throttle() {
   double ret = ((-input +1))/2;
   return ret;
 }
+
+double OperatorInterface::throttleL() {
+  double input = m_swerveController.GetHID().GetLeftTriggerAxis();
+  if (input > 0.5)
+    return 0.5;
+  else
+    return 1.0;
+}
+
 units::meters_per_second_t OperatorInterface::fwd() {
   auto input = frc::ApplyDeadband(
-    m_swerveController.GetHID().GetLeftY(),
+    -m_swerveController.GetHID().GetLeftY(),
     OperatorConstants::kStrafeDeadband);
   auto squaredInput = input * std::abs(input);
   auto alliance_flip = IsRed()? -1:1;
   return OperatorConstants::kMaxTeleopSpeed 
     * squaredInput
     * alliance_flip
-    * throttle();
+    * throttle()
+    * throttleL();
 }
 
 units::meters_per_second_t OperatorInterface::strafe() {
   auto input = frc::ApplyDeadband(
-    m_swerveController.GetHID().GetLeftX(),
+    -m_swerveController.GetHID().GetLeftX(),
     OperatorConstants::kStrafeDeadband);
   auto squaredInput = input * std::abs(input);
   auto alliance_flip = IsRed()? -1:1;
   return OperatorConstants::kMaxTeleopSpeed 
     * squaredInput
     * alliance_flip
-    * throttle();
+    * throttle()
+    * throttleL();
 }
 
 units::revolutions_per_minute_t OperatorInterface::rot() {
   auto input = frc::ApplyDeadband(
-    -m_swerveController.GetHID().GetRightY(),
+    -m_swerveController.GetHID().GetRightX(),
     OperatorConstants::kRotDeadband);
   auto squaredInput = input * std::abs(input);
   return OperatorConstants::kMaxTeleopTurnSpeed

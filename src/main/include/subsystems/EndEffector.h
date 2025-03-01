@@ -25,6 +25,7 @@ class EndEffector : public frc2::SubsystemBase{
     void UpdateVisualization();
 
     void MotorForward();
+    void MotorForward2();
     void MotorBack();
     void MotorStop();
 
@@ -34,6 +35,7 @@ class EndEffector : public frc2::SubsystemBase{
 
     frc2::CommandPtr WhileOut();
     frc2::CommandPtr WhileIn();
+    frc2::CommandPtr WhileIn2();
     frc2::CommandPtr EffectorIn();
     frc2::CommandPtr EffectorContinue();
     frc2::CommandPtr EffectorOut();
