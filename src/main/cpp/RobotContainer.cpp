@@ -4,25 +4,25 @@
 
 #include "RobotContainer.h"
 
-#include <units/math.h>
 #include <units/acceleration.h>
 #include <units/angle.h>
 #include <units/angular_acceleration.h>
 #include <units/angular_velocity.h>
 #include <units/length.h>
+#include <units/math.h>
 #include <units/moment_of_inertia.h>
 #include <units/velocity.h>
 #include <units/voltage.h>
 
 #include <numbers>
 
-#include <frc/RobotBase.h>
 #include <frc/DataLogManager.h>
 #include <frc/DriverStation.h>
+#include <frc/RobotBase.h>
+#include <frc/filter/SlewRateLimiter.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc2/command/Commands.h>
 #include <frc2/command/button/Trigger.h>
-#include <frc/filter/SlewRateLimiter.h>
 #include <iostream>
 
 #include <choreo/Choreo.h>
@@ -62,8 +62,7 @@ constexpr auto mid_line = field_length / 2;
 
 } // namespace FieldConstants
 
-
-RobotContainer::RobotContainer() { 
+RobotContainer::RobotContainer() {
   fmt::println("made it to robot container");
   // Initialize all of your commands and subsystems here
   frc::DataLogManager::Start();
@@ -108,78 +107,91 @@ RobotContainer::RobotContainer() {
 }
 
 void RobotContainer::ConfigureBindings() {
-  m_swerve.SetDefaultCommand(
-      m_swerve.CustomSwerveCommand(
-        [this] { return m_oi.fwd(); }, 
-        [this] { return m_oi.strafe(); }, 
-        [this] { return m_oi.rot(); }));
+  m_swerve.SetDefaultCommand(m_swerve.CustomSwerveCommand(
+      [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
+      [this] { return m_oi.rot(); }));
 
   // m_oi.DriveToPoseTrigger.WhileTrue(
   //   m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));
-  m_oi.zeroHeadingTrigger.OnTrue(
-    frc2::cmd::Parallel(m_swerve.ZeroHeadingCommand(), frc2::cmd::Print("Zeroed Heading")));
+  m_oi.zeroHeadingTrigger.OnTrue(frc2::cmd::Parallel(
+      m_swerve.ZeroHeadingCommand(), frc2::cmd::Print("Zeroed Heading")));
 
   // Elevator
   m_oi.ElevatorIntakeTrigger.OnTrue(
-    m_superStructure.moveElevatorTo(m_superStructure.m_elevator.INTAKE));
+      m_superStructure.moveElevatorTo(m_superStructure.m_elevator.INTAKE));
   m_oi.ElevatorL1Trigger.OnTrue(
-    m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L1));
+      m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L1));
   m_oi.ElevatorL2Trigger.OnTrue(
-    m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L2));
+      m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L2));
   m_oi.ElevatorL3Trigger.OnTrue(
-    m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L3));
+      m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L3));
   m_oi.ElevatorL4Trigger.OnTrue(
-    m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L4));
-  //Test Commands for Elevator
-  m_oi.ElevatorUpTrigger.WhileTrue(
-    m_superStructure.m_elevator.MoveUp());
-  m_oi.ElevatorDownTrigger.WhileTrue(
-    m_superStructure.m_elevator.MoveDown());
-  m_test = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("Auton Alpha"); 
-  m_oi.FollowPathTrigger.WhileTrue(m_test.has_value() ? m_swerve.FollowPathCommand(m_test.value()) :
-                       frc2::cmd::None());
-  
-  //End Effector
+      m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L4));
+  // Test Commands for Elevator
+  m_oi.ElevatorUpTrigger.WhileTrue(m_superStructure.m_elevator.MoveUp());
+  m_oi.ElevatorDownTrigger.WhileTrue(m_superStructure.m_elevator.MoveDown());
+  m_test = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("Auton Alpha");
+  m_oi.FollowPathTrigger.WhileTrue(
+      m_test.has_value() ? m_swerve.FollowPathCommand(m_test.value())
+                         : frc2::cmd::None());
+
+  // End Effector
   m_oi.EndEffectorInTrigger.WhileTrue(
-    m_superStructure.m_endeffector.EffectorIn());
+      m_superStructure.m_endeffector.EffectorIn());
   m_oi.EndEffectorOutTrigger.WhileTrue(
-    m_superStructure.m_endeffector.EffectorOut());
+      m_superStructure.m_endeffector.EffectorOut());
 
-  //Climb
-
-
+  // Climb
+  m_oi.ClimbExtendTrigger.OnTrue(m_climb.ExtendClimb());
+  m_oi.ClimbRetractTrigger.OnTrue(m_climb.RetractClimb());
 }
 
 void RobotContainer::ConfigureDashboard() {
   frc::SmartDashboard::PutData("Drivebase", &m_swerve);
 
   m_superStructure.InitVisualization(
-    m_mech.GetRoot("Elevator", 2.0, 0)->Append<frc::MechanismLigament2d>(
-      "Base", 0, 0_deg));
-  
+      m_mech.GetRoot("Elevator", 2.0, 0)
+          ->Append<frc::MechanismLigament2d>("Base", 0, 0_deg));
+
   constexpr auto pipe_thickness = 10;
   constexpr auto pipe_color = frc::Color::kPurple;
   auto reef = m_mech.GetRoot("Reef", 2.65, 0);
-  reef->Append<frc::MechanismLigament2d>("Base", 1.2, 90_deg, 4, frc::Color::kGray)
-      ->Append<frc::MechanismLigament2d>("Trough", 1, -75_deg, 4, frc::Color::kGray)
-      ->Append<frc::MechanismLigament2d>("Branch", 3.0, 75_deg, pipe_thickness, pipe_color);
-  
-  reef->Append<frc::MechanismLigament2d>("L2Tip", 2.65, 90_deg, 0, frc::Color::kBlack)
-      ->Append<frc::MechanismLigament2d>("L2", 1.2, -125_deg, pipe_thickness, pipe_color);
-  reef->Append<frc::MechanismLigament2d>("L3Tip", 3.95, 90_deg, 0, frc::Color::kBlack)
-      ->Append<frc::MechanismLigament2d>("L3", 1.2, -125_deg, pipe_thickness, pipe_color);
-  reef->Append<frc::MechanismLigament2d>("L4Tip", 6, 90_deg, 0, frc::Color::kBlack)
-      ->Append<frc::MechanismLigament2d>("L4", 0.85, -180_deg, pipe_thickness, pipe_color)
-      ->Append<frc::MechanismLigament2d>("L4Base", 1.2, 55_deg, pipe_thickness, pipe_color);  
+  reef->Append<frc::MechanismLigament2d>("Base", 1.2, 90_deg, 4,
+                                         frc::Color::kGray)
+      ->Append<frc::MechanismLigament2d>("Trough", 1, -75_deg, 4,
+                                         frc::Color::kGray)
+      ->Append<frc::MechanismLigament2d>("Branch", 3.0, 75_deg, pipe_thickness,
+                                         pipe_color);
+
+  reef->Append<frc::MechanismLigament2d>("L2Tip", 2.65, 90_deg, 0,
+                                         frc::Color::kBlack)
+      ->Append<frc::MechanismLigament2d>("L2", 1.2, -125_deg, pipe_thickness,
+                                         pipe_color);
+  reef->Append<frc::MechanismLigament2d>("L3Tip", 3.95, 90_deg, 0,
+                                         frc::Color::kBlack)
+      ->Append<frc::MechanismLigament2d>("L3", 1.2, -125_deg, pipe_thickness,
+                                         pipe_color);
+  reef->Append<frc::MechanismLigament2d>("L4Tip", 6, 90_deg, 0,
+                                         frc::Color::kBlack)
+      ->Append<frc::MechanismLigament2d>("L4", 0.85, -180_deg, pipe_thickness,
+                                         pipe_color)
+      ->Append<frc::MechanismLigament2d>("L4Base", 1.2, 55_deg, pipe_thickness,
+                                         pipe_color);
 
   frc::SmartDashboard::PutData("Visualization", &m_mech);
 }
 
 void RobotContainer::ConfigureAuto() {
-  // PathFollower::registerCommand("ElevatorL4", frc2::cmd::Parallel(std::move(m_elevator.GoToLevel(m_elevator.L4)), frc2::cmd::Print("L4")));
-  // PathFollower::registerCommand("EndEffectorOut", frc2::cmd::Race(std::move(m_endeffector.EffectorOut()), frc2::cmd::Wait(.2_s)));
-  // PathFollower::registerCommand("ElevatorL1", std::move(m_endeffector.EffectorIn()));
-  // PathFollower::registerCommand("InAndUp", frc2::cmd::Sequence(std::move(m_endeffector.EffectorIn()), frc2::cmd::Wait(.4_s), std::move(m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L4))));
+  // PathFollower::registerCommand("ElevatorL4",
+  // frc2::cmd::Parallel(std::move(m_elevator.GoToLevel(m_elevator.L4)),
+  // frc2::cmd::Print("L4"))); PathFollower::registerCommand("EndEffectorOut",
+  // frc2::cmd::Race(std::move(m_endeffector.EffectorOut()),
+  // frc2::cmd::Wait(.2_s))); PathFollower::registerCommand("ElevatorL1",
+  // std::move(m_endeffector.EffectorIn()));
+  // PathFollower::registerCommand("InAndUp",
+  // frc2::cmd::Sequence(std::move(m_endeffector.EffectorIn()),
+  // frc2::cmd::Wait(.4_s),
+  // std::move(m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L4))));
 }
 
 void RobotContainer::ConfigureContinuous() {
@@ -187,22 +199,14 @@ void RobotContainer::ConfigureContinuous() {
 
   // FMS info to ROS
   frc2::CommandScheduler::GetInstance().Schedule(
-    frc2::cmd::Run([this] {
-      m_ros.CheckFMS();
-    })
-    .IgnoringDisable(true)
-  );
+      frc2::cmd::Run([this] { m_ros.CheckFMS(); }).IgnoringDisable(true));
 
   // Odom to ROS
   frc2::CommandScheduler::GetInstance().Schedule(
-    frc2::cmd::Run([this] {
-      m_ros.PubOdom(
-        m_swerve.GetOdomPose(),
-        m_swerve.GetChassisSpeed(),
-        m_swerve.GetOdomTimestamp());
-    })
-    .IgnoringDisable(true)
-  );
+      frc2::cmd::Run([this] {
+        m_ros.PubOdom(m_swerve.GetOdomPose(), m_swerve.GetChassisSpeed(),
+                      m_swerve.GetOdomTimestamp());
+      }).IgnoringDisable(true));
 
   /* NOTE: It's a little weird to have a command adjust the pose estimate
    * since 2 other commands might observe different pose estimates.
@@ -210,20 +214,16 @@ void RobotContainer::ConfigureContinuous() {
    * any races there.
    */
   // ROS to swerve
-  frc2::CommandScheduler::GetInstance().Schedule(
-    frc2::cmd::Run([this] {
-      m_swerve.SetMapToOdom(m_ros.GetMapToOdom());
-    })
-    .IgnoringDisable(true)
-  );
+  frc2::CommandScheduler::GetInstance().Schedule(frc2::cmd::Run([this] {
+                                                   m_swerve.SetMapToOdom(
+                                                       m_ros.GetMapToOdom());
+                                                 }).IgnoringDisable(true));
 
   if constexpr (frc::RobotBase::IsSimulation()) {
     frc2::CommandScheduler::GetInstance().Schedule(
-      frc2::cmd::Run([this] {
-        m_ros.PubSim(m_swerve.GetSimulatedGroundTruth());
-      })
-      .IgnoringDisable(true)
-    );
+        frc2::cmd::Run([this] {
+          m_ros.PubSim(m_swerve.GetSimulatedGroundTruth());
+        }).IgnoringDisable(true));
   }
 }
 
@@ -235,9 +235,9 @@ frc2::CommandPtr RobotContainer::GetDisabledCommand() {
   return frc2::cmd::None();
 }
 
-bool RobotContainer::IsRed()
-{
-  m_isRed = (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed);
+bool RobotContainer::IsRed() {
+  m_isRed =
+      (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed);
 
   return m_isRed;
 }
