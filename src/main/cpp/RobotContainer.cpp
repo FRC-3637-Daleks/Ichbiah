@@ -144,6 +144,8 @@ void RobotContainer::ConfigureBindings() {
   // Climb
   m_oi.ClimbExtendTrigger.OnTrue(m_climb.ExtendClimb());
   m_oi.ClimbRetractTrigger.OnTrue(m_climb.RetractClimb());
+  m_oi.ClimbUpTrigger.OnTrue(m_climb.ExtendClimb());
+  m_oi.ClimbDownTrigger.OnTrue(m_climb.RetractClimb());
 }
 
 void RobotContainer::ConfigureDashboard() {
