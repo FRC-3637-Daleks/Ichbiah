@@ -2,6 +2,7 @@
 
 #include "Piston.h"
 
+#include <frc/Compressor.h>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/SubsystemBase.h>
 
@@ -15,4 +16,5 @@ public:
 
 private:
   Piston m_dualPistons;
+  frc::Compressor m_compressor;
 };
