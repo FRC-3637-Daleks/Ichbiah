@@ -86,6 +86,9 @@ RobotContainer::RobotContainer() {
            ? "Red"
            : "Blue");
 
+  // Needed for LEDs
+  frc::SmartDashboard::PutString("Aliance Color", alliance);
+
   frc::DataLogManager::Log(
       fmt::format("Playing {} Match {} at {} as {} alliance\n", matchType,
                   frc::DriverStation::GetMatchNumber(),
