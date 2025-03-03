@@ -136,8 +136,7 @@ void RobotContainer::ConfigureBindings() {
                          : frc2::cmd::None());
 
   // End Effector
-  m_oi.EndEffectorInTrigger.WhileTrue(
-      m_superStructure.m_endeffector.EffectorIn());
+  m_oi.EndEffectorInTrigger.WhileTrue(m_superStructure.m_endeffector.Intake());
   m_oi.EndEffectorOutTrigger.WhileTrue(
       m_superStructure.m_endeffector.EffectorOut());
 
