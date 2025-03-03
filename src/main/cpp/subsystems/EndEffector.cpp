@@ -96,6 +96,10 @@ void EndEffector::Periodic() {
 void EndEffector::UpdateDashboard() {
     frc::SmartDashboard::PutBoolean("EndEffector/has coral?", hasCoral());
     frc::SmartDashboard::PutNumber("EndEffector/output", m_EndEffectorMotor.GetAppliedOutput());
+
+    frc::SmartDashboard::PutBoolean("EndEffector/Front BB broekn?", isForwardBreakBeamBroken());
+    frc::SmartDashboard::PutBoolean("EndEffector/Back BB broekn?", isBackwardBreakBeamBroken());
+
     UpdateVisualization();
 }
 
@@ -212,11 +216,13 @@ frc2::CommandPtr EndEffector::EffectorOut() {
     });
 }
 
-frc2::CommandPtr EndEffector::Intake(){
+//Assumes one break beam
+frc2::CommandPtr EndEffector::Intake() {
     return WhileIn().Until([this]() -> bool {
-        return isForwardBreakBeamBroken();
+        return isBackwardBreakBeamBroken();
     });
 } 
+
 
 /*****************************SIMULATION******************************/
 EndEffectorSim::EndEffectorSim(EndEffector& ee):
