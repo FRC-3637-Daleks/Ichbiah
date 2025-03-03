@@ -17,7 +17,7 @@ constexpr int kModualID = 100; // Remember to change to real value
 
 constexpr units::pounds_per_square_inch_t kMaxPressure = 120_psi;
 
-constexpr units::pounds_per_square_inch_t kMinPressure = 100_psi;
+constexpr units::pounds_per_square_inch_t kMinPressure = 40_psi;
 } // namespace ClimbConstants
 
 Climb::Climb()
@@ -26,7 +26,7 @@ Climb::Climb()
                     ClimbConstants::kPistonExtendTime},
       m_compressor{
           ClimbConstants::kModualID,
-          frc::PneumaticsModuleType::CTREPCM /*check, proob not right*/} {
+          frc::PneumaticsModuleType::REVPH /*check, proob not right*/} {
   //"Enable closed-loop mode based on both the digital pressure switch AND the
   // analog pressure sensor connected to the PH." - WPILib Docs
   m_compressor.EnableHybrid(ClimbConstants::kMaxPressure,
