@@ -12,12 +12,26 @@ namespace ClimbConstants {
 constexpr auto kPistonExtendTime = 2_s;
 constexpr int kForwardChannel = 0;
 constexpr int kReverseChannel = 1;
+
+constexpr int kModualID = 100; // Remember to change to real value
+
+constexpr units::pounds_per_square_inch_t kMaxPressure = 120_psi;
+
+constexpr units::pounds_per_square_inch_t kMinPressure = 100_psi;
 } // namespace ClimbConstants
 
 Climb::Climb()
     : m_dualPistons{ClimbConstants::kForwardChannel,
                     ClimbConstants::kReverseChannel,
-                    ClimbConstants::kPistonExtendTime} {}
+                    ClimbConstants::kPistonExtendTime},
+      m_compressor{
+          ClimbConstants::kModualID,
+          frc::PneumaticsModuleType::CTREPCM /*check, proob not right*/} {
+  //"Enable closed-loop mode based on both the digital pressure switch AND the
+  // analog pressure sensor connected to the PH." - WPILib Docs
+  m_compressor.EnableHybrid(ClimbConstants::kMaxPressure,
+                            ClimbConstants::kMinPressure);
+}
 
 void Climb::Periodic() {
   std::string state_str;
