@@ -47,7 +47,7 @@ public:
     frc2::Trigger ElevatorIntakeTrigger = m_copilotController.A();
     frc2::Trigger FollowPathTrigger = m_swerveController.POVDown();
     frc2::Trigger DriveToPoseTrigger = m_swerveController.POVDown();
-    frc2::Trigger zeroHeadingTrigger = m_swerveController.Button(12);
+    frc2::Trigger zeroHeadingTrigger = m_swerveController.Start();
 
 private:
     frc2::CommandXboxController m_swerveController;
