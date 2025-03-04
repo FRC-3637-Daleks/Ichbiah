@@ -10,6 +10,9 @@
 
 #include <units/math.h>
 
+#include <frc2/command/CommandPtr.h>
+#include <frc2/command/Commands.h>
+
 namespace OperatorConstants {
 constexpr int kCopilotControllerPort = 1;
 constexpr int kSwerveControllerPort = 0;
@@ -28,7 +31,7 @@ OperatorInterface::OperatorInterface()
 
 double OperatorInterface::throttle() {
   double input = m_swerveController.GetHID().GetRightTriggerAxis();
-  double ret = ((-input + 1)) / 2;
+  double ret = ((-input + 1));
   return ret;
 }
 units::meters_per_second_t OperatorInterface::fwd() {
@@ -60,4 +63,21 @@ bool OperatorInterface::IsRed() {
   auto m_isRed =
       (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed);
   return m_isRed;
+}
+
+frc2::CommandPtr OperatorInterface::RumbleController(units::second_t time,
+                                                     double intensity) {
+  return frc2::cmd::Run([this, intensity] {
+           m_copilotController.SetRumble(
+               frc::GenericHID::RumbleType::kBothRumble, intensity);
+           m_swerveController.SetRumble(
+               frc::GenericHID::RumbleType::kBothRumble, intensity);
+         })
+      .WithTimeout(time)
+      .AndThen([this] {
+        m_copilotController.SetRumble(frc::GenericHID::RumbleType::kBothRumble,
+                                      0);
+        m_swerveController.SetRumble(frc::GenericHID::RumbleType::kBothRumble,
+                                     0);
+      });
 }

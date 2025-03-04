@@ -199,7 +199,7 @@ __                  \x|_______
  */
 
 frc2::CommandPtr EndEffector::EffectorIn() {
-  return WhileIn().Until(
+  return WhileOut().Until(
       [this]() -> bool { return isForwardBreakBeamBroken(); });
 }
 

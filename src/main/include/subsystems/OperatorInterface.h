@@ -77,6 +77,8 @@ public:
            time <= OperatorConstants::kMaxClimbExtendTime;
   }};
 
+  frc2::CommandPtr RumbleController(units::second_t time, double intensity);
+
 private:
   frc2::CommandXboxController m_swerveController;
   frc2::CommandXboxController m_copilotController;
