@@ -142,25 +142,25 @@ void RobotContainer::ConfigureBindings() {
   // m_oi.EndEffectorInTrigger.OnTrue(m_superStructure.Intake());
   // m_oi.EndEffectorOutTrigger.OnTrue(m_superStructure.Score());
   // Backup in case of not working
-  m_oi.EndEffectorInTrigger.OnTrue(m_superStructure.m_endeffector.Intake());
-  m_oi.EndEffectorOutTrigger.OnTrue(
-      m_superStructure.m_endeffector.EffectorOut());
+  m_oi.EndEffectorInTrigger.OnTrue(m_superStructure.Intake());
+  m_oi.EndEffectorOutTrigger.OnTrue(m_superStructure.Score());
 
   // Climb
   m_oi.ClimbExtendTrigger.OnTrue(m_climb.ExtendClimb());
   m_oi.ClimbRetractTrigger.OnTrue(m_climb.RetractClimb());
+
   m_oi.ClimbUpTrigger.OnTrue(m_climb.ExtendClimb());
   m_oi.ClimbDownTrigger.OnTrue(m_climb.RetractClimb());
 
   // Rumble
-  // frc2::Trigger RumbleTrigger(
-  //     [this]() -> bool { return m_endeffector.hasCoral(); });
-  // RumbleTrigger.WhileTrue(m_oi.RumbleController(1_s, 1));
+  frc2::Trigger RumbleTrigger(
+      [this]() -> bool { return m_endeffector.hasCoral(); });
+  RumbleTrigger.OnTrue(m_oi.RumbleController(1_s, 1));
 
-  // frc2::Trigger RumbleScore([this]() -> bool {
-  //   return frc::SmartDashboard::GetBoolean("Rumble?", false);
-  // });
-  // RumbleScore.OnTrue(m_oi.RumbleController(1_s, 1));
+  frc2::Trigger RumbleScore([this]() -> bool {
+    return frc::SmartDashboard::GetBoolean("Rumble?", false);
+  });
+  RumbleScore.OnTrue(m_oi.RumbleController(1_s, 1));
 }
 
 void RobotContainer::ConfigureDashboard() {

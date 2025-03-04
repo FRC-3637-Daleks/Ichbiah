@@ -155,12 +155,21 @@ void EndEffector::UpdateVisualization() {
 
 void EndEffector::MotorForward() { m_EndEffectorMotor.SetVoltage(3_V); }
 
+void EndEffector::MotorForwardLowVoltage() {
+  m_EndEffectorMotor.SetVoltage(0.5_V);
+}
+
 void EndEffector::MotorBack() { m_EndEffectorMotor.SetVoltage(-12_V); }
 
 void EndEffector::MotorStop() { m_EndEffectorMotor.SetVoltage(0_V); }
 
 frc2::CommandPtr EndEffector::WhileIn() {
   return RunEnd([this] { EndEffector::MotorForward(); },
+                [this] { EndEffector::MotorStop(); });
+}
+
+frc2::CommandPtr EndEffector::WhileInLowVoltage() {
+  return RunEnd([this] { EndEffector::MotorForwardLowVoltage(); },
                 [this] { EndEffector::MotorStop(); });
 }
 
@@ -206,7 +215,7 @@ frc2::CommandPtr EndEffector::EffectorIn() {
 }
 
 frc2::CommandPtr EndEffector::EffectorContinue() {
-  return WhileIn().Until(
+  return WhileInLowVoltage().Until(
       [this]() -> bool { return !isBackwardBreakBeamBroken(); });
 }
 
@@ -218,7 +227,7 @@ frc2::CommandPtr EndEffector::EffectorOut() {
 // Assumes one break beam
 frc2::CommandPtr EndEffector::Intake() {
   return WhileIn().Until(
-      [this]() -> bool { return isForwardBreakBeamBroken(); });
+      [this]() -> bool { return isBackwardBreakBeamBroken(); });
 }
 
 /*****************************SIMULATION******************************/

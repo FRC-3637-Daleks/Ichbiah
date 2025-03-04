@@ -31,19 +31,21 @@ void SuperStructure::InitVisualization(frc::MechanismObject2d *elevator_root) {
 void SuperStructure::UpdateVisualization() {}
 
 frc2::CommandPtr SuperStructure::prePlace(Elevator::Level level) {
-  return Intake().AndThen(
-      m_endeffector.EffectorContinue().AlongWith(m_elevator.GoToLevel(level)));
+  return /*rember to implement intake here*/ m_endeffector.EffectorContinue()
+      .AlongWith(m_elevator.GoToLevel(level));
 };
 
 frc2::CommandPtr SuperStructure::Intake() {
-  return m_endeffector.Intake().Until(
-      [this]() -> bool { return m_endeffector.hasCoral(); });
+  return m_elevator.GoToLevel(m_elevator.INTAKE)
+      .AndThen(m_endeffector.Intake().Until(
+          [this]() -> bool { return m_endeffector.hasCoral(); }));
 }
 
 // Pre-requisit is having coral && being at the right
 frc2::CommandPtr SuperStructure::Score() {
-  return m_endeffector.EffectorOut().AndThen(
-      m_elevator.GoToLevel(m_elevator.INTAKE));
+  return m_endeffector.EffectorOut()
+      .AndThen(frc2::cmd::Wait(0.3_s))
+      .AndThen(m_elevator.GoToLevel(m_elevator.INTAKE));
 }
 
 SuperStructure::~SuperStructure() {}
