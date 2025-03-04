@@ -10,8 +10,8 @@
 
 namespace ClimbConstants {
 constexpr auto kPistonExtendTime = 2_s;
-constexpr int kForwardChannel = 0;
-constexpr int kReverseChannel = 1;
+constexpr int kForwardChannel = 1;
+constexpr int kReverseChannel = 0;
 
 constexpr int kModualID = 3; // Remember to change to real value
 

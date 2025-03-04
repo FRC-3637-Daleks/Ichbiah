@@ -61,8 +61,8 @@ constexpr auto kSteerMoment = 0.005_kg_sq_m;
 constexpr auto kSteerAcceleration = 135.7_tr_per_s_sq * 2; //Measured empirically, rough guess
 constexpr auto kSteerSpeed = kMotorSpeed / kSteerGearReduction;
 
-constexpr double kDriveP = 0, kDriveI = 0.1, kDriveD = 0;
-constexpr double kSteerP = 10, kSteerI = 0, kSteerD = 0.002, kSteerS = 0.03;
+constexpr double kDriveP = 0.09, kDriveI = 0.000, kDriveD = 0.002;
+constexpr double kSteerP = 10, kSteerI = 0, kSteerD = 0.022, kSteerS = 0.03;
 
 const auto MotorModel = [] (int N=1) {return frc::DCMotor::KrakenX60FOC(N);};
 
