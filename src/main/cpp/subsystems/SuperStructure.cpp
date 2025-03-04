@@ -36,19 +36,14 @@ frc2::CommandPtr SuperStructure::prePlace(Elevator::Level level) {
 };
 
 frc2::CommandPtr SuperStructure::Intake() {
-  return m_endeffector.EffectorOut().Until(
+  return m_endeffector.Intake().Until(
       [this]() -> bool { return m_endeffector.hasCoral(); });
 }
 
 // Pre-requisit is having coral && being at the right
 frc2::CommandPtr SuperStructure::Score() {
-  return m_endeffector.EffectorIn()
-      .AndThen(m_elevator.GoToLevel(m_elevator.INTAKE))
-      .Until([this]() -> bool {
-        return frc::SmartDashboard::GetString("Elevator/Target Level",
-                                              "INTAKE") == "INTAKE";
-      })
-      .AndThen([this] { frc::SmartDashboard::PutBoolean("Rumble?", true); });
+  return m_endeffector.EffectorOut().AndThen(
+      m_elevator.GoToLevel(m_elevator.INTAKE));
 }
 
 SuperStructure::~SuperStructure() {}
