@@ -121,15 +121,15 @@ void RobotContainer::ConfigureBindings() {
 
   // Elevator
   m_oi.ElevatorIntakeTrigger.OnTrue(
-      m_superStructure.moveElevatorTo(m_superStructure.m_elevator.INTAKE));
+      m_superStructure.prePlace(m_superStructure.m_elevator.INTAKE));
   m_oi.ElevatorL1Trigger.OnTrue(
-      m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L1));
+      m_superStructure.prePlace(m_superStructure.m_elevator.L1));
   m_oi.ElevatorL2Trigger.OnTrue(
-      m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L2));
+      m_superStructure.prePlace(m_superStructure.m_elevator.L2));
   m_oi.ElevatorL3Trigger.OnTrue(
-      m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L3));
+      m_superStructure.prePlace(m_superStructure.m_elevator.L3));
   m_oi.ElevatorL4Trigger.OnTrue(
-      m_superStructure.moveElevatorTo(m_superStructure.m_elevator.L4));
+      m_superStructure.prePlace(m_superStructure.m_elevator.L4));
   // Test Commands for Elevator
   m_oi.ElevatorUpTrigger.WhileTrue(m_superStructure.m_elevator.MoveUp());
   m_oi.ElevatorDownTrigger.WhileTrue(m_superStructure.m_elevator.MoveDown());
@@ -139,15 +139,24 @@ void RobotContainer::ConfigureBindings() {
                          : frc2::cmd::None());
 
   // End Effector
-  m_oi.EndEffectorInTrigger.WhileTrue(m_superStructure.m_endeffector.Intake());
-  m_oi.EndEffectorOutTrigger.WhileTrue(
-      m_superStructure.m_endeffector.EffectorOut());
+  m_oi.EndEffectorInTrigger.WhileTrue(m_superStructure.Intake());
+  m_oi.EndEffectorOutTrigger.WhileTrue(m_superStructure.Score());
 
   // Climb
   m_oi.ClimbExtendTrigger.OnTrue(m_climb.ExtendClimb());
   m_oi.ClimbRetractTrigger.OnTrue(m_climb.RetractClimb());
   m_oi.ClimbUpTrigger.OnTrue(m_climb.ExtendClimb());
   m_oi.ClimbDownTrigger.OnTrue(m_climb.RetractClimb());
+
+  // Rumble
+  frc2::Trigger RumbleTrigger(
+      [this]() -> bool { return m_endeffector.hasCoral(); });
+  RumbleTrigger.WhileTrue(m_oi.RumbleController(1_s, 1));
+
+  frc2::Trigger RumbleScore([this]() -> bool {
+    return frc::SmartDashboard::GetBoolean("Rumble?", false);
+  });
+  RumbleScore.OnTrue(m_oi.RumbleController(1_s, 1));
 }
 
 void RobotContainer::ConfigureDashboard() {
