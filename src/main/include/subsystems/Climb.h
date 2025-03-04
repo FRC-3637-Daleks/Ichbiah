@@ -11,6 +11,7 @@ public:
   Climb();
   frc2::CommandPtr ExtendClimb();
   frc2::CommandPtr RetractClimb();
+  frc2::CommandPtr ToggleClimbCommand();
 
   void Periodic() override;
 

@@ -20,7 +20,7 @@ constexpr int kSwerveControllerPort = 0;
 constexpr double kStrafeDeadband = 0.08;
 constexpr double kRotDeadband = .16;
 constexpr double kClimbDeadband = 0.08;
-constexpr int kFieldRelativeButton = frc::XboxController::Button::kRightBumper;
+constexpr int kFieldRelativeButton = frc::XboxController::Button::kBack;
 
 constexpr auto kMaxTeleopSpeed = 15.7_fps;
 constexpr auto kMaxTeleopTurnSpeed = 2.5 * std::numbers::pi * 1_rad_per_s;
@@ -34,13 +34,20 @@ double OperatorInterface::throttle() {
   double ret = ((-input + 1));
   return ret;
 }
+
+double OperatorInterface::boolean_slowdown() {
+  if (m_swerveController.GetHID().GetLeftTriggerAxis() > 0.2)
+    return 0.5;
+  return 1.0;
+}
+
 units::meters_per_second_t OperatorInterface::fwd() {
   auto input = frc::ApplyDeadband(m_swerveController.GetHID().GetLeftY(),
                                   OperatorConstants::kStrafeDeadband);
   auto squaredInput = input * std::abs(input);
   auto alliance_flip = IsRed() ? -1 : 1;
   return OperatorConstants::kMaxTeleopSpeed * squaredInput * alliance_flip *
-         throttle();
+         throttle() * boolean_slowdown();
 }
 
 units::meters_per_second_t OperatorInterface::strafe() {
@@ -49,15 +56,16 @@ units::meters_per_second_t OperatorInterface::strafe() {
   auto squaredInput = input * std::abs(input);
   auto alliance_flip = IsRed() ? -1 : 1;
   return OperatorConstants::kMaxTeleopSpeed * squaredInput * alliance_flip *
-         throttle();
+         throttle() * boolean_slowdown();
 }
 
 units::revolutions_per_minute_t OperatorInterface::rot() {
   auto input = frc::ApplyDeadband(-m_swerveController.GetHID().GetRightX(),
                                   OperatorConstants::kRotDeadband);
   auto squaredInput = input * std::abs(input);
-  return OperatorConstants::kMaxTeleopTurnSpeed * squaredInput * throttle();
-};
+  return OperatorConstants::kMaxTeleopTurnSpeed * squaredInput * throttle() *
+         boolean_slowdown();
+}
 
 bool OperatorInterface::IsRed() {
   auto m_isRed =
