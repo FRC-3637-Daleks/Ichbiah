@@ -8,6 +8,8 @@
 #include <rev/sim/SparkLimitSwitchSim.h>
 #include <units/moment_of_inertia.h>
 
+#include <frc/RobotController.h>
+
 /**
  * Note from Visvam:
  *
@@ -58,10 +60,10 @@ public:
 EndEffector::EndEffector()
     : // m_ForwardBreakBeam{EndEffectorConstants::kForwardBreakBeamID},
       // m_BackwardBreakBeam(EndEffectorConstants::kBackwardBreakBeamID),
-      m_ForwardBreakBeam{m_EndEffectorMotor.GetForwardLimitSwitch()},
-      m_BackwardBreakBeam{m_EndEffectorMotor.GetReverseLimitSwitch()},
       m_EndEffectorMotor{EndEffectorConstants::kMotorID,
                          rev::spark::SparkFlex::MotorType::kBrushless},
+      m_ForwardBreakBeam{m_EndEffectorMotor.GetForwardLimitSwitch()},
+      m_BackwardBreakBeam{m_EndEffectorMotor.GetReverseLimitSwitch()},
       m_sim_state(new EndEffectorSim(*this)) {
 
   rev::spark::SparkBaseConfig config;
@@ -176,10 +178,10 @@ frc2::CommandPtr EndEffector::WhileOut() {
 }
 
 bool EndEffector::isForwardBreakBeamBroken() {
-  return !(m_ForwardBreakBeam.Get());
+  return (m_ForwardBreakBeam.Get());
 }
 bool EndEffector::isBackwardBreakBeamBroken() {
-  return !(m_BackwardBreakBeam.Get());
+  return (m_BackwardBreakBeam.Get());
 }
 
 bool EndEffector::hasCoral() {
@@ -189,9 +191,9 @@ bool EndEffector::hasCoral() {
 /*
              ______  _ Motor
 __                  \x|_______
-   \ ______  X Front Break Beam
+   \ ______  X back Break Beam
             \ ______
-                     \ ____ X Back Break Beam
+                     \ ____ X front Break Beam
                             \ ____
                                     ||
                                     ||
@@ -199,7 +201,7 @@ __                  \x|_______
  */
 
 frc2::CommandPtr EndEffector::EffectorIn() {
-  return WhileOut().Until(
+  return WhileIn().Until(
       [this]() -> bool { return isForwardBreakBeamBroken(); });
 }
 
@@ -209,14 +211,14 @@ frc2::CommandPtr EndEffector::EffectorContinue() {
 }
 
 frc2::CommandPtr EndEffector::EffectorOut() {
-  return WhileOut().Until(
+  return WhileIn().Until(
       [this]() -> bool { return !isForwardBreakBeamBroken(); });
 }
 
 // Assumes one break beam
 frc2::CommandPtr EndEffector::Intake() {
   return WhileIn().Until(
-      [this]() -> bool { return isBackwardBreakBeamBroken(); });
+      [this]() -> bool { return isForwardBreakBeamBroken(); });
 }
 
 /*****************************SIMULATION******************************/
