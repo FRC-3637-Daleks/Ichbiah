@@ -53,7 +53,7 @@ units::meters_per_second_t OperatorInterface::strafe() {
 }
 
 units::revolutions_per_minute_t OperatorInterface::rot() {
-  auto input = frc::ApplyDeadband(-m_swerveController.GetHID().GetRightY(),
+  auto input = frc::ApplyDeadband(-m_swerveController.GetHID().GetRightX(),
                                   OperatorConstants::kRotDeadband);
   auto squaredInput = input * std::abs(input);
   return OperatorConstants::kMaxTeleopTurnSpeed * squaredInput * throttle();

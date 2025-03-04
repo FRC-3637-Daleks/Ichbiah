@@ -58,14 +58,14 @@ public:
       [this] { return m_copilotController.GetRightY() > 0.5; }};
   frc2::Trigger ElevatorDownTrigger{
       [this] { return m_copilotController.GetRightY() < -0.5; }};
-  frc2::Trigger EndEffectorInTrigger = m_copilotController.RightTrigger();
-  frc2::Trigger EndEffectorOutTrigger = m_copilotController.LeftTrigger();
+  frc2::Trigger EndEffectorInTrigger = m_swerveController.LeftBumper();
+  frc2::Trigger EndEffectorOutTrigger = m_swerveController.RightBumper();
   frc2::Trigger ClimbUpTrigger = m_copilotController.POVUp();
   frc2::Trigger ClimbDownTrigger = m_copilotController.POVDown();
   frc2::Trigger ElevatorIntakeTrigger = m_copilotController.A();
   frc2::Trigger FollowPathTrigger = m_swerveController.POVDown();
   frc2::Trigger DriveToPoseTrigger = m_swerveController.POVDown();
-  frc2::Trigger zeroHeadingTrigger = m_swerveController.Button(12);
+  frc2::Trigger zeroHeadingTrigger = m_swerveController.Start();
   frc2::Trigger ClimbExtendTrigger{[this]() -> bool {
     auto time = frc::DriverStation::GetMatchTime();
     return time >= OperatorConstants::kMinClimbExtendTime &&

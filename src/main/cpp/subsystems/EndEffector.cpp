@@ -3,10 +3,13 @@
 #include <frc/simulation/FlywheelSim.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/system/plant/LinearSystemId.h>
+#include <iostream>
 #include <numbers>
 #include <rev/sim/SparkFlexSim.h>
 #include <rev/sim/SparkLimitSwitchSim.h>
 #include <units/moment_of_inertia.h>
+
+#include <frc/RobotController.h>
 
 /**
  * Note from Visvam:
@@ -58,10 +61,10 @@ public:
 EndEffector::EndEffector()
     : // m_ForwardBreakBeam{EndEffectorConstants::kForwardBreakBeamID},
       // m_BackwardBreakBeam(EndEffectorConstants::kBackwardBreakBeamID),
-      m_ForwardBreakBeam{m_EndEffectorMotor.GetForwardLimitSwitch()},
-      m_BackwardBreakBeam{m_EndEffectorMotor.GetReverseLimitSwitch()},
       m_EndEffectorMotor{EndEffectorConstants::kMotorID,
                          rev::spark::SparkFlex::MotorType::kBrushless},
+      m_ForwardBreakBeam{m_EndEffectorMotor.GetForwardLimitSwitch()},
+      m_BackwardBreakBeam{m_EndEffectorMotor.GetReverseLimitSwitch()},
       m_sim_state(new EndEffectorSim(*this)) {
 
   rev::spark::SparkBaseConfig config;
@@ -151,15 +154,23 @@ void EndEffector::UpdateVisualization() {
                             m_EndEffectorMotor.GetAppliedOutput() * 200));
 }
 
-void EndEffector::MotorForward() { m_EndEffectorMotor.SetVoltage(3_V); }
+frc2::CommandPtr EndEffector::MotorForward() {
+  return Run([this] { m_EndEffectorMotor.SetVoltage(3_V); });
+}
 
-void EndEffector::MotorBack() { m_EndEffectorMotor.SetVoltage(-12_V); }
+frc2::CommandPtr EndEffector::MotorBack() {
+  return Run([this] { m_EndEffectorMotor.SetVoltage(-12_V); });
+}
 
-void EndEffector::MotorStop() { m_EndEffectorMotor.SetVoltage(0_V); }
+frc2::CommandPtr EndEffector::MotorStop() {
+  return Run([this] { m_EndEffectorMotor.SetVoltage(0_V); });
+}
 
 frc2::CommandPtr EndEffector::WhileIn() {
-  return RunEnd([this] { EndEffector::MotorForward(); },
-                [this] { EndEffector::MotorStop(); });
+  return Run([this] {
+    std::cout << "starting while in \n";
+    EndEffector::MotorForward();
+  });
 }
 
 /**
@@ -176,10 +187,10 @@ frc2::CommandPtr EndEffector::WhileOut() {
 }
 
 bool EndEffector::isForwardBreakBeamBroken() {
-  return !(m_ForwardBreakBeam.Get());
+  return (m_ForwardBreakBeam.Get());
 }
 bool EndEffector::isBackwardBreakBeamBroken() {
-  return !(m_BackwardBreakBeam.Get());
+  return (m_BackwardBreakBeam.Get());
 }
 
 bool EndEffector::hasCoral() {
@@ -199,8 +210,9 @@ __                  \x|_______
  */
 
 frc2::CommandPtr EndEffector::EffectorIn() {
-  return WhileOut().Until(
-      [this]() -> bool { return isForwardBreakBeamBroken(); });
+  return WhileIn()
+      .Until([this]() -> bool { return isForwardBreakBeamBroken(); })
+      .AndThen([this]() -> void { MotorStop(); });
 }
 
 frc2::CommandPtr EndEffector::EffectorContinue() {
@@ -209,14 +221,15 @@ frc2::CommandPtr EndEffector::EffectorContinue() {
 }
 
 frc2::CommandPtr EndEffector::EffectorOut() {
-  return WhileOut().Until(
+  return WhileIn().Until(
       [this]() -> bool { return !isForwardBreakBeamBroken(); });
 }
 
 // Assumes one break beam
 frc2::CommandPtr EndEffector::Intake() {
-  return WhileIn().Until(
-      [this]() -> bool { return isBackwardBreakBeamBroken(); });
+  return MotorForward()
+      .Until([this]() -> bool { return isForwardBreakBeamBroken(); })
+      .AndThen(MotorStop());
 }
 
 /*****************************SIMULATION******************************/
