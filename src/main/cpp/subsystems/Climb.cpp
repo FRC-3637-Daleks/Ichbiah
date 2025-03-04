@@ -59,3 +59,9 @@ void Climb::Periodic() {
 frc2::CommandPtr Climb::ExtendClimb() { return m_dualPistons.Extend(); }
 
 frc2::CommandPtr Climb::RetractClimb() { return m_dualPistons.Retract(); }
+
+frc2::CommandPtr Climb::ToggleClimbCommand() {
+  return frc2::cmd::Either(RetractClimb(), ExtendClimb(), [this]() -> bool {
+    return m_dualPistons.getState() == Piston::State::Extended;
+  });
+}

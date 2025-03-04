@@ -116,7 +116,7 @@ void RobotContainer::ConfigureBindings() {
 
   // m_oi.DriveToPoseTrigger.WhileTrue(
   //   m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));
-  m_oi.zeroHeadingTrigger.OnTrue(frc2::cmd::Parallel(
+  m_oi.ZeroHeadingTrigger.OnTrue(frc2::cmd::Parallel(
       m_swerve.ZeroHeadingCommand(), frc2::cmd::Print("Zeroed Heading")));
 
   // Elevator
@@ -145,11 +145,13 @@ void RobotContainer::ConfigureBindings() {
   m_oi.EndEffectorOutTrigger.OnTrue(m_superStructure.Score());
 
   // Climb
-  m_oi.ClimbExtendTrigger.OnTrue(m_climb.ExtendClimb());
-  m_oi.ClimbRetractTrigger.OnTrue(m_climb.RetractClimb());
+  m_oi.ClimbTimedExtendTrigger.OnTrue(m_climb.ExtendClimb());
+  m_oi.ClimbTimedRetractTrigger.OnTrue(m_climb.RetractClimb());
 
   m_oi.ClimbUpTrigger.OnTrue(m_climb.ExtendClimb());
   m_oi.ClimbDownTrigger.OnTrue(m_climb.RetractClimb());
+
+  m_oi.ClimbToggleTrigger.OnTrue(m_climb.ToggleClimbCommand());
 
   // Rumble
   frc2::Trigger RumbleTrigger(

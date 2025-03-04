@@ -47,13 +47,23 @@ class OperatorInterface {
 public:
   OperatorInterface();
   double throttle();
+  double boolean_slowdown();
   units::meters_per_second_t strafe();
   units::meters_per_second_t fwd();
   units::revolutions_per_minute_t rot();
-  frc2::Trigger ElevatorL1Trigger = m_copilotController.RightBumper();
-  frc2::Trigger ElevatorL2Trigger = m_copilotController.B();
-  frc2::Trigger ElevatorL3Trigger = m_copilotController.X();
-  frc2::Trigger ElevatorL4Trigger = m_copilotController.Y();
+
+  // Driver Controls
+  frc2::Trigger ClimbToggleTrigger = m_swerveController.Y();
+  frc2::Trigger FollowPathTrigger = m_swerveController.LeftBumper();
+  frc2::Trigger DriveToPoseTrigger = m_swerveController.LeftBumper();
+  frc2::Trigger ZeroHeadingTrigger = m_swerveController.Start();
+  frc2::Trigger ElevatorIntakeTrigger = m_swerveController.A();
+  frc2::Trigger ElevatorL1Trigger = m_swerveController.POVDown();
+  frc2::Trigger ElevatorL2Trigger = m_swerveController.POVLeft();
+  frc2::Trigger ElevatorL3Trigger = m_swerveController.POVRight();
+  frc2::Trigger ElevatorL4Trigger = m_swerveController.POVUp();
+
+  // Co-pilot Controls
   frc2::Trigger ElevatorUpTrigger{
       [this] { return m_copilotController.GetRightY() > 0.5; }};
   frc2::Trigger ElevatorDownTrigger{
@@ -61,17 +71,14 @@ public:
   frc2::Trigger EndEffectorInTrigger = m_copilotController.RightTrigger();
   frc2::Trigger EndEffectorOutTrigger = m_copilotController.LeftTrigger();
   frc2::Trigger ClimbUpTrigger = m_swerveController.Y();
-  frc2::Trigger ClimbDownTrigger = m_swerveController.A();
-  frc2::Trigger ElevatorIntakeTrigger = m_copilotController.A();
-  frc2::Trigger FollowPathTrigger = m_swerveController.POVDown();
-  frc2::Trigger DriveToPoseTrigger = m_swerveController.POVDown();
-  frc2::Trigger zeroHeadingTrigger = m_swerveController.Start();
-  frc2::Trigger ClimbExtendTrigger{[this]() -> bool {
+  frc2::Trigger ClimbDownTrigger = m_swerveController.X();
+
+  frc2::Trigger ClimbTimedExtendTrigger{[this]() -> bool {
     auto time = frc::DriverStation::GetMatchTime();
     return time >= OperatorConstants::kMinClimbExtendTime &&
            time <= OperatorConstants::kMaxClimbExtendTime;
   }};
-  frc2::Trigger ClimbRetractTrigger{[this]() -> bool {
+  frc2::Trigger ClimbTimedRetractTrigger{[this]() -> bool {
     auto time = frc::DriverStation::GetMatchTime();
     return time >= OperatorConstants::kMinClimbRetractTime &&
            time <= OperatorConstants::kMaxClimbExtendTime;
