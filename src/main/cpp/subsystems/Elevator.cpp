@@ -277,7 +277,7 @@ frc2::CommandPtr Elevator::MoveDown(){
 
 frc2::CommandPtr Elevator::GoToLevel(Level goal) {
     return Run([this, goal] {SetGoalHeight(goal);})
-        .Until([this, goal] {return IsAtLevel(goal);});
+        .Until([this, goal] {return IsAtPos(ElevatorConstants::goal_heights[goal]);});
 }
 
 //***************************SIMULATION*****************************
