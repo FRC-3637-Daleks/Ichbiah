@@ -38,7 +38,7 @@ frc2::CommandPtr SuperStructure::prePlace(Elevator::Level level) {
 frc2::CommandPtr SuperStructure::Intake() {
   return m_elevator.GoToLevel(m_elevator.INTAKE)
       .AndThen(m_endeffector.Intake().Until(
-          [this]() -> bool { return m_endeffector.hasCoral(); }));
+          [this]() -> bool { return m_endeffector.HasCoral(); }));
 }
 
 // Pre-requisit is having coral && being at the right

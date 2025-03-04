@@ -25,28 +25,26 @@ public:
   void UpdateVisualization();
 
   void MotorForward();
-  void MotorForwardLowVoltage();
+  void SlowMotorForward();
   void MotorBack();
   void MotorStop();
 
-  bool isForwardBreakBeamBroken();
-  bool isBackwardBreakBeamBroken();
-  bool hasCoral();
+  bool IsInnerBreakBeamBroken();
+  bool IsOuterBreakBeamBroken();
+  bool HasCoral();
 
-  frc2::CommandPtr WhileOut();
-  frc2::CommandPtr WhileIn();
-  frc2::CommandPtr WhileInLowVoltage();
+  frc2::CommandPtr MotorBackwardCommand();
+  frc2::CommandPtr MotorForwardCommand();
+  frc2::CommandPtr SlowMotorForwardCommand();
   frc2::CommandPtr EffectorIn();
   frc2::CommandPtr EffectorContinue();
   frc2::CommandPtr EffectorOut();
   frc2::CommandPtr Intake();
 
 private:
-  // frc::DigitalInput m_ForwardBreakBeam;
-  // frc::DigitalInput m_BackwardBreakBeam;
   rev::spark::SparkFlex m_EndEffectorMotor;
-  rev::spark::SparkLimitSwitch &m_ForwardBreakBeam;
-  rev::spark::SparkLimitSwitch &m_BackwardBreakBeam;
+  rev::spark::SparkLimitSwitch &m_InnerBreakBeam;
+  rev::spark::SparkLimitSwitch &m_OuterBreakBeam;
 
   // visualization stuff
 private:

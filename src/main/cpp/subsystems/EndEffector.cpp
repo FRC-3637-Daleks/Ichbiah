@@ -21,8 +21,8 @@
 
 namespace EndEffectorConstants {
 constexpr int kMotorID = 2;
-constexpr int kForwardBreakBeamID = 1;
-constexpr int kBackwardBreakBeamID = 2;
+constexpr int kInnerBreakBeamID = 1;
+constexpr int kOuterBreakBeamID = 2;
 
 // Sensor is low when the beam is obstructed
 constexpr bool kBeamBroken = false;
@@ -58,12 +58,12 @@ public:
 };
 
 EndEffector::EndEffector()
-    : // m_ForwardBreakBeam{EndEffectorConstants::kForwardBreakBeamID},
-      // m_BackwardBreakBeam(EndEffectorConstants::kBackwardBreakBeamID),
+    : // m_InnerBreakBeam{EndEffectorConstants::kInnerBreakBeamID},
+      // m_OuterBreakBeam(EndEffectorConstants::kOuterBreakBeamID),
       m_EndEffectorMotor{EndEffectorConstants::kMotorID,
                          rev::spark::SparkFlex::MotorType::kBrushless},
-      m_ForwardBreakBeam{m_EndEffectorMotor.GetForwardLimitSwitch()},
-      m_BackwardBreakBeam{m_EndEffectorMotor.GetReverseLimitSwitch()},
+      m_InnerBreakBeam{m_EndEffectorMotor.GetForwardLimitSwitch()},
+      m_OuterBreakBeam{m_EndEffectorMotor.GetReverseLimitSwitch()},
       m_sim_state(new EndEffectorSim(*this)) {
 
   rev::spark::SparkBaseConfig config;
@@ -90,14 +90,14 @@ EndEffector::~EndEffector() {}
 void EndEffector::Periodic() { UpdateDashboard(); }
 
 void EndEffector::UpdateDashboard() {
-  frc::SmartDashboard::PutBoolean("EndEffector/has coral?", hasCoral());
+  frc::SmartDashboard::PutBoolean("EndEffector/has coral?", HasCoral());
   frc::SmartDashboard::PutNumber("EndEffector/output",
                                  m_EndEffectorMotor.GetAppliedOutput());
 
   frc::SmartDashboard::PutBoolean("EndEffector/Front BB broken?",
-                                  isForwardBreakBeamBroken());
+                                  IsInnerBreakBeamBroken());
   frc::SmartDashboard::PutBoolean("EndEffector/Back BB broken?",
-                                  isBackwardBreakBeamBroken());
+                                  IsOuterBreakBeamBroken());
 
   UpdateVisualization();
 }
@@ -134,8 +134,8 @@ void EndEffector::UpdateVisualization() {
   if (!m_mech_backbeam)
     return;
 
-  bool back = isBackwardBreakBeamBroken();
-  bool front = isForwardBreakBeamBroken();
+  bool back = IsOuterBreakBeamBroken();
+  bool front = IsInnerBreakBeamBroken();
   double back_length = 0.0, front_length = 0.0;
 
   if (back && front)
@@ -155,21 +155,19 @@ void EndEffector::UpdateVisualization() {
 
 void EndEffector::MotorForward() { m_EndEffectorMotor.SetVoltage(3_V); }
 
-void EndEffector::MotorForwardLowVoltage() {
-  m_EndEffectorMotor.SetVoltage(0.5_V);
-}
+void EndEffector::SlowMotorForward() { m_EndEffectorMotor.SetVoltage(0.5_V); }
 
 void EndEffector::MotorBack() { m_EndEffectorMotor.SetVoltage(-12_V); }
 
 void EndEffector::MotorStop() { m_EndEffectorMotor.SetVoltage(0_V); }
 
-frc2::CommandPtr EndEffector::WhileIn() {
+frc2::CommandPtr EndEffector::MotorForwardCommand() {
   return RunEnd([this] { EndEffector::MotorForward(); },
                 [this] { EndEffector::MotorStop(); });
 }
 
-frc2::CommandPtr EndEffector::WhileInLowVoltage() {
-  return RunEnd([this] { EndEffector::MotorForwardLowVoltage(); },
+frc2::CommandPtr EndEffector::SlowMotorForwardCommand() {
+  return RunEnd([this] { EndEffector::SlowMotorForward(); },
                 [this] { EndEffector::MotorStop(); });
 }
 
@@ -182,19 +180,15 @@ frc2::CommandPtr EndEffector::WhileInLowVoltage() {
  * Please change it to work how you see fit.
  */
 
-frc2::CommandPtr EndEffector::WhileOut() {
+frc2::CommandPtr EndEffector::MotorBackwardCommand() {
   return RunEnd([this]() { MotorBack(); }, [this]() { MotorStop(); });
 }
 
-bool EndEffector::isForwardBreakBeamBroken() {
-  return (m_ForwardBreakBeam.Get());
-}
-bool EndEffector::isBackwardBreakBeamBroken() {
-  return (m_BackwardBreakBeam.Get());
-}
+bool EndEffector::IsInnerBreakBeamBroken() { return (m_InnerBreakBeam.Get()); }
+bool EndEffector::IsOuterBreakBeamBroken() { return (m_OuterBreakBeam.Get()); }
 
-bool EndEffector::hasCoral() {
-  return isForwardBreakBeamBroken() || isBackwardBreakBeamBroken();
+bool EndEffector::HasCoral() {
+  return IsInnerBreakBeamBroken() || IsOuterBreakBeamBroken();
 }
 
 /*
@@ -210,24 +204,24 @@ __                  \x|_______
  */
 
 frc2::CommandPtr EndEffector::EffectorIn() {
-  return WhileIn().Until(
-      [this]() -> bool { return isForwardBreakBeamBroken(); });
+  return MotorForwardCommand().Until(
+      [this]() -> bool { return IsInnerBreakBeamBroken(); });
 }
 
 frc2::CommandPtr EndEffector::EffectorContinue() {
-  return WhileInLowVoltage().Until(
-      [this]() -> bool { return !isBackwardBreakBeamBroken(); });
+  return SlowMotorForwardCommand().Until(
+      [this]() -> bool { return !IsOuterBreakBeamBroken(); });
 }
 
 frc2::CommandPtr EndEffector::EffectorOut() {
-  return WhileIn().Until(
-      [this]() -> bool { return !isForwardBreakBeamBroken(); });
+  return MotorForwardCommand().Until(
+      [this]() -> bool { return !IsInnerBreakBeamBroken(); });
 }
 
 // Assumes one break beam
 frc2::CommandPtr EndEffector::Intake() {
-  return WhileIn().Until(
-      [this]() -> bool { return isBackwardBreakBeamBroken(); });
+  return MotorForwardCommand().Until(
+      [this]() -> bool { return IsOuterBreakBeamBroken(); });
 }
 
 /*****************************SIMULATION******************************/
