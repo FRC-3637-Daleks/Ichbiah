@@ -44,7 +44,7 @@ frc2::CommandPtr SuperStructure::Intake() {
 // Pre-requisit is having coral && being at the right
 frc2::CommandPtr SuperStructure::Score() {
   return m_endeffector.EffectorOut()
-      .AndThen(frc2::cmd::Wait(0.3_s))
+      .AndThen(frc2::cmd::Wait(0.25_s))
       .AndThen(m_elevator.GoToLevel(m_elevator.INTAKE));
 }
 

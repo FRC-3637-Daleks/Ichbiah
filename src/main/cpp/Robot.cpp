@@ -5,9 +5,9 @@
 #include "Robot.h"
 
 #include <frc/DriverStation.h>
-#include <frc/smartdashboard/SmartDashboard.h>
-#include <frc/shuffleboard/Shuffleboard.h>
 #include <frc/RobotController.h>
+#include <frc/shuffleboard/Shuffleboard.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 #include <frc2/command/CommandScheduler.h>
 
 void Robot::RobotInit() {}
@@ -24,7 +24,6 @@ void Robot::DriverStationConnected() {}
  */
 void Robot::RobotPeriodic() {
   frc2::CommandScheduler::GetInstance().Run();
-
 
   // Log the RIO states.
   frc::SmartDashboard::PutNumber(
@@ -76,6 +75,9 @@ void Robot::RobotPeriodic() {
                                  can_status.transmitErrorCount);
   frc::SmartDashboard::PutNumber("CAN Bus/TX Full Count",
                                  can_status.txFullCount);
+
+  frc::SmartDashboard::PutNumber("DS Match Time",
+                                 frc::DriverStation::GetMatchTime().value());
 }
 
 /**
@@ -93,10 +95,9 @@ void Robot::DisabledPeriodic() {}
  */
 void Robot::AutonomousInit() {}
 
-void Robot::AutonomousPeriodic() {
-}
+void Robot::AutonomousPeriodic() {}
 
-void Robot::TeleopInit() { }
+void Robot::TeleopInit() {}
 
 /**
  * This function is called periodically during operator control.
@@ -119,14 +120,15 @@ void Robot::SimulationInit() {}
 void Robot::SimulationPeriodic() {
   constexpr auto field_width = 26_ft + 5_in;
   constexpr auto field_length = 57_ft + 6.875_in;
-  constexpr frc::Translation2d corners[] = {
-    {0_m, 0_m}, {0_m, field_width}, {field_length, 0_m}, {field_length, field_width}
-  };
+  constexpr frc::Translation2d corners[] = {{0_m, 0_m},
+                                            {0_m, field_width},
+                                            {field_length, 0_m},
+                                            {field_length, field_width}};
   constexpr frc::Translation2d robot_intake{0_in, 15_in};
 
   const auto robot_pose = m_container.m_swerve.GetSimulatedGroundTruth();
   const auto intake_pose = robot_pose.TransformBy({robot_intake, 0_deg});
-  
+
   for (const auto corner : corners) {
     if (intake_pose.Translation().Distance(corner) < 4_ft) {
       // TODO: send it to intake first

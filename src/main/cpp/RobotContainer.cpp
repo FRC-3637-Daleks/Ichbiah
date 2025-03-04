@@ -155,12 +155,12 @@ void RobotContainer::ConfigureBindings() {
   // Rumble
   frc2::Trigger RumbleTrigger(
       [this]() -> bool { return m_endeffector.hasCoral(); });
-  RumbleTrigger.OnTrue(m_oi.RumbleController(1_s, 1));
+  RumbleTrigger.OnTrue(m_oi.RumbleController(0.25_s, 1));
 
   frc2::Trigger RumbleScore([this]() -> bool {
     return frc::SmartDashboard::GetBoolean("Rumble?", false);
   });
-  RumbleScore.OnTrue(m_oi.RumbleController(1_s, 1));
+  RumbleScore.OnTrue(m_oi.RumbleController(0.25_s, 1));
 }
 
 void RobotContainer::ConfigureDashboard() {
