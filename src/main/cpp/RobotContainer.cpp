@@ -165,35 +165,44 @@ void RobotContainer::ConfigureBindings() {
 
 void RobotContainer::ConfigureDashboard() {
   frc::SmartDashboard::PutData("Drivebase", &m_swerve);
-  auto pose = m_swerve.GetPose();
+  // auto pose = m_swerve.GetPose();
   m_swerve.GetField().GetObject("Reef")->SetPoses({
-      ReefAssist::getScoringPose(FieldConsts::Reef::A, FieldConsts::Side::LEFT),
-      ReefAssist::getScoringPose(FieldConsts::Reef::B, FieldConsts::Side::LEFT),
-      ReefAssist::getScoringPose(FieldConsts::Reef::C, FieldConsts::Side::LEFT),
-      ReefAssist::getScoringPose(FieldConsts::Reef::D, FieldConsts::Side::LEFT),
-      ReefAssist::getScoringPose(FieldConsts::Reef::E, FieldConsts::Side::LEFT),
-      ReefAssist::getScoringPose(FieldConsts::Reef::F, FieldConsts::Side::LEFT),
-      ReefAssist::getScoringPose(FieldConsts::Reef::G, FieldConsts::Side::LEFT),
-      ReefAssist::getScoringPose(FieldConsts::Reef::A,
-                                 FieldConsts::Side::RIGHT),
-      ReefAssist::getScoringPose(FieldConsts::Reef::B,
-                                 FieldConsts::Side::RIGHT),
-      ReefAssist::getScoringPose(FieldConsts::Reef::C,
-                                 FieldConsts::Side::RIGHT),
-      ReefAssist::getScoringPose(FieldConsts::Reef::D,
-                                 FieldConsts::Side::RIGHT),
-      ReefAssist::getScoringPose(FieldConsts::Reef::E,
-                                 FieldConsts::Side::RIGHT),
-      ReefAssist::getScoringPose(FieldConsts::Reef::F,
-                                 FieldConsts::Side::RIGHT),
-      ReefAssist::getScoringPose(FieldConsts::Reef::G,
-                                 FieldConsts::Side::RIGHT),
+      ReefAssist::getScoringPose(FieldConstants::Reef::A,
+                                 FieldConstants::Side::LEFT),
+      ReefAssist::getScoringPose(FieldConstants::Reef::B,
+                                 FieldConstants::Side::LEFT),
+      ReefAssist::getScoringPose(FieldConstants::Reef::C,
+                                 FieldConstants::Side::LEFT),
+      ReefAssist::getScoringPose(FieldConstants::Reef::D,
+                                 FieldConstants::Side::LEFT),
+      ReefAssist::getScoringPose(FieldConstants::Reef::E,
+                                 FieldConstants::Side::LEFT),
+      ReefAssist::getScoringPose(FieldConstants::Reef::F,
+                                 FieldConstants::Side::LEFT),
+      ReefAssist::getScoringPose(FieldConstants::Reef::G,
+                                 FieldConstants::Side::LEFT),
+      ReefAssist::getScoringPose(FieldConstants::Reef::A,
+                                 FieldConstants::Side::RIGHT),
+      ReefAssist::getScoringPose(FieldConstants::Reef::B,
+                                 FieldConstants::Side::RIGHT),
+      ReefAssist::getScoringPose(FieldConstants::Reef::C,
+                                 FieldConstants::Side::RIGHT),
+      ReefAssist::getScoringPose(FieldConstants::Reef::D,
+                                 FieldConstants::Side::RIGHT),
+      ReefAssist::getScoringPose(FieldConstants::Reef::E,
+                                 FieldConstants::Side::RIGHT),
+      ReefAssist::getScoringPose(FieldConstants::Reef::F,
+                                 FieldConstants::Side::RIGHT),
+      ReefAssist::getScoringPose(FieldConstants::Reef::G,
+                                 FieldConstants::Side::RIGHT),
 
   });
   m_swerve.GetField()
       .GetObject("CoralStations")
-      ->SetPoses({FieldConsts::kRightCoralStationPose,
-                  FieldConsts::kLeftCoralStationPose});
+      ->SetPoses({FieldConstants::Blue::kRightCoralStationPose,
+                  FieldConstants::Blue::kLeftCoralStationPose,
+                  FieldConstants::Red::kLeftCoralStationPose,
+                  FieldConstants::Red::kRightCoralStationPose});
 
   m_superStructure.InitVisualization(
       m_mech.GetRoot("Elevator", 2.0, 0)
