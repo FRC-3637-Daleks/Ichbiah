@@ -11,31 +11,24 @@ class LEDSubsystem : public frc2::SubsystemBase {
 
     private:
     static constexpr int kPort{0};
-    static constexpr int kNumSpans{6};
-    std::array<frc::AddressableLED::LEDData, 60> m_ledBuffer{};
-    std::array<uint32_t, kNumSpans> m_ledSegmentLengths{10, 10, 10, 10, 10, 10};
+    static constexpr int kNumSpans{3};
+    static constexpr int kLength{150};
+    std::array<frc::AddressableLED::LEDData, kLength> m_ledBuffer{};
+    std::array<uint32_t, kNumSpans> m_ledSegmentLengths{47, 26 ,47};
 
   enum class LEDSEGMENT {
-        Front,
-        Right,
-        Back,
-        Left,
         ElevLeft,
+        ElevTop,
         ElevRight,
     };
   
     enum class LEDSTATE{
-        BaseNoCoral,
-        CoralEntersRobot,
-        CoralEntersIntake,
-        BaseWithCoral,
-        ElevatorLevel_1,
-        ElevatorLevel_2,
-        ElevatorLevel_3,
-        ElevatorLevel_4,
+        Default,
     };
 
-    LEDSTATE m_currState {LEDSTATE::BaseNoCoral};
+    LEDSTATE m_currState {LEDSTATE::Default};
+
+    std::vector<frc::LEDPattern > m_spanPatterns{};
 
     //LED Strip has 60 LEDs / meter
     units::meter_t kLedSpacing{1 / 60.0};
@@ -45,5 +38,8 @@ class LEDSubsystem : public frc2::SubsystemBase {
     std::array<std::span<frc::AddressableLED::LEDData>,kNumSpans> m_ledSegments;
 
     void setState(LEDSTATE state);
+    std::span<frc::AddressableLED::LEDData> getSegment(int segment);
     std::span<frc::AddressableLED::LEDData> getSegment(LEDSEGMENT segment);
+    frc::LEDPattern& getSpanPattern(LEDSEGMENT segment);
+    void setAllSpanPatterns(const frc::LEDPattern& pattern);
 };
