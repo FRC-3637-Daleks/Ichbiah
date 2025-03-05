@@ -46,7 +46,7 @@ units::meters_per_second_t OperatorInterface::fwd() {
                                   OperatorConstants::kStrafeDeadband);
   auto squaredInput = input * std::abs(input);
   auto alliance_flip = IsRed() ? -1 : 1;
-  return OperatorConstants::kMaxTeleopSpeed * squaredInput * alliance_flip *
+  return -OperatorConstants::kMaxTeleopSpeed * squaredInput * alliance_flip *
          throttle() * boolean_slowdown();
 }
 
@@ -55,7 +55,7 @@ units::meters_per_second_t OperatorInterface::strafe() {
                                   OperatorConstants::kStrafeDeadband);
   auto squaredInput = input * std::abs(input);
   auto alliance_flip = IsRed() ? -1 : 1;
-  return OperatorConstants::kMaxTeleopSpeed * squaredInput * alliance_flip *
+  return -OperatorConstants::kMaxTeleopSpeed * squaredInput * alliance_flip *
          throttle() * boolean_slowdown();
 }
 
