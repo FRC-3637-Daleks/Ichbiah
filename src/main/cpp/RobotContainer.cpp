@@ -136,15 +136,6 @@ void RobotContainer::ConfigureBindings() {
   m_oi.ElevatorL4Trigger.OnTrue(
       m_superStructure.prePlace(m_superStructure.m_elevator.L4));
 
-  m_oi.ElevatorL1CopilotTrigger.OnTrue(
-      m_superStructure.prePlace(m_superStructure.m_elevator.L1));
-  m_oi.ElevatorL2CopilotTrigger.OnTrue(
-      m_superStructure.prePlace(m_superStructure.m_elevator.L2));
-  m_oi.ElevatorL3CopilotTrigger.OnTrue(
-      m_superStructure.prePlace(m_superStructure.m_elevator.L3));
-  m_oi.ElevatorL4CopilotTrigger.OnTrue(
-      m_superStructure.prePlace(m_superStructure.m_elevator.L4));
-
   // Test Commands for Elevator
   m_oi.ElevatorUpTrigger.WhileTrue(m_superStructure.m_elevator.MoveUp());
   m_oi.ElevatorDownTrigger.WhileTrue(m_superStructure.m_elevator.MoveDown());

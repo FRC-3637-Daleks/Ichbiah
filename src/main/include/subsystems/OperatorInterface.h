@@ -60,10 +60,14 @@ public:
   frc2::Trigger RobotRelativeToggleTrigger = m_swerveController.Back();
   frc2::Trigger IntakeTrigger = m_swerveController.LeftBumper();
   frc2::Trigger ScoreTrigger = m_swerveController.RightBumper();
-  frc2::Trigger ElevatorL1Trigger = m_swerveController.POVDown();
-  frc2::Trigger ElevatorL2Trigger = m_swerveController.POVLeft();
-  frc2::Trigger ElevatorL3Trigger = m_swerveController.POVRight();
-  frc2::Trigger ElevatorL4Trigger = m_swerveController.POVUp();
+  frc2::Trigger ElevatorL1Trigger =
+      m_swerveController.POVDown() || m_copilotController.POVDown();
+  frc2::Trigger ElevatorL2Trigger =
+      m_swerveController.POVLeft() || m_copilotController.POVLeft();
+  frc2::Trigger ElevatorL3Trigger =
+      m_swerveController.POVRight() || m_copilotController.POVRight();
+  frc2::Trigger ElevatorL4Trigger =
+      m_swerveController.POVUp() || m_copilotController.POVUp();
 
   // Co-pilot Controls
   frc2::Trigger ElevatorUpTrigger{
@@ -75,11 +79,6 @@ public:
   frc2::Trigger ElevatorIntakeTrigger = m_copilotController.A();
   frc2::Trigger ClimbUpTrigger = m_copilotController.Y();
   frc2::Trigger ClimbDownTrigger = m_copilotController.X();
-  frc2::Trigger ElevatorL1CopilotTrigger = m_copilotController.POVDown();
-  frc2::Trigger ElevatorL2CopilotTrigger = m_copilotController.POVLeft();
-  frc2::Trigger ElevatorL3CopilotTrigger = m_copilotController.POVRight();
-  frc2::Trigger ElevatorL4CopilotTrigger = m_copilotController.POVUp();
-
   // Automatic Triggers
   frc2::Trigger ClimbTimedExtendTrigger{[this]() -> bool {
     auto time = frc::DriverStation::GetMatchTime();
