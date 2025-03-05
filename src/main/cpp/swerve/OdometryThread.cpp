@@ -108,7 +108,7 @@ void OdometryThread::Run(units::millisecond_t period) {
     total += 1;
     // Waits for all 16 signals to come in syncronously
     // Timeout is set to the odom period
-    bool timed_out = SwerveModule::SignalGroup::WaitForAllSignals(period, m_moduleSignals);
+    bool timed_out = SwerveModule::SignalGroup::WaitForAllSignals(2*period, m_moduleSignals);
 
     m_odom.Update(GetGyroHeading(), each_position());
 
