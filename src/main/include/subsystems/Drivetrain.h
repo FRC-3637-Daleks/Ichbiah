@@ -322,6 +322,9 @@ public:
 
   frc2::CommandPtr ConfigAbsEncoderCommand();
 
+  frc2::CommandPtr DisableVisionCommand() {return this->RunOnce([this] {m_disable_vision = true;}).IgnoringDisable(true);}
+  frc2::CommandPtr EnableVisionCommand() {return this->RunOnce([this] {m_disable_vision = false;}).IgnoringDisable(true);}
+
 private:
   frc::SwerveDriveKinematics<4> kDriveKinematics;
   std::array<SwerveModule, kNumModules> m_modules;
@@ -333,6 +336,7 @@ private:
   OdometryThread m_odom_thread;
   frc::Transform2d m_initial_transform;  //< initial pose if known
   frc::Transform2d m_map_to_odom;  //< pose correction from sensors
+  bool m_disable_vision;
 
   // Pose Estimator for estimating the robot's position on the field.
   frc::SwerveDrivePoseEstimator<4> m_poseEstimator;

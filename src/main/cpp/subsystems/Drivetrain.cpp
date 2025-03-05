@@ -184,6 +184,7 @@ Drivetrain::Drivetrain()
         kDriveKinematics,
         kOdomPeriod
       },
+      m_disable_vision{false},
       m_poseEstimator{
         kDriveKinematics, GetGyroHeading(), each_position(), frc::Pose2d()},
       m_holonomicController(kTranslatePID, kTranslatePID, kThetaPID),
@@ -301,7 +302,10 @@ units::second_t Drivetrain::GetOdomTimestamp() {
 frc::Pose2d Drivetrain::GetPose() {
   constexpr frc::Pose2d origin{};
   const auto odom_transform = GetOdomPose() - origin;
-  return origin + m_map_to_odom + odom_transform;  // order matters
+  if (m_disable_vision)
+    return origin + odom_transform;
+  else
+    return origin + m_map_to_odom + odom_transform;  // order matters
 }
 
 frc::ChassisSpeeds Drivetrain::GetChassisSpeed() {
