@@ -166,37 +166,20 @@ void RobotContainer::ConfigureBindings() {
 void RobotContainer::ConfigureDashboard() {
   frc::SmartDashboard::PutData("Drivebase", &m_swerve);
   // auto pose = m_swerve.GetPose();
-  m_swerve.GetField().GetObject("Reef")->SetPoses({
-      ReefAssist::getScoringPose(FieldConstants::Reef::A,
-                                 FieldConstants::Side::LEFT),
-      ReefAssist::getScoringPose(FieldConstants::Reef::B,
-                                 FieldConstants::Side::LEFT),
-      ReefAssist::getScoringPose(FieldConstants::Reef::C,
-                                 FieldConstants::Side::LEFT),
-      ReefAssist::getScoringPose(FieldConstants::Reef::D,
-                                 FieldConstants::Side::LEFT),
-      ReefAssist::getScoringPose(FieldConstants::Reef::E,
-                                 FieldConstants::Side::LEFT),
-      ReefAssist::getScoringPose(FieldConstants::Reef::F,
-                                 FieldConstants::Side::LEFT),
-      ReefAssist::getScoringPose(FieldConstants::Reef::G,
-                                 FieldConstants::Side::LEFT),
-      ReefAssist::getScoringPose(FieldConstants::Reef::A,
-                                 FieldConstants::Side::RIGHT),
-      ReefAssist::getScoringPose(FieldConstants::Reef::B,
-                                 FieldConstants::Side::RIGHT),
-      ReefAssist::getScoringPose(FieldConstants::Reef::C,
-                                 FieldConstants::Side::RIGHT),
-      ReefAssist::getScoringPose(FieldConstants::Reef::D,
-                                 FieldConstants::Side::RIGHT),
-      ReefAssist::getScoringPose(FieldConstants::Reef::E,
-                                 FieldConstants::Side::RIGHT),
-      ReefAssist::getScoringPose(FieldConstants::Reef::F,
-                                 FieldConstants::Side::RIGHT),
-      ReefAssist::getScoringPose(FieldConstants::Reef::G,
-                                 FieldConstants::Side::RIGHT),
-
-  });
+  m_swerve.GetField()
+      .GetObject("Blue Reef")
+      ->SetPoses(FieldConstants::Blue::kReefPoses);
+  m_swerve.GetField()
+      .GetObject("Blue coral")
+      ->SetPoses({FieldConstants::Blue::kLeftCoralStationPose,
+                  FieldConstants::Blue::kRightCoralStationPose});
+  m_swerve.GetField()
+      .GetObject("Red Reef")
+      ->SetPoses(FieldConstants::Red::kReefPoses);
+  m_swerve.GetField()
+      .GetObject("Red coral")
+      ->SetPoses({FieldConstants::Red::kLeftCoralStationPose,
+                  FieldConstants::Red::kRightCoralStationPose});
   m_swerve.GetField()
       .GetObject("CoralStations")
       ->SetPoses({FieldConstants::Blue::kRightCoralStationPose,
