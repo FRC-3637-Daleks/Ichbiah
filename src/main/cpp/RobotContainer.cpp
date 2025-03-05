@@ -47,7 +47,7 @@ constexpr int kSwerveControllerPort = 0;
 constexpr double kStrafeDeadband = 0.08;
 constexpr double kRotDeadband = .16;
 constexpr double kClimbDeadband = 0.08;
-constexpr int kFieldRelativeButton = frc::XboxController::Button::kRightBumper;
+constexpr int kFieldRelativeButton = frc::XboxController::Button::kBack;
 
 constexpr auto kMaxTeleopSpeed = 15.7_fps;
 constexpr auto kMaxTeleopTurnSpeed = 2.5 * std::numbers::pi * 1_rad_per_s;
@@ -114,6 +114,11 @@ void RobotContainer::ConfigureBindings() {
       [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
       [this] { return m_oi.rot(); }));
 
+  m_oi.RobotRelativeToggleTrigger.ToggleOnTrue(
+      m_swerve.CustomRobotRelativeSwerveCommand(
+          [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
+          [this] { return m_oi.rot(); }));
+
   // m_oi.DriveToPoseTrigger.WhileTrue(
   //   m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));
   m_oi.ZeroHeadingTrigger.OnTrue(frc2::cmd::Parallel(
@@ -130,6 +135,16 @@ void RobotContainer::ConfigureBindings() {
       m_superStructure.prePlace(m_superStructure.m_elevator.L3));
   m_oi.ElevatorL4Trigger.OnTrue(
       m_superStructure.prePlace(m_superStructure.m_elevator.L4));
+
+  m_oi.ElevatorL1CopilotTrigger.OnTrue(
+      m_superStructure.prePlace(m_superStructure.m_elevator.L1));
+  m_oi.ElevatorL2CopilotTrigger.OnTrue(
+      m_superStructure.prePlace(m_superStructure.m_elevator.L2));
+  m_oi.ElevatorL3CopilotTrigger.OnTrue(
+      m_superStructure.prePlace(m_superStructure.m_elevator.L3));
+  m_oi.ElevatorL4CopilotTrigger.OnTrue(
+      m_superStructure.prePlace(m_superStructure.m_elevator.L4));
+
   // Test Commands for Elevator
   m_oi.ElevatorUpTrigger.WhileTrue(m_superStructure.m_elevator.MoveUp());
   m_oi.ElevatorDownTrigger.WhileTrue(m_superStructure.m_elevator.MoveDown());
@@ -138,11 +153,12 @@ void RobotContainer::ConfigureBindings() {
                          : frc2::cmd::None());
 
   // End Effector
-  // m_oi.EndEffectorInTrigger.OnTrue(m_superStructure.Intake());
-  // m_oi.EndEffectorOutTrigger.OnTrue(m_superStructure.Score());
-  // Backup in case of not working
-  m_oi.EndEffectorInTrigger.OnTrue(m_superStructure.Intake());
-  m_oi.EndEffectorOutTrigger.OnTrue(m_superStructure.Score());
+  m_oi.EndEffectorInTrigger.WhileTrue(m_endeffector.MotorBackwardCommand());
+  m_oi.EndEffectorOutTrigger.WhileTrue(m_endeffector.MotorForwardCommand());
+
+  // Driver Auto Score
+  m_oi.IntakeTrigger.OnTrue(m_superStructure.Intake());
+  m_oi.ScoreTrigger.OnTrue(m_superStructure.Score());
 
   // Climb
   m_oi.ClimbTimedExtendTrigger.OnTrue(m_climb.ExtendClimb());

@@ -260,6 +260,55 @@ public:
   }
 
   /* @see CustomSwerveCommand
+   * This function works the same as CustomSwerveCommand, but instead uses
+   * the robot relative command.
+   */
+  template<LinearCmd XCmd, LinearCmd YCmd, RotationCmd ThetaCmd>
+  frc2::CommandPtr CustomRobotRelativeSwerveCommand(
+    XCmd&& x_cmd, YCmd&& y_cmd, ThetaCmd&& theta_cmd) {
+    return RobotRelativeSwerveCommand([
+      forward = x_speed(std::forward<XCmd>(x_cmd)),
+      strafe = y_speed(std::forward<YCmd>(y_cmd)),
+      rot = theta_speed(std::forward<ThetaCmd>(theta_cmd))
+      ] {
+        return frc::ChassisSpeeds{forward(), strafe(), rot()};
+      }
+    );
+  }
+
+  /* @see CustomRobotRelativeSwerveCommand
+   * This overload allows passing in a bundle of all 3 cmds in
+   * a single package, in x, y, omega order.
+   * 
+   * Uses Robot Relative Swerve Command to Control Robot.
+   * Example usage:
+   * // static speed control
+   * CustomSwerveCommand(frc::ChassisSpeeds{...}) 
+   * 
+   * // dynamic speed control
+   * CustomSwerveCommand([] {return frc::ChassisSpeeds{...};})
+   * 
+   * // drive to dynamic pose
+   * CustomSwerveCommand([] {return std::tuple{x, y, theta};})
+   */
+  template<typename TwistCmd>
+  frc2::CommandPtr CustomRobotRelativeSwerveCommand(
+    TwistCmd&& twist_cmd) {
+    return RobotRelativeSwerveCommand([
+      this,
+      twist_cmd = robot_twist(std::forward<TwistCmd>(twist_cmd))
+      ] {
+        auto &&[x_cmd, y_cmd, theta_cmd] = twist_cmd();
+        return frc::ChassisSpeeds{
+          x_speed(std::forward<decltype(x_cmd)>(x_cmd))(),
+          y_speed(std::forward<decltype(y_cmd)>(y_cmd))(),
+          theta_speed(std::forward<decltype(theta_cmd)>(theta_cmd))()
+        };
+      }
+    );
+  }
+
+  /* @see CustomSwerveCommand
    * This overload allows passing in a bundle of all 3 cmds in
    * a single package, in x, y, omega order.
    * Example usage:
