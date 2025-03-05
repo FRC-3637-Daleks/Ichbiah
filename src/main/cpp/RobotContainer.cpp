@@ -152,8 +152,10 @@ void RobotContainer::ConfigureBindings() {
   m_oi.ScoreTrigger.OnTrue(m_superStructure.Score());
 
   // Climb
-  m_oi.ClimbTimedExtendTrigger.OnTrue(m_climb.ExtendClimb());
-  m_oi.ClimbTimedRetractTrigger.OnTrue(m_climb.RetractClimb());
+  m_oi.ClimbTimedExtendTrigger.OnTrue(
+      m_climb.ExtendClimb().AlongWith(frc2::cmd::Print("Extending Climb")));
+  m_oi.ClimbTimedRetractTrigger.OnTrue(
+      m_climb.RetractClimb().AlongWith(frc2::cmd::Print("Extending Climb")));
 
   m_oi.ClimbUpTrigger.OnTrue(m_climb.ExtendClimb());
   m_oi.ClimbDownTrigger.OnTrue(m_climb.RetractClimb());

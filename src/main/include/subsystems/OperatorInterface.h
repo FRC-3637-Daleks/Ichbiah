@@ -70,9 +70,11 @@ public:
       [this] { return m_copilotController.GetRightY() < -0.5; }};
   frc2::Trigger EndEffectorInTrigger = m_copilotController.RightTrigger();
   frc2::Trigger EndEffectorOutTrigger = m_copilotController.LeftTrigger();
-  frc2::Trigger ClimbUpTrigger = m_swerveController.Y();
-  frc2::Trigger ClimbDownTrigger = m_swerveController.X();
+  frc2::Trigger ElevatorIntakeTrigger = m_copilotController.B();
+  frc2::Trigger ClimbUpTrigger = m_copilotController.Y();
+  frc2::Trigger ClimbDownTrigger = m_copilotController.X();
 
+  // Automatic Triggers
   frc2::Trigger ClimbTimedExtendTrigger{[this]() -> bool {
     auto time = frc::DriverStation::GetMatchTime();
     return time >= OperatorConstants::kMinClimbExtendTime &&
@@ -81,7 +83,7 @@ public:
   frc2::Trigger ClimbTimedRetractTrigger{[this]() -> bool {
     auto time = frc::DriverStation::GetMatchTime();
     return time >= OperatorConstants::kMinClimbRetractTime &&
-           time <= OperatorConstants::kMaxClimbExtendTime;
+           time <= OperatorConstants::kMaxClimbRetractTime;
   }};
 
   frc2::CommandPtr RumbleController(units::second_t time, double intensity);
