@@ -157,7 +157,7 @@ void EndEffector::MotorForward() { m_EndEffectorMotor.SetVoltage(1.5_V); }
 
 void EndEffector::SlowMotorForward() { m_EndEffectorMotor.SetVoltage(0.5_V); }
 
-void EndEffector::FastMotorForward() { m_EndEffectorMotor.SetVoltage(6_V); }
+void EndEffector::FastMotorForward() { m_EndEffectorMotor.SetVoltage(9_V); }
 
 void EndEffector::MotorBack() { m_EndEffectorMotor.SetVoltage(-12_V); }
 
