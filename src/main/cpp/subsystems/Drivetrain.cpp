@@ -373,6 +373,8 @@ void Drivetrain::UpdateDashboard() {
   const auto robot_center = this->GetPose();
   
   m_field.SetRobotPose(this->GetPose());
+  m_field.GetObject("pure odom")->SetPose(GetOdomPose());
+  m_field.GetObject("vision correction")->SetPose(frc::Pose2d{}+m_map_to_odom);
   m_field.GetObject("old odom")->SetPose(m_poseEstimator.GetEstimatedPosition());
   m_field.GetObject("init pose")->SetPose(frc::Pose2d{}.TransformBy(m_initial_transform));
   
