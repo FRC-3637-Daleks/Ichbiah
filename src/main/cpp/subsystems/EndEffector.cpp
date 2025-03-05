@@ -153,9 +153,11 @@ void EndEffector::UpdateVisualization() {
                             m_EndEffectorMotor.GetAppliedOutput() * 200));
 }
 
-void EndEffector::MotorForward() { m_EndEffectorMotor.SetVoltage(3_V); }
+void EndEffector::MotorForward() { m_EndEffectorMotor.SetVoltage(1.5_V); }
 
 void EndEffector::SlowMotorForward() { m_EndEffectorMotor.SetVoltage(0.5_V); }
+
+void EndEffector::FastMotorForward() { m_EndEffectorMotor.SetVoltage(6_V); }
 
 void EndEffector::MotorBack() { m_EndEffectorMotor.SetVoltage(-12_V); }
 
@@ -168,6 +170,11 @@ frc2::CommandPtr EndEffector::MotorForwardCommand() {
 
 frc2::CommandPtr EndEffector::SlowMotorForwardCommand() {
   return RunEnd([this] { EndEffector::SlowMotorForward(); },
+                [this] { EndEffector::MotorStop(); });
+}
+
+frc2::CommandPtr EndEffector::FastMotorForwardCommand() {
+  return RunEnd([this] { EndEffector::FastMotorForward(); },
                 [this] { EndEffector::MotorStop(); });
 }
 
@@ -215,6 +222,11 @@ frc2::CommandPtr EndEffector::EffectorContinue() {
 
 frc2::CommandPtr EndEffector::EffectorOut() {
   return MotorForwardCommand().Until(
+      [this]() -> bool { return !IsInnerBreakBeamBroken(); });
+}
+
+frc2::CommandPtr EndEffector::EffectorOutToL1() {
+  return FastMotorForwardCommand().Until(
       [this]() -> bool { return !IsInnerBreakBeamBroken(); });
 }
 

@@ -26,6 +26,7 @@ public:
 
   void MotorForward();
   void SlowMotorForward();
+  void FastMotorForward();
   void MotorBack();
   void MotorStop();
 
@@ -36,9 +37,11 @@ public:
   frc2::CommandPtr MotorBackwardCommand();
   frc2::CommandPtr MotorForwardCommand();
   frc2::CommandPtr SlowMotorForwardCommand();
+  frc2::CommandPtr FastMotorForwardCommand();
   frc2::CommandPtr EffectorIn();
   frc2::CommandPtr EffectorContinue();
   frc2::CommandPtr EffectorOut();
+  frc2::CommandPtr EffectorOutToL1();
   frc2::CommandPtr Intake();
 
 private:

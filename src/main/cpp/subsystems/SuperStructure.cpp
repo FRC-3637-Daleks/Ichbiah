@@ -36,13 +36,25 @@ frc2::CommandPtr SuperStructure::prePlace(Elevator::Level level) {
 };
 
 frc2::CommandPtr SuperStructure::Intake() {
-  return m_elevator.GoToLevel(m_elevator.INTAKE)
-      .AndThen(m_endeffector.Intake().Until(
-          [this]() -> bool { return m_endeffector.HasCoral(); }));
+  return frc2::cmd::Either(
+      frc2::cmd::None(),
+      m_elevator.GoToLevel(m_elevator.INTAKE)
+          .AndThen(m_endeffector.Intake().Until(
+              [this]() -> bool { return m_endeffector.HasCoral(); })),
+      [this]() -> bool { return m_endeffector.IsOuterBreakBeamBroken(); });
 }
 
 // Pre-requisit is having coral && being at the right
 frc2::CommandPtr SuperStructure::Score() {
+  return frc2::cmd::Either(
+      m_endeffector.EffectorOutToL1()
+          .AndThen(frc2::cmd::Wait(0.25_s))
+          .AndThen(m_elevator.GoToLevel(m_elevator.INTAKE)),
+      m_endeffector.EffectorOut()
+          .AndThen(frc2::cmd::Wait(0.25_s))
+          .AndThen(m_elevator.GoToLevel(m_elevator.INTAKE)),
+      [this]() -> bool { return m_elevator.IsAtLevel(m_elevator.L1); });
+
   return m_endeffector.EffectorOut()
       .AndThen(frc2::cmd::Wait(0.25_s))
       .AndThen(m_elevator.GoToLevel(m_elevator.INTAKE));
