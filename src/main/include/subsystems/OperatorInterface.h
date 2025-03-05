@@ -76,7 +76,7 @@ public:
       [this] { return m_copilotController.GetRightY() < -0.5; }};
   frc2::Trigger EndEffectorInTrigger = m_copilotController.RightTrigger();
   frc2::Trigger EndEffectorOutTrigger = m_copilotController.LeftTrigger();
-  frc2::Trigger ElevatorIntakeTrigger = m_copilotController.A();
+  frc2::Trigger ElevatorIntakeTrigger = m_copilotController.B();
   frc2::Trigger ClimbUpTrigger = m_copilotController.Y();
   frc2::Trigger ClimbDownTrigger = m_copilotController.X();
   // Automatic Triggers
