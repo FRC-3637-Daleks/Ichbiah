@@ -45,6 +45,7 @@ void PathFollower::Execute() {
 void PathFollower::End(bool interrupted) {
   m_timer.Stop();
   m_field->GetObject("Trajectory")->SetPose(100_m, 100_m, 0_deg);
+  m_driveSubsystem.Drive({0_mps, 0_mps, 0_rad_per_s});
 }
 
 bool PathFollower::IsFinished() {
