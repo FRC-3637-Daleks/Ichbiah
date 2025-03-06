@@ -8,8 +8,8 @@
 #include <frc/XboxController.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Pose3d.h>
-#include <frc/trajectory/TrapezoidProfile.h>
 #include <frc/smartdashboard/Mechanism2d.h>
+#include <frc/trajectory/TrapezoidProfile.h>
 #include <frc2/command/Command.h>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/button/CommandJoystick.h>
@@ -19,15 +19,14 @@
 
 #include <numbers>
 
-#include "subsystems/Drivetrain.h"
-#include "subsystems/ROSBridge.h"
 #include "PathFollower.h"
-#include "subsystems/SuperStructure.h"
 #include "subsystems/Climb.h"
+#include "subsystems/Drivetrain.h"
+#include "subsystems/LEDSubsystem.h"
 #include "subsystems/OperatorInterface.h"
-#include "subsystems/Climb.h"
+#include "subsystems/ROSBridge.h"
 #include "subsystems/ReefAssist.h"
-
+#include "subsystems/SuperStructure.h"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -51,19 +50,21 @@ public:
   Drivetrain m_swerve;
   ROSBridge m_ros;
   OperatorInterface m_oi;
-  
+
   /* Pass elevator and end effector by reference to super structure
-   * Allows us to directly control or query elevator and endeffector for diagnostics
-   * while allowing super structure to define high level controls in another file
+   * Allows us to directly control or query elevator and endeffector for
+   * diagnostics while allowing super structure to define high level controls in
+   * another file
    */
   Elevator m_elevator;
   EndEffector m_endeffector;
   SuperStructure m_superStructure{m_elevator, m_endeffector};
   Climb m_climb;
+  LEDSubsystem m_ledSubsystem;
 
   bool m_isRed;
 
-  frc::Mechanism2d m_mech{4, 8};  // scaled to feet
+  frc::Mechanism2d m_mech{4, 8}; // scaled to feet
   std::optional<choreo::Trajectory<choreo::SwerveSample>> m_test;
 
 public:
