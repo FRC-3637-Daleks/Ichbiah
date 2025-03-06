@@ -31,11 +31,7 @@ LEDSubsystem::LEDSubsystem() {
 void LEDSubsystem::Periodic() {
   switch (m_currState) {
   case LEDSTATE::Default:
-    const bool hasCoral =
-        frc::SmartDashboard::GetBoolean(SDCONST::coralInIntake, false);
-    if (hasCoral)
-      ;
-    {
+    if (frc::SmartDashboard::GetBoolean(SDCONST::coralInIntake, false)) {
       setState(LEDSTATE::CoralInIntake);
       countDown = 1000;
     }
@@ -44,6 +40,18 @@ void LEDSubsystem::Periodic() {
     if (countDown <= 0.0) {
       setState(LEDSTATE::DefaultWithCoral);
     }
+    break;
+  case LEDSTATE::DefaultWithCoral:
+    if (frc::SmartDashboard::GetBoolean(SDCONST::coralInIntake, false)) {
+      setState(LEDSTATE::CoralDropped);
+      countDown = 1000;
+    }
+    break;
+  case LEDSTATE::CoralDropped:
+    if (countDown <= 0.0) {
+      setState(LEDSTATE::Default);
+    }
+    break;
   }
 
   for (int i = 0; i < kNumSpans; i++) {
@@ -51,6 +59,14 @@ void LEDSubsystem::Periodic() {
   }
 
   m_led.SetData(m_ledBuffer);
+
+  if (countDown > 0.0) {
+    countDown -=
+        std::chrono::duration<double, std::milli>{
+            std::chrono::system_clock::now() - previousFrameTime}
+            .count();
+  }
+  previousFrameTime = std::chrono::system_clock::now();
 }
 
 void LEDSubsystem::setState(LEDSTATE state) {
