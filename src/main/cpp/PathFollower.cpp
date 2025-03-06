@@ -22,6 +22,7 @@ PathFollower::PathFollower(trajectory_t trajectory, Drivetrain &subsystem)
 void PathFollower::Initialize() {
   m_timer.Reset();
   m_timer.Start();
+  m_driveSubsystem.ResetOdometry(m_trajectory.GetInitialPose().value());
   m_field->GetObject("Trajectory")->SetPoses(m_trajectory.GetPoses());
   auto events = m_trajectory.events;
   for (auto &e : events) {
@@ -36,15 +37,6 @@ void PathFollower::Execute() {
           m_trajectory.SampleAt(currentTime, /* mirror */ false)) {
     auto desiredPose = desiredState->GetPose();
     auto feedForward = desiredState->GetChassisSpeeds();
-    if (!m_eventPoses.empty()) {
-      auto it = m_eventPoses.begin();
-      if (m_driveSubsystem.AtPose(it->second, {.1_m, .1_m, 20_deg})) {
-        auto command = getCommand(it->first);
-        std::cout << "Running!!\n";
-        command->Schedule();
-        m_eventPoses.erase(it); // Remove the executed event
-      }
-    }
     m_driveSubsystem.DriveToPose(desiredPose, feedForward,
                                  {0.0_m, 0.0_m, 0_deg});
   }

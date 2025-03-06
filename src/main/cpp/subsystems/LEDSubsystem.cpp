@@ -29,13 +29,11 @@ LEDSubsystem::LEDSubsystem() {
 }
 
 void LEDSubsystem::Periodic() {
+  const bool hasCoral =
+      frc::SmartDashboard::GetBoolean(SDCONST::coralInIntake, false);
   switch (m_currState) {
   case LEDSTATE::Default:
-    const bool hasCoral =
-        frc::SmartDashboard::GetBoolean(SDCONST::coralInIntake, false);
-    if (hasCoral)
-      ;
-    {
+    if (hasCoral) {
       setState(LEDSTATE::CoralInIntake);
       countDown = 1000;
     }

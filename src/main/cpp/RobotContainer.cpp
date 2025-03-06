@@ -27,6 +27,8 @@
 
 #include <choreo/Choreo.h>
 
+#include "AutoBuilder.h"
+
 namespace AutoConstants {
 
 constexpr auto kMaxSpeed = 4.5_mps;
@@ -229,24 +231,7 @@ void RobotContainer::ConfigureDashboard() {
   frc::SmartDashboard::PutData("Visualization", &m_mech);
 }
 
-void RobotContainer::ConfigureAuto() {
-  m_test = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("Auton Alpha");
-  PathFollower::registerCommand(
-      "ElevatorL4",
-      frc2::cmd::Parallel(std::move(m_superStructure.prePlace(m_elevator.L4)),
-                          frc2::cmd::Print("L4")));
-  PathFollower::registerCommand(
-      "EndEffectorOut",
-      frc2::cmd::Race(std::move(m_endeffector.MotorForwardCommand()),
-                      frc2::cmd::Wait(.2_s)));
-  PathFollower::registerCommand(
-      "ElevatorL1", std::move(m_superStructure.prePlace(m_elevator.L1)));
-  PathFollower::registerCommand(
-      "InAndUp", frc2::cmd::Sequence(std::move(m_endeffector.Intake()),
-                                     frc2::cmd::Wait(.4_s),
-                                     std::move(m_superStructure.prePlace(
-                                         m_superStructure.m_elevator.L4))));
-}
+void RobotContainer::ConfigureAuto() {}
 
 void RobotContainer::ConfigureContinuous() {
   // These commands are for transmitting data across subsystems
@@ -282,8 +267,7 @@ void RobotContainer::ConfigureContinuous() {
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
-  m_swerve.ResetOdometry(m_test.value().GetInitialPose().value());
-  return m_swerve.FollowPathCommand(m_test.value());
+  return AutoBuilder::ThreeL4Auto(m_swerve, m_superStructure);
 }
 
 frc2::CommandPtr RobotContainer::GetDisabledCommand() {
