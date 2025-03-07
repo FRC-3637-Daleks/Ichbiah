@@ -60,12 +60,13 @@ public:
   EndEffector m_endeffector;
   SuperStructure m_superStructure{m_elevator, m_endeffector};
   Climb m_climb;
-  // LEDSubsystem m_ledSubsystem;
+  LEDSubsystem m_ledSubsystem;
 
   bool m_isRed;
 
   frc::Mechanism2d m_mech{4, 8}; // scaled to feet
   std::optional<choreo::Trajectory<choreo::SwerveSample>> m_test;
+
 public:
   void ConfigureBindings();
   void ConfigureDashboard();
