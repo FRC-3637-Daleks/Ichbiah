@@ -37,7 +37,7 @@ double OperatorInterface::throttle() {
 
 double OperatorInterface::boolean_slowdown() {
   if (m_swerveController.GetHID().GetLeftTriggerAxis() > 0.2)
-    return 0.5;
+    return 0.3;
   return 1.0;
 }
 

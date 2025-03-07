@@ -151,7 +151,8 @@ void RobotContainer::ConfigureBindings() {
 
   // Driver Auto Score
   m_oi.IntakeTrigger.OnTrue(m_superStructure.Intake());
-  m_oi.ScoreTrigger.OnTrue(m_superStructure.Score());
+  m_oi.ScoreTrigger.OnTrue(
+      m_superStructure.Score().AndThen(m_superStructure.Intake()));
 
   // Climb
   m_oi.ClimbTimedExtendTrigger.OnTrue(
