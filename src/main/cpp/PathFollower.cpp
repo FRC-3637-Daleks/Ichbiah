@@ -12,10 +12,12 @@
 #include <iostream>
 #include <numbers>
 #include <random>
+#include <tuple>
 
-PathFollower::PathFollower(trajectory_t trajectory, Drivetrain &subsystem)
+PathFollower::PathFollower(trajectory_t trajectory, Drivetrain &subsystem,
+                           bool isRed)
     : m_trajectory{std::move(trajectory)}, m_driveSubsystem{subsystem},
-      m_field{&m_driveSubsystem.GetField()} {
+      m_isRed{isRed}, m_field{&m_driveSubsystem.GetField()} {
   AddRequirements(&m_driveSubsystem);
 };
 
@@ -33,7 +35,7 @@ void PathFollower::Initialize() {
 void PathFollower::Execute() {
   auto currentTime = m_timer.Get();
   if (auto desiredState =
-          m_trajectory.SampleAt(currentTime, /* mirror */ false)) {
+          m_trajectory.SampleAt(currentTime, /* mirror */ m_isRed)) {
     auto desiredPose = desiredState->GetPose();
     auto feedForward = desiredState->GetChassisSpeeds();
     if (!m_eventPoses.empty()) {
@@ -45,6 +47,18 @@ void PathFollower::Execute() {
         m_eventPoses.erase(it); // Remove the executed event
       }
     }
+    if (!m_stopPoints.empty()) {
+      auto point = m_stopPoints.front();
+      auto time = m_timer.Get();
+      if (m_driveSubsystem.AtPose(point.first.GetPose()) &&
+          m_driveSubsystem.IsStopped()) {
+        m_driveSubsystem.CustomSwerveCommand(0_mps, 0_mps, 0_rad_per_s)
+            .Until([this, point, time]() -> bool {
+              return m_timer.Get() - time >= point.second;
+            });
+        m_stopPoints.erase(m_stopPoints.begin());
+      }
+    }
     m_driveSubsystem.DriveToPose(desiredPose, feedForward,
                                  {0.0_m, 0.0_m, 0_deg});
   }
@@ -54,6 +68,27 @@ void PathFollower::End(bool interrupted) {
   m_timer.Stop();
   m_field->GetObject("Trajectory")->SetPose(100_m, 100_m, 0_deg);
 }
+
+// void PathFollower::setStopPoints(int splitPoint, units::second_t stopTime,
+//                                  units::second_t offset) {
+//   auto time = m_trajectory.GetSplit(splitPoint)
+//                   .value()
+//                   .GetFinalSample()
+//                   .value()
+//                   .timestamp +
+//               offset;
+//   auto splitState = m_trajectory.SampleAt(time, this->m_isRed);
+//   if (splitState.has_value()) {
+//     for (int i = 0; i < m_stopPoints.size(); i++) {
+//       if (splitState.value().timestamp <
+//           std::get<0>(m_stopPoints.at(i)).timestamp) {
+//         m_stopPoints.insert(m_stopPoints.begin() + i,
+//                             std::make_pair(splitState.value(), stopTime));
+//         break;
+//       }
+//     }
+//   }
+// }
 
 bool PathFollower::IsFinished() {
   auto finalPose = m_trajectory.GetFinalPose();
@@ -68,10 +103,13 @@ frc2::Command *PathFollower::getCommand(std::string name) {
 }
 
 frc2::CommandPtr
-Drivetrain::FollowPathCommand(PathFollower::trajectory_t trajectory) {
-  return PathFollower{std::move(trajectory), *this}.ToPtr();
+Drivetrain::FollowPathCommand(PathFollower::trajectory_t trajectory,
+                              bool isRed) {
+  return PathFollower{std::move(trajectory), *this, std::move(isRed)}.ToPtr();
 }
 
 std::unordered_map<std::string, std::shared_ptr<frc2::Command>>
     PathFollower::m_namedCommands{};
 std::unordered_map<std::string, frc::Pose2d> PathFollower::m_eventPoses{};
+std::vector<std::pair<choreo::SwerveSample, units::second_t>>
+    PathFollower::m_stopPoints{};

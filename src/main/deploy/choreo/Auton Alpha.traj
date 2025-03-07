@@ -267,12 +267,6 @@
   "splits":[0]
  },
  "events":[
-   {"name":"ElevatorL4", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":null},
-   {"name":"EndEffectorOut", "from":{"target":1, "targetTimestamp":1.45728, "offset":{"exp":"0 s", "val":0.0}}, "event":null},
-   {"name":"ElevatorL1", "from":{"target":1, "targetTimestamp":1.45728, "offset":{"exp":"0.4 s", "val":0.4}}, "event":null},
-   {"name":"InAndUp", "from":{"target":2, "targetTimestamp":3.4834, "offset":{"exp":"0 s", "val":0.0}}, "event":null},
-   {"name":"EndEffectorOut", "from":{"target":3, "targetTimestamp":4.98952, "offset":{"exp":"0 s", "val":0.0}}, "event":null},
-   {"name":"ElevatorL1", "from":{"target":3, "targetTimestamp":4.98952, "offset":{"exp":"0.4 s", "val":0.4}}, "event":null},
-   {"name":"InAndUp", "from":{"target":4, "targetTimestamp":6.49563, "offset":{"exp":"0 s", "val":0.0}}, "event":null},
-   {"name":"EndEffectorOut", "from":{"target":5, "targetTimestamp":8.00175, "offset":{"exp":"0 s", "val":0.0}}, "event":null}]
+   {"name":"Marker", "from":{"target":4, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":null},
+   {"name":"Marker", "from":{"target":5, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":null}]
 }

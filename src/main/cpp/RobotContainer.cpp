@@ -140,7 +140,7 @@ void RobotContainer::ConfigureBindings() {
   m_oi.ElevatorUpTrigger.WhileTrue(m_superStructure.m_elevator.MoveUp());
   m_oi.ElevatorDownTrigger.WhileTrue(m_superStructure.m_elevator.MoveDown());
   m_oi.FollowPathTrigger.WhileTrue(
-      m_test.has_value() ? m_swerve.FollowPathCommand(m_test.value())
+      m_test.has_value() ? m_swerve.FollowPathCommand(m_test.value(), m_isRed)
                          : frc2::cmd::None());
 
   // End Effector
@@ -244,6 +244,7 @@ void RobotContainer::ConfigureAuto() {
                                      frc2::cmd::Wait(.4_s),
                                      std::move(m_superStructure.prePlace(
                                          m_superStructure.m_elevator.L4))));
+  m_test.va
 }
 
 void RobotContainer::ConfigureContinuous() {
@@ -281,7 +282,7 @@ void RobotContainer::ConfigureContinuous() {
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
   m_swerve.ResetOdometry(m_test.value().GetInitialPose().value());
-  return m_swerve.FollowPathCommand(m_test.value());
+  return m_swerve.FollowPathCommand(m_test.value(), m_isRed);
 }
 
 frc2::CommandPtr RobotContainer::GetDisabledCommand() {
