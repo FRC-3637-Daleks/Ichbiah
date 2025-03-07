@@ -13,28 +13,28 @@
 #include <numbers>
 #include <random>
 
-PathFollower::PathFollower(trajectory_t trajectory, Drivetrain &subsystem)
+PathFollower::PathFollower(trajectory_t trajectory, Drivetrain &subsystem,
+                           bool isRed)
     : m_trajectory{std::move(trajectory)}, m_driveSubsystem{subsystem},
-      m_field{&m_driveSubsystem.GetField()} {
+      m_field{&m_driveSubsystem.GetField()}, m_isRed{isRed} {
   AddRequirements(&m_driveSubsystem);
 };
 
 void PathFollower::Initialize() {
   m_timer.Reset();
   m_timer.Start();
-  m_driveSubsystem.ResetOdometry(m_trajectory.GetInitialPose().value());
+  m_driveSubsystem.ResetOdometry(m_trajectory.GetInitialPose(m_isRed).value());
   m_field->GetObject("Trajectory")->SetPoses(m_trajectory.GetPoses());
   auto events = m_trajectory.events;
   for (auto &e : events) {
-    m_eventPoses.emplace(e.event,
-                         m_trajectory.SampleAt(e.timestamp, false)->GetPose());
+    m_eventPoses.emplace(
+        e.event, m_trajectory.SampleAt(e.timestamp, m_isRed)->GetPose());
   }
 }
 
 void PathFollower::Execute() {
   auto currentTime = m_timer.Get();
-  if (auto desiredState =
-          m_trajectory.SampleAt(currentTime, /* mirror */ false)) {
+  if (auto desiredState = m_trajectory.SampleAt(currentTime, m_isRed)) {
     auto desiredPose = desiredState->GetPose();
     auto feedForward = desiredState->GetChassisSpeeds();
     m_driveSubsystem.DriveToPose(desiredPose, feedForward,
@@ -49,7 +49,7 @@ void PathFollower::End(bool interrupted) {
 }
 
 bool PathFollower::IsFinished() {
-  auto finalPose = m_trajectory.GetFinalPose();
+  auto finalPose = m_trajectory.GetFinalPose(m_isRed);
   return finalPose.has_value() && m_driveSubsystem.AtPose(finalPose.value()) &&
          m_driveSubsystem.IsStopped();
 }
@@ -61,8 +61,9 @@ frc2::Command *PathFollower::getCommand(std::string name) {
 }
 
 frc2::CommandPtr
-Drivetrain::FollowPathCommand(PathFollower::trajectory_t trajectory) {
-  return PathFollower{std::move(trajectory), *this}.ToPtr();
+Drivetrain::FollowPathCommand(PathFollower::trajectory_t trajectory,
+                              bool isRed) {
+  return PathFollower{std::move(trajectory), *this, isRed}.ToPtr();
 }
 
 std::unordered_map<std::string, std::shared_ptr<frc2::Command>>

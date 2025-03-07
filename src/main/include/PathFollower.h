@@ -32,7 +32,7 @@ public:
    * @param desiredPoseSupplier A function that returns the desired pose
    * @param subsystem The subsystem used by this command.
    */
-    PathFollower(trajectory_t trajectory, Drivetrain &subsystem);
+    PathFollower(trajectory_t trajectory, Drivetrain &subsystem, bool isRed);
 
     void Initialize() override;
 
@@ -70,6 +70,7 @@ private:
     Drivetrain& m_driveSubsystem;
     frc::Timer m_timer;
     frc::Field2d* m_field;
+    bool m_isRed;
 };
 
 
