@@ -5,6 +5,7 @@
 #include <frc2/command/Commands.h>
 
 #include "subsystems/Drivetrain.h"
+#include "subsystems/Elevator.h"
 #include "subsystems/SuperStructure.h"
 
 #include <choreo/Choreo.h>
@@ -29,22 +30,25 @@ auto ReefFarToIntake =
 auto StartToReef =
     choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("StartToReef");
 
+inline frc2::CommandPtr AutoScore(Elevator::Level level,
+                                  SuperStructure &superstructure) {
+  return frc2::cmd::Sequence(superstructure.prePlace(level),
+                             superstructure.Score());
+}
+
 inline frc2::CommandPtr ThreeL4Auto(Drivetrain &swerve,
                                     SuperStructure &superstructure) {
   return frc2::cmd::Sequence(
       swerve.FollowPathCommand(StartToReef.value()),
-      superstructure.prePlace(superstructure.m_elevator.L4),
-      superstructure.Score(),
+      AutoScore(Elevator::Level::L4, superstructure),
       frc2::cmd::Parallel(swerve.FollowPathCommand(ReefFarToIntake.value()),
-                      superstructure.Intake()),
+                          superstructure.Intake()),
       swerve.FollowPathCommand(IntakeToReefClose.value()),
-      superstructure.prePlace(superstructure.m_elevator.L4),
-      superstructure.Score(),
+      AutoScore(Elevator::Level::L4, superstructure),
       frc2::cmd::Parallel(swerve.FollowPathCommand(ReefCloseToIntake.value()),
-                      superstructure.Intake()),
+                          superstructure.Intake()),
       swerve.FollowPathCommand(IntakeToReefClose2.value()),
-      superstructure.prePlace(superstructure.m_elevator.L4),
-      superstructure.Score());
+      AutoScore(Elevator::Level::L4, superstructure));
 }
 
 }; // namespace AutoBuilder
