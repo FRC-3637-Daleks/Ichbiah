@@ -10,7 +10,7 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc2/command/CommandScheduler.h>
 
-void Robot::RobotInit() {}
+void Robot::RobotInit() { m_disabledCommand = m_container.FusePose(); }
 
 void Robot::DriverStationConnected() {}
 
@@ -85,7 +85,15 @@ void Robot::RobotPeriodic() {
  * can use it to reset any subsystem information you want to clear when the
  * robot is disabled.
  */
-void Robot::DisabledInit() {}
+void Robot::DisabledInit() {
+  if (m_disabledCommand)
+    m_disabledCommand->Schedule();
+}
+
+void Robot::DisabledExit() {
+  if (m_disabledCommand)
+    m_disabledCommand->Cancel();
+}
 
 void Robot::DisabledPeriodic() {}
 
