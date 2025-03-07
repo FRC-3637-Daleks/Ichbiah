@@ -16,6 +16,12 @@ constexpr frc::Transform2d kSideTransforms[] = {
     frc::Transform2d{0_in, 6.47_in, 0_deg},
     frc::Transform2d{0_in, -6.47_in, 0_deg}};
 
+// Transform where coral lands relative to robot center when scoring
+// Guessing 15in for frame, 2.5in for bumpers, 1.5in for middle of pipe to get
+// 19in in front.
+// Guessing 12.5in left of robot center
+constexpr frc::Transform2d kEndEffectorTransform{19_in, 12.5_in, 0_deg};
+
 namespace Blue {
 constexpr frc::Translation2d kReefCenter{12_ft + (kReefDiameter / 2),
                                          kFieldWidth / 2};
@@ -86,20 +92,38 @@ inline auto IsRed = []() -> bool {
 
 inline frc::Pose2d GetReefPose(FieldConstants::Reef reef) {
   return IsRed() ? FieldConstants::Red::kReefPoses[reef]
-               : FieldConstants::Blue::kReefPoses[reef];
+                 : FieldConstants::Blue::kReefPoses[reef];
 };
 inline frc::Pose2d getScoringPose(FieldConstants::Reef reef,
-                           FieldConstants::Side side) {
+                                  FieldConstants::Side side) {
 
-  return ReefAssist::GetReefPose(reef).TransformBy(
-      FieldConstants::kSideTransforms[side]);
+  return ReefAssist::GetReefPose(reef)
+      .TransformBy(FieldConstants::kSideTransforms[side])
+      .TransformBy(FieldConstants::kEndEffectorTransform.Inverse());
 };
-inline frc::Pose2d GetNearestCoralStationPose(frc::Pose2d &robotPose) {
+
+inline frc::Pose2d getNearestScoringPose(const frc::Pose2d &robotPose,
+                                         FieldConstants::Side side) {
+  return robotPose.Nearest({getScoringPose(FieldConstants::Reef::A, side),
+                            getScoringPose(FieldConstants::Reef::B, side),
+                            getScoringPose(FieldConstants::Reef::C, side),
+                            getScoringPose(FieldConstants::Reef::D, side),
+                            getScoringPose(FieldConstants::Reef::E, side),
+                            getScoringPose(FieldConstants::Reef::F, side)});
+}
+
+inline frc::Pose2d getNearestScoringPose(const frc::Pose2d &robotPose) {
+  return robotPose.Nearest(
+      {getNearestScoringPose(robotPose, FieldConstants::Side::LEFT),
+       getNearestScoringPose(robotPose, FieldConstants::Side::RIGHT)});
+}
+
+inline frc::Pose2d GetNearestCoralStationPose(const frc::Pose2d &robotPose) {
   if (ReefAssist::IsRed())
     return robotPose.Nearest({FieldConstants::Red::kRightCoralStationPose,
                               FieldConstants::Red::kLeftCoralStationPose});
-
-  return robotPose.Nearest({FieldConstants::Blue::kRightCoralStationPose,
-                            FieldConstants::Blue::kLeftCoralStationPose});
+  else
+    return robotPose.Nearest({FieldConstants::Blue::kRightCoralStationPose,
+                              FieldConstants::Blue::kLeftCoralStationPose});
 }
 }; // namespace ReefAssist
