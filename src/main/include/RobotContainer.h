@@ -66,11 +66,18 @@ public:
 
   frc::Mechanism2d m_mech{4, 8}; // scaled to feet
   std::optional<choreo::Trajectory<choreo::SwerveSample>> m_test;
+
 public:
   void ConfigureBindings();
   void ConfigureDashboard();
   void ConfigureAuto();
   void ConfigureContinuous();
+
+  // Command which fuses in the best guess for the robot pose from sensors
+  // Can run while disabled, at the start of auton, when aligning to the reef,
+  // or always Making it its own command gives programmers finer control over
+  // when the pose estimate is taken over.
+  frc2::CommandPtr FusePose();
 
 public:
   bool IsRed();
