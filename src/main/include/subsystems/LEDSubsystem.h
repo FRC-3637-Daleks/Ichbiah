@@ -17,7 +17,7 @@ public:
 private:
   static constexpr int kPort{0};
   static constexpr int kNumSpans{3};
-  static constexpr int kLength{150};
+  static constexpr int kLength{120};
   std::array<frc::AddressableLED::LEDData, kLength> m_ledBuffer{};
   std::array<uint32_t, kNumSpans> m_ledSegmentLengths{47, 26, 47};
 

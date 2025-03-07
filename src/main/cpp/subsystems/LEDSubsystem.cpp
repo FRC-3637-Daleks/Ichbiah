@@ -5,15 +5,12 @@
 LEDSubsystem::LEDSubsystem() {
   // Setup LED Segments
   frc::LEDPattern m_black = frc::LEDPattern::Solid(frc::Color::kBlack);
-  m_ledSegments[0] = std::span<frc::AddressableLED::LEDData>{
-      m_ledBuffer.begin(), m_ledSegmentLengths[0]};
-  m_spanPatterns.push_back(m_black);
 
-  auto currIter{m_ledSegments[0].end()};
-  for (int i = 1; i < kNumSpans; i++) {
+  int spanOffset = 0;
+  for (int i = 0; i < kNumSpans; i++) {
     m_ledSegments[i] = std::span<frc::AddressableLED::LEDData>{
-        currIter, m_ledSegmentLengths[i]};
-    currIter = m_ledSegments[i].end();
+        m_ledBuffer.begin() + spanOffset, m_ledSegmentLengths[i]};
+    spanOffset += m_ledSegmentLengths[i];
     m_spanPatterns.push_back(m_black);
   }
 
