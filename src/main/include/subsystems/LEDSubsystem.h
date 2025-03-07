@@ -5,8 +5,8 @@
 #include <frc2/command/SubsystemBase.h>
 
 namespace SDCONST {
-const std::string isRed{"isRed"};
-const std::string coralInIntake{"coralInIntake"};
+const std::string isRed{"IsRedAlliance"};
+const std::string coralInIntake{"EndEffector/has coral?"};
 } // namespace SDCONST
 
 class LEDSubsystem : public frc2::SubsystemBase {
@@ -46,6 +46,8 @@ private:
   std::array<std::span<frc::AddressableLED::LEDData>, kNumSpans> m_ledSegments;
 
   double countDown = 0.0;
+  std::chrono::time_point<std::chrono::system_clock> previousFrameTime{
+      std::chrono::system_clock::now()};
 
   void setState(LEDSTATE state);
   std::span<frc::AddressableLED::LEDData> getSegment(int segment);
