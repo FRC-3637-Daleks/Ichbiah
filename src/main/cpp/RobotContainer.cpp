@@ -144,7 +144,7 @@ void RobotContainer::ConfigureBindings() {
 
   // End Effector
   m_oi.EndEffectorInTrigger.WhileTrue(m_endeffector.MotorBackwardCommand());
-  m_oi.EndEffectorOutTrigger.WhileTrue(m_endeffector.MotorForwardCommand());
+  m_oi.EndEffectorOutTrigger.WhileTrue(m_superStructure.Score());
 
   // Driver Auto Score
   m_oi.IntakeTrigger.OnTrue(m_superStructure.Intake());

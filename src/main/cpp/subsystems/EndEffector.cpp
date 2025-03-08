@@ -159,7 +159,7 @@ void EndEffector::SlowMotorForward() { m_EndEffectorMotor.SetVoltage(0.5_V); }
 
 void EndEffector::FastMotorForward() { m_EndEffectorMotor.SetVoltage(9_V); }
 
-void EndEffector::MotorBack() { m_EndEffectorMotor.SetVoltage(-12_V); }
+void EndEffector::MotorBack() { m_EndEffectorMotor.SetVoltage(-3_V); }
 
 void EndEffector::MotorStop() { m_EndEffectorMotor.SetVoltage(0_V); }
 
@@ -218,8 +218,10 @@ frc2::CommandPtr EndEffector::EffectorIn() {
 }
 
 frc2::CommandPtr EndEffector::EffectorContinue() {
-  return SlowMotorForwardCommand().Until(
-      [this]() -> bool { return !IsInnerBreakBeamBroken(); });
+  return SlowMotorForwardCommand()
+      .Until([this]() -> bool { return !IsOuterBreakBeamBroken(); })
+      .AndThen(MotorBackwardCommand())
+      .WithTimeout(0.5_s);
 }
 
 frc2::CommandPtr EndEffector::EffectorOut() {

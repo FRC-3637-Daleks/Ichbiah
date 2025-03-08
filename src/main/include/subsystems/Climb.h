@@ -6,6 +6,8 @@
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/SubsystemBase.h>
 
+#include <frc/DigitalInput.h>
+
 class Climb : public frc2::SubsystemBase {
 public:
   Climb();
@@ -18,4 +20,6 @@ public:
 private:
   Piston m_dualPistons;
   frc::Compressor m_compressor;
+
+  frc::DigitalInput m_limSwitch;
 };

@@ -15,6 +15,8 @@ constexpr int kReverseChannel = 0;
 
 constexpr int kModualID = 3; // Remember to change to real value
 
+constexpr int kLimitSwitchID = 1;
+
 constexpr units::pounds_per_square_inch_t kMaxPressure = 120_psi;
 
 constexpr units::pounds_per_square_inch_t kMinPressure = 80_psi;
@@ -26,7 +28,8 @@ Climb::Climb()
                     ClimbConstants::kPistonExtendTime},
       m_compressor{
           ClimbConstants::kModualID,
-          frc::PneumaticsModuleType::CTREPCM /*check, proob not right*/} {
+          frc::PneumaticsModuleType::CTREPCM /*check, proob not right*/},
+      m_limSwitch{ClimbConstants::kLimitSwitchID} {
   //"Enable closed-loop mode based on both the digital pressure switch AND the
   // analog pressure sensor connected to the PH." - WPILib Docs
   m_compressor.EnableHybrid(ClimbConstants::kMinPressure,
@@ -54,6 +57,7 @@ void Climb::Periodic() {
   }
 
   frc::SmartDashboard::PutString("Climb/state", state_str);
+  frc::SmartDashboard::PutBoolean("Climb/cage intaked?''", m_limSwitch.Get());
 }
 
 frc2::CommandPtr Climb::ExtendClimb() { return m_dualPistons.Extend(); }

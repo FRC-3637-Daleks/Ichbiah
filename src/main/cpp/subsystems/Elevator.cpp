@@ -34,7 +34,7 @@ constexpr auto kMassEffective = 21.0_kg;
 constexpr units::length::centimeter_t kL1 = 2_ft + 2_in;
 constexpr units::length::centimeter_t kL2 = 2_ft + 7.875_in;
 constexpr units::length::centimeter_t kL3 = 3_ft + 11.625_in;
-constexpr units::length::centimeter_t kL4 = 6_ft;
+constexpr units::length::centimeter_t kL4 = 6_ft - 1.5_in;
 constexpr units::length::centimeter_t kTolerance = 1_in;
 
 // Index 0 is intake height
