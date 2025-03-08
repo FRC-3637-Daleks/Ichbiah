@@ -38,6 +38,7 @@ void LEDSubsystem::Periodic() {
     }
     if (frc::SmartDashboard::GetBoolean(SDCONST::cageIntaked, false)) {
       setState(LEDSTATE::CageIntaked1);
+      countDown2 = 3000;
     }
     break;
   case LEDSTATE::CoralInIntake1:
@@ -50,6 +51,7 @@ void LEDSubsystem::Periodic() {
     }
     if (frc::SmartDashboard::GetBoolean(SDCONST::cageIntaked, false)) {
       setState(LEDSTATE::CageIntaked1);
+      countDown2 = 3000;
     }
     break;
   case LEDSTATE::CoralInIntake2:
@@ -62,6 +64,7 @@ void LEDSubsystem::Periodic() {
     }
     if (frc::SmartDashboard::GetBoolean(SDCONST::cageIntaked, false)) {
       setState(LEDSTATE::CageIntaked1);
+      countDown2 = 3000;
     }
     break;
   case LEDSTATE::CageIntaked1:
@@ -69,11 +72,17 @@ void LEDSubsystem::Periodic() {
       countDown = 125;
       setState(LEDSTATE::CageIntaked2);
     }
+    if (countDown2 <= 0.0) {
+      setState(LEDSTATE::Default);
+    }
     break;
   case LEDSTATE::CageIntaked2:
     if (countDown <= 0.0) {
       countDown = 125;
       setState(LEDSTATE::CageIntaked1);
+    }
+    if (countDown2 <= 0.0) {
+      setState(LEDSTATE::Default);
     }
     break;
   }
@@ -88,6 +97,13 @@ void LEDSubsystem::Periodic() {
 
   if (countDown > 0.0) {
     countDown -=
+        std::chrono::duration<double, std::milli>{
+            std::chrono::system_clock::now() - previousFrameTime}
+            .count();
+  }
+  if (countDown2 > 0.0 &&
+      !frc::SmartDashboard::GetBoolean(SDCONST::cageIntaked, false)) {
+    countDown2 -=
         std::chrono::duration<double, std::milli>{
             std::chrono::system_clock::now() - previousFrameTime}
             .count();

@@ -48,6 +48,7 @@ private:
   std::array<std::span<frc::AddressableLED::LEDData>, kNumSpans> m_ledSegments;
 
   double countDown = 0.0;
+  double countDown2 = 0.0;
   std::chrono::time_point<std::chrono::system_clock> previousFrameTime{
       std::chrono::system_clock::now()};
 
