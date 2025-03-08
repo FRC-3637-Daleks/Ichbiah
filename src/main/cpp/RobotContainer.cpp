@@ -126,17 +126,21 @@ void RobotContainer::ConfigureBindings() {
   m_oi.ZeroHeadingTrigger.OnTrue(frc2::cmd::Parallel(
       m_swerve.ZeroHeadingCommand(), frc2::cmd::Print("Zeroed Heading")));
 
-  // Elevator
-  m_oi.ElevatorIntakeTrigger.OnTrue(
-      m_superStructure.prePlace(m_superStructure.m_elevator.INTAKE));
-  m_oi.ElevatorL1Trigger.OnTrue(
-      m_superStructure.prePlace(m_superStructure.m_elevator.L1));
-  m_oi.ElevatorL2Trigger.OnTrue(
-      m_superStructure.prePlace(m_superStructure.m_elevator.L2));
-  m_oi.ElevatorL3Trigger.OnTrue(
-      m_superStructure.prePlace(m_superStructure.m_elevator.L3));
-  m_oi.ElevatorL4Trigger.OnTrue(
-      m_superStructure.prePlace(m_superStructure.m_elevator.L4));
+  // Auto Elevator
+  /* This changes the elevator heights to set a target level, but not actually
+   * commanding the elevator Instead, the driver X button (can change this)
+   * actually goes to the target level. The target level starts at L4
+   * If they want to score on a different level, the copilot OR pilot can
+   * press the D-pad buttons to change it, and the driver can press X again
+   */
+  std::function<Elevator::Level()> target_selector =
+      [this]() -> Elevator::Level { return m_oi.target_level(); };
+  m_oi.ElevatorPrePlaceTrigger.OnTrue(frc2::cmd::Select(
+      target_selector,
+      std::pair{Elevator::L1, m_superStructure.prePlace(Elevator::L1)},
+      std::pair{Elevator::L2, m_superStructure.prePlace(Elevator::L2)},
+      std::pair{Elevator::L3, m_superStructure.prePlace(Elevator::L3)},
+      std::pair{Elevator::L4, m_superStructure.prePlace(Elevator::L4)}));
 
   // Test Commands for Elevator
   m_oi.ElevatorUpTrigger.WhileTrue(m_superStructure.m_elevator.MoveUp());
@@ -204,6 +208,12 @@ void RobotContainer::ConfigureBindings() {
 
 void RobotContainer::ConfigureDashboard() {
   frc::SmartDashboard::PutData("Drivebase", &m_swerve);
+
+  frc2::CommandScheduler::GetInstance().Schedule(
+      frc2::cmd::Run([this] {
+        frc::SmartDashboard::PutNumber("Target Height", m_oi.target_level());
+      }).IgnoringDisable(true));
+
   // auto pose = m_swerve.GetPose();
   m_swerve.GetField()
       .GetObject("Blue Reef")
