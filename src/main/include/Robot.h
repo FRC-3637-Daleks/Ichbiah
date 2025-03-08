@@ -17,6 +17,7 @@ public:
   void DriverStationConnected() override;
   void RobotPeriodic() override;
   void DisabledInit() override;
+  void DisabledExit() override;
   void DisabledPeriodic() override;
   void AutonomousInit() override;
   void AutonomousPeriodic() override;

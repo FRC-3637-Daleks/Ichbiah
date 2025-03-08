@@ -126,17 +126,21 @@ void RobotContainer::ConfigureBindings() {
   m_oi.ZeroHeadingTrigger.OnTrue(frc2::cmd::Parallel(
       m_swerve.ZeroHeadingCommand(), frc2::cmd::Print("Zeroed Heading")));
 
-  // Elevator
-  m_oi.ElevatorIntakeTrigger.OnTrue(
-      m_superStructure.prePlace(m_superStructure.m_elevator.INTAKE));
-  m_oi.ElevatorL1Trigger.OnTrue(
-      m_superStructure.prePlace(m_superStructure.m_elevator.L1));
-  m_oi.ElevatorL2Trigger.OnTrue(
-      m_superStructure.prePlace(m_superStructure.m_elevator.L2));
-  m_oi.ElevatorL3Trigger.OnTrue(
-      m_superStructure.prePlace(m_superStructure.m_elevator.L3));
-  m_oi.ElevatorL4Trigger.OnTrue(
-      m_superStructure.prePlace(m_superStructure.m_elevator.L4));
+  // Auto Elevator
+  /* This changes the elevator heights to set a target level, but not actually
+   * commanding the elevator Instead, the driver X button (can change this)
+   * actually goes to the target level. The target level starts at L4
+   * If they want to score on a different level, the copilot OR pilot can
+   * press the D-pad buttons to change it, and the driver can press X again
+   */
+  std::function<Elevator::Level()> target_selector =
+      [this]() -> Elevator::Level { return m_oi.target_level(); };
+  m_oi.ElevatorPrePlaceTrigger.OnTrue(frc2::cmd::Select(
+      target_selector,
+      std::pair{Elevator::L1, m_superStructure.prePlace(Elevator::L1)},
+      std::pair{Elevator::L2, m_superStructure.prePlace(Elevator::L2)},
+      std::pair{Elevator::L3, m_superStructure.prePlace(Elevator::L3)},
+      std::pair{Elevator::L4, m_superStructure.prePlace(Elevator::L4)}));
 
   // Test Commands for Elevator
   m_oi.ElevatorUpTrigger.WhileTrue(m_superStructure.m_elevator.MoveUp());
@@ -147,7 +151,36 @@ void RobotContainer::ConfigureBindings() {
   m_oi.EndEffectorOutTrigger.WhileTrue(m_endeffector.MotorForwardCommand());
 
   // Driver Auto Score
+  /* Example of how to use CustomSwerveCommand to align in arbitrary ways.
+     This code makes it so the robot aligns its angle to the nearest coral
+     station pose */
+  m_oi.IntakeTrigger.WhileTrue(m_swerve.CustomSwerveCommand(
+      [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
+      [this] {
+        return ReefAssist::GetNearestCoralStationPose(m_swerve.GetPose())
+            .Rotation()
+            .Radians();
+      }));
   m_oi.IntakeTrigger.OnTrue(m_superStructure.Intake());
+
+  /* Tested in sim. Auto-Aligns robot to nearest branch
+   * Test with caution on real robot.
+   * If it seems to be consistent, you can tune the ReefAssist values to make it
+   * accurate.
+   * You can also make 2 separate binds for LEFT/RIGHT if thats easier for
+   * drivers.
+   *
+   * FusePose() runs here to get the latest correction from OPi.
+   * Ideally this would run all the time (like it used to), but since its
+   * unstable and untested, I've isolated it to a command so we only use its
+   * values when we actually are trying to align to something.
+   * --E
+   */
+  m_oi.DriveToPoseTrigger.WhileTrue(
+      FusePose().AlongWith(m_swerve.DriveToPoseIndefinitelyCommand([this] {
+        return ReefAssist::getNearestScoringPose(m_swerve.GetPose());
+      })));
+
   m_oi.ScoreTrigger.OnTrue(
       m_superStructure.Score().AndThen(m_superStructure.Intake()));
 
@@ -175,6 +208,12 @@ void RobotContainer::ConfigureBindings() {
 
 void RobotContainer::ConfigureDashboard() {
   frc::SmartDashboard::PutData("Drivebase", &m_swerve);
+
+  frc2::CommandScheduler::GetInstance().Schedule(
+      frc2::cmd::Run([this] {
+        frc::SmartDashboard::PutNumber("Target Height", m_oi.target_level());
+      }).IgnoringDisable(true));
+
   // auto pose = m_swerve.GetPose();
   m_swerve.GetField()
       .GetObject("Blue Reef")
@@ -251,10 +290,8 @@ void RobotContainer::ConfigureContinuous() {
    * any races there.
    */
   // ROS to swerve
-  frc2::CommandScheduler::GetInstance().Schedule(frc2::cmd::Run([this] {
-                                                   m_swerve.SetMapToOdom(
-                                                       m_ros.GetMapToOdom());
-                                                 }).IgnoringDisable(true));
+  // Commented out until we really trust it
+  // frc2::CommandScheduler::GetInstance().Schedule(FusePose());
 
   if constexpr (frc::RobotBase::IsSimulation()) {
     frc2::CommandScheduler::GetInstance().Schedule(
@@ -262,6 +299,11 @@ void RobotContainer::ConfigureContinuous() {
           m_ros.PubSim(m_swerve.GetSimulatedGroundTruth());
         }).IgnoringDisable(true));
   }
+}
+
+frc2::CommandPtr RobotContainer::FusePose() {
+  return frc2::cmd::Run([this] { m_swerve.SetMapToOdom(m_ros.GetMapToOdom()); })
+      .IgnoringDisable(true);
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {

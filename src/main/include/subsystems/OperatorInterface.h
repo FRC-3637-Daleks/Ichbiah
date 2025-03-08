@@ -1,5 +1,7 @@
 #pragma once
 
+#include "subsystems/Elevator.h"
+
 #include <frc/XboxController.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Pose3d.h>
@@ -51,6 +53,7 @@ public:
   units::meters_per_second_t strafe();
   units::meters_per_second_t fwd();
   units::revolutions_per_minute_t rot();
+  Elevator::Level target_level() { return m_target_level; }
 
   // Driver Controls
   frc2::Trigger ClimbToggleTrigger = m_swerveController.Y();
@@ -67,6 +70,8 @@ public:
       m_swerveController.POVRight() || m_copilotController.POVRight();
   frc2::Trigger ElevatorL4Trigger =
       m_swerveController.POVUp() || m_copilotController.POVUp();
+
+  frc2::Trigger ElevatorPrePlaceTrigger = m_swerveController.X();
 
   // Co-pilot Controls
   frc2::Trigger ElevatorUpTrigger{
@@ -92,9 +97,11 @@ public:
   }};
 
   frc2::CommandPtr RumbleController(units::second_t time, double intensity);
+  frc2::CommandPtr SetTargetLevelCommand(Elevator::Level level);
 
 private:
   frc2::CommandXboxController m_swerveController;
   frc2::CommandXboxController m_copilotController;
+  Elevator::Level m_target_level;
   bool IsRed();
 };
