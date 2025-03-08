@@ -9,6 +9,7 @@
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Pose3d.h>
 #include <frc/smartdashboard/Mechanism2d.h>
+#include <frc/smartdashboard/SendableChooser.h>
 #include <frc/trajectory/TrapezoidProfile.h>
 #include <frc2/command/Command.h>
 #include <frc2/command/CommandPtr.h>
@@ -40,7 +41,7 @@ public:
   RobotContainer();
 
   frc2::CommandPtr GetDisabledCommand();
-  frc2::CommandPtr GetAutonomousCommand();
+  frc2::Command *GetAutonomousCommand();
 
 public:
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -65,6 +66,11 @@ public:
   bool m_isRed;
 
   frc::Mechanism2d m_mech{4, 8}; // scaled to feet
+  frc::SendableChooser<frc2::Command *> m_chooser;
+
+  frc2::CommandPtr threel4auto{frc2::cmd::None()};
+  frc2::CommandPtr onel4startmidauto{frc2::cmd::None()};
+
 public:
   void ConfigureBindings();
   void ConfigureDashboard();

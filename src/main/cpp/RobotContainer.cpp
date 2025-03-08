@@ -148,8 +148,7 @@ void RobotContainer::ConfigureBindings() {
 
   // Driver Auto Score
   m_oi.IntakeTrigger.OnTrue(m_superStructure.Intake());
-  m_oi.ScoreTrigger.OnTrue(
-      m_superStructure.Score().AndThen(m_superStructure.Intake()));
+  m_oi.ScoreTrigger.OnTrue(m_superStructure.Score());
 
   // Climb
   m_oi.ClimbTimedExtendTrigger.OnTrue(
@@ -227,9 +226,18 @@ void RobotContainer::ConfigureDashboard() {
                                          pipe_color);
 
   frc::SmartDashboard::PutData("Visualization", &m_mech);
+  frc::SmartDashboard::PutData(&m_chooser);
 }
 
-void RobotContainer::ConfigureAuto() {}
+void RobotContainer::ConfigureAuto() {
+  threel4auto = AutoBuilder::ThreeL4Auto(m_swerve, m_superStructure, IsRed());
+  onel4startmidauto =
+      AutoBuilder::OneL4StartMidAuto(m_swerve, m_superStructure, IsRed());
+
+  m_chooser.SetDefaultOption("Default Auto: Line-Up with wall and score 3 L4",
+                             threel4auto.get());
+  m_chooser.AddOption("One L4 From Middle", onel4startmidauto.get());
+}
 
 void RobotContainer::ConfigureContinuous() {
   // These commands are for transmitting data across subsystems
@@ -264,8 +272,8 @@ void RobotContainer::ConfigureContinuous() {
   }
 }
 
-frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
-  return AutoBuilder::ThreeL4Auto(m_swerve, m_superStructure, IsRed());
+frc2::Command *RobotContainer::GetAutonomousCommand() {
+  return m_chooser.GetSelected();
 }
 
 frc2::CommandPtr RobotContainer::GetDisabledCommand() {

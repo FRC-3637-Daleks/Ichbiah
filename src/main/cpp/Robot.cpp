@@ -97,7 +97,7 @@ void Robot::AutonomousInit() {
   m_autonomousCommand = m_container.GetAutonomousCommand();
 
   if (m_autonomousCommand.has_value()) {
-    m_autonomousCommand->Schedule();
+    m_autonomousCommand.value()->Schedule();
   }
 }
 

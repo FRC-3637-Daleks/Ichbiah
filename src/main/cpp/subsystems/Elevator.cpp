@@ -46,12 +46,12 @@ constexpr std::string_view goal_names[] = {"INTAKE", "L1", "L2", "L3", "L4"};
 constexpr units::length::centimeter_t softLimit = 85_in;
 
 // Feedback/Feedforward Gains
-double kP = 1.0;
-double kI = 0.0;
-double kD = 0.0;
+constexpr double kP = 1.0;
+constexpr double kI = 0.0;
+constexpr double kD = 0.0;
 constexpr auto kG = 0.351_V;
-double kS = 0.04;
-double kV = 0.11;
+constexpr double kS = 0.04;
+constexpr double kV = 0.11;
 } // namespace ElevatorConstants
 
 units::angle::turn_t lengthToRotorTurns(const units::centimeter_t height) {
@@ -127,8 +127,14 @@ Elevator::Elevator()
 
   // set Motion Magic settings
   auto &motionMagicConfigs = m_ElevatorConfig.MotionMagic;
+
+  /**
+   * OLD as of 9:43 AM 3/8/2025
+   * CruiseVelocity: 65
+   * Acceleration: 200
+   */
   motionMagicConfigs.MotionMagicCruiseVelocity =
-      units::angular_velocity::turns_per_second_t{65};
+      units::angular_velocity::turns_per_second_t{60};
   motionMagicConfigs.MotionMagicAcceleration =
       units::angular_acceleration::turns_per_second_squared_t{200};
 

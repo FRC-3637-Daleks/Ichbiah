@@ -29,6 +29,8 @@ auto ReefFarToIntake =
     choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("ReefFarToIntake");
 auto StartToReef =
     choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("StartToReef");
+auto StartToReefMid =
+    choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("StartToReefMid");
 
 inline frc2::CommandPtr AutoScore(Elevator::Level level,
                                   SuperStructure &superstructure) {
@@ -53,4 +55,11 @@ ThreeL4Auto(Drivetrain &swerve, SuperStructure &superstructure, bool isRed) {
       AutoScore(Elevator::Level::L4, superstructure));
 }
 
+inline frc2::CommandPtr OneL4StartMidAuto(Drivetrain &swerve,
+                                          SuperStructure &superstructure,
+                                          bool isRed) {
+  return frc2::cmd::Sequence(
+      swerve.FollowPathCommand(StartToReefMid.value(), isRed),
+      AutoScore(Elevator::Level::L4, superstructure));
+}
 }; // namespace AutoBuilder
