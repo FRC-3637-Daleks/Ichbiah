@@ -25,7 +25,7 @@ constexpr int kInnerBreakBeamID = 1;
 constexpr int kOuterBreakBeamID = 2;
 
 // Sensor is low when the beam is obstructed
-constexpr bool kBeamBroken = false;
+constexpr bool kBeamBroken = true;
 
 constexpr auto kRollerMass = 0.25_lb; // just need ballpark numbers
 constexpr auto kCoralMass = 1_lb;     // sure toss this into the mix "realism"
