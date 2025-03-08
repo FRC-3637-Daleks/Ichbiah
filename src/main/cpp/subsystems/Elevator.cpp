@@ -134,7 +134,7 @@ Elevator::Elevator()
    * Acceleration: 200
    */
   motionMagicConfigs.MotionMagicCruiseVelocity =
-      units::angular_velocity::turns_per_second_t{60};
+      units::angular_velocity::turns_per_second_t{65};
   motionMagicConfigs.MotionMagicAcceleration =
       units::angular_acceleration::turns_per_second_squared_t{200};
 
