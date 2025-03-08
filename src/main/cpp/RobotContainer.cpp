@@ -141,9 +141,6 @@ void RobotContainer::ConfigureBindings() {
   // Test Commands for Elevator
   m_oi.ElevatorUpTrigger.WhileTrue(m_superStructure.m_elevator.MoveUp());
   m_oi.ElevatorDownTrigger.WhileTrue(m_superStructure.m_elevator.MoveDown());
-  m_oi.FollowPathTrigger.WhileTrue(
-      m_test.has_value() ? m_swerve.FollowPathCommand(m_test.value())
-                         : frc2::cmd::None());
 
   // End Effector
   m_oi.EndEffectorInTrigger.WhileTrue(m_endeffector.MotorBackwardCommand());
@@ -268,7 +265,7 @@ void RobotContainer::ConfigureContinuous() {
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
-  return AutoBuilder::ThreeL4Auto(m_swerve, m_superStructure);
+  return AutoBuilder::ThreeL4Auto(m_swerve, m_superStructure, IsRed());
 }
 
 frc2::CommandPtr RobotContainer::GetDisabledCommand() {

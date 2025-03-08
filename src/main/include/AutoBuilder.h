@@ -36,18 +36,20 @@ inline frc2::CommandPtr AutoScore(Elevator::Level level,
                              superstructure.Score());
 }
 
-inline frc2::CommandPtr ThreeL4Auto(Drivetrain &swerve,
-                                    SuperStructure &superstructure) {
+inline frc2::CommandPtr
+ThreeL4Auto(Drivetrain &swerve, SuperStructure &superstructure, bool isRed) {
   return frc2::cmd::Sequence(
-      swerve.FollowPathCommand(StartToReef.value()),
+      swerve.FollowPathCommand(StartToReef.value(), isRed),
       AutoScore(Elevator::Level::L4, superstructure),
-      frc2::cmd::Parallel(swerve.FollowPathCommand(ReefFarToIntake.value()),
-                          superstructure.Intake()),
-      swerve.FollowPathCommand(IntakeToReefClose.value()),
+      frc2::cmd::Parallel(
+          swerve.FollowPathCommand(ReefFarToIntake.value(), isRed),
+          superstructure.Intake()),
+      swerve.FollowPathCommand(IntakeToReefClose.value(), isRed),
       AutoScore(Elevator::Level::L4, superstructure),
-      frc2::cmd::Parallel(swerve.FollowPathCommand(ReefCloseToIntake.value()),
-                          superstructure.Intake()),
-      swerve.FollowPathCommand(IntakeToReefClose2.value()),
+      frc2::cmd::Parallel(
+          swerve.FollowPathCommand(ReefCloseToIntake.value(), isRed),
+          superstructure.Intake()),
+      swerve.FollowPathCommand(IntakeToReefClose2.value(), isRed),
       AutoScore(Elevator::Level::L4, superstructure));
 }
 
