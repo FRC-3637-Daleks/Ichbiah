@@ -25,6 +25,14 @@ void Robot::DriverStationConnected() {}
 void Robot::RobotPeriodic() {
   frc2::CommandScheduler::GetInstance().Run();
 
+  std::string alliance =
+      (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed
+           ? "Red"
+           : "Blue");
+
+  // Needed for LEDs
+  frc::SmartDashboard::PutString("Aliance Color", alliance);
+
   // Log the RIO states.
   frc::SmartDashboard::PutNumber(
       "RIO/Battery Voltage", frc::RobotController::GetBatteryVoltage() / 1_V);

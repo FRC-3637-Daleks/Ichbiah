@@ -18,6 +18,7 @@
 
 #include <frc/smartdashboard/SendableChooser.h>
 
+#include <functional>
 #include <numbers>
 
 #include "PathFollower.h"
@@ -64,6 +65,11 @@ public:
   // LEDSubsystem m_ledSubsystem;
 
   bool m_isRed;
+
+  std::function<bool()> m_updateIsRed = [this]() -> bool {
+    return frc::DriverStation::GetAlliance() ==
+           frc::DriverStation::Alliance::kRed;
+  };
 
   frc::Mechanism2d m_mech{4, 8}; // scaled to feet
   frc::SendableChooser<frc2::Command *> m_chooser;

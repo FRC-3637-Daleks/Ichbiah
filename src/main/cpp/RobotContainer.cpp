@@ -230,9 +230,10 @@ void RobotContainer::ConfigureDashboard() {
 }
 
 void RobotContainer::ConfigureAuto() {
-  threel4auto = AutoBuilder::ThreeL4Auto(m_swerve, m_superStructure, IsRed());
+  threel4auto =
+      AutoBuilder::ThreeL4Auto(m_swerve, m_superStructure, m_updateIsRed);
   onel4startmidauto =
-      AutoBuilder::OneL4StartMidAuto(m_swerve, m_superStructure, IsRed());
+      AutoBuilder::OneL4StartMidAuto(m_swerve, m_superStructure, m_updateIsRed);
 
   m_chooser.SetDefaultOption("Default Auto: Line-Up with wall and score 3 L4",
                              threel4auto.get());
