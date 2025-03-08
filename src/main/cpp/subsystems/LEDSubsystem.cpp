@@ -33,12 +33,47 @@ void LEDSubsystem::Periodic() {
   switch (m_currState) {
   case LEDSTATE::Default:
     if (frc::SmartDashboard::GetBoolean(SDCONST::coralInIntake, false)) {
-      setState(LEDSTATE::CoralInIntake);
+      setState(LEDSTATE::CoralInIntake1);
+      countDown = 500;
+    }
+    if (frc::SmartDashboard::GetBoolean(SDCONST::cageIntaked, false)) {
+      setState(LEDSTATE::CageIntaked1);
     }
     break;
-  case LEDSTATE::CoralInIntake:
+  case LEDSTATE::CoralInIntake1:
+    if (countDown <= 0.0) {
+      countDown = 250;
+      setState(LEDSTATE::CoralInIntake2);
+    }
     if (!frc::SmartDashboard::GetBoolean(SDCONST::coralInIntake, false)) {
       setState(LEDSTATE::Default);
+    }
+    if (frc::SmartDashboard::GetBoolean(SDCONST::cageIntaked, false)) {
+      setState(LEDSTATE::CageIntaked1);
+    }
+    break;
+  case LEDSTATE::CoralInIntake2:
+    if (countDown <= 0.0) {
+      countDown = 250;
+      setState(LEDSTATE::CoralInIntake1);
+    }
+    if (!frc::SmartDashboard::GetBoolean(SDCONST::coralInIntake, false)) {
+      setState(LEDSTATE::Default);
+    }
+    if (frc::SmartDashboard::GetBoolean(SDCONST::cageIntaked, false)) {
+      setState(LEDSTATE::CageIntaked1);
+    }
+    break;
+  case LEDSTATE::CageIntaked1:
+    if (countDown <= 0.0) {
+      countDown = 125;
+      setState(LEDSTATE::CageIntaked2);
+    }
+    break;
+  case LEDSTATE::CageIntaked2:
+    if (countDown <= 0.0) {
+      countDown = 125;
+      setState(LEDSTATE::CageIntaked1);
     }
     break;
   }
@@ -62,12 +97,18 @@ void LEDSubsystem::Periodic() {
 
 void LEDSubsystem::setState(LEDSTATE state) {
   switch (state) {
-  case LEDSTATE::CoralInIntake:
+  case LEDSTATE::CoralInIntake1:
     setAllSpanPatterns(frc::LEDPattern::Gradient(
                            frc::LEDPattern::GradientType::kContinuous,
                            std::array<frc::Color, 2>{frc::Color{127, 127, 0},
                                                      frc::Color{0, 255, 0}})
                            .ScrollAtAbsoluteSpeed(1_mps, kLedSpacing));
+    break;
+  case LEDSTATE::CageIntaked1:
+    setAllSpanPatterns(frc::LEDPattern::Solid(frc::Color{1.0, 1.0, 0.0}));
+    break;
+  case LEDSTATE::CageIntaked2:
+    setAllSpanPatterns(frc::LEDPattern::Solid(frc::Color{0.0, 1.0, 0.0}));
     break;
   default:
     const bool isRed =

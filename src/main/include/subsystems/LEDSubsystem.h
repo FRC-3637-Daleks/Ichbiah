@@ -7,6 +7,7 @@
 namespace SDCONST {
 const std::string isRed{"IsRedAlliance"};
 const std::string coralInIntake{"EndEffector/has coral?"};
+const std::string cageIntaked("Climb/cage intaked?");
 } // namespace SDCONST
 
 class LEDSubsystem : public frc2::SubsystemBase {
@@ -29,7 +30,10 @@ private:
 
   enum class LEDSTATE {
     Default,
-    CoralInIntake,
+    CoralInIntake1,
+    CoralInIntake2,
+    CageIntaked1,
+    CageIntaked2,
   };
 
   LEDSTATE m_currState{LEDSTATE::Default};

@@ -274,6 +274,7 @@ void RobotContainer::ConfigureContinuous() {
 }
 
 frc2::Command *RobotContainer::GetAutonomousCommand() {
+  ConfigureAuto();
   return m_chooser.GetSelected();
 }
 
