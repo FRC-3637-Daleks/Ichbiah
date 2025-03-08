@@ -211,15 +211,15 @@ __                  \x|_______
  */
 
 frc2::CommandPtr EndEffector::EffectorIn() {
-  return MotorForwardCommand()
-      .Until([this]() -> bool { return IsInnerBreakBeamBroken(); });
-      // .AlongWith(frc2::cmd::Wait(4_s).AndThen(
-      //     frc2::cmd::RunOnce([this] { SimulateNewCoral(); })));
+  return MotorForwardCommand().Until(
+      [this]() -> bool { return IsInnerBreakBeamBroken(); });
+  // .AlongWith(frc2::cmd::Wait(4_s).AndThen(
+  //     frc2::cmd::RunOnce([this] { SimulateNewCoral(); })));
 }
 
 frc2::CommandPtr EndEffector::EffectorContinue() {
   return SlowMotorForwardCommand().Until(
-      [this]() -> bool { return !IsOuterBreakBeamBroken(); });
+      [this]() -> bool { return !IsInnerBreakBeamBroken(); });
 }
 
 frc2::CommandPtr EndEffector::EffectorOut() {
