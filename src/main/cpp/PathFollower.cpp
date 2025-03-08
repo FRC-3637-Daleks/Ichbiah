@@ -23,11 +23,7 @@ PathFollower::PathFollower(trajectory_t trajectory, Drivetrain &subsystem,
 void PathFollower::Initialize() {
   m_timer.Reset();
   m_timer.Start();
-<<<<<<< HEAD
-  m_driveSubsystem.ResetOdometry(m_trajectory.GetInitialPose().value());
-=======
   m_driveSubsystem.ResetOdometry(m_trajectory.GetInitialPose(m_isRed).value());
->>>>>>> 0ef6c1d81c7bbf9238f791f8abbfc9183ae47fba
   m_field->GetObject("Trajectory")->SetPoses(m_trajectory.GetPoses());
   auto events = m_trajectory.events;
   for (auto &e : events) {
