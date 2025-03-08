@@ -105,10 +105,10 @@ void LEDSubsystem::setState(LEDSTATE state) {
                            .ScrollAtAbsoluteSpeed(1_mps, kLedSpacing));
     break;
   case LEDSTATE::CageIntaked1:
-    setAllSpanPatterns(frc::LEDPattern::Solid(frc::Color{1.0, 1.0, 0.0}));
+    setAllSpanPatterns(frc::LEDPattern::Solid(frc::Color{0.0, 1.0, 1.0}));
     break;
   case LEDSTATE::CageIntaked2:
-    setAllSpanPatterns(frc::LEDPattern::Solid(frc::Color{0.0, 1.0, 0.0}));
+    setAllSpanPatterns(frc::LEDPattern::Solid(frc::Color{0.2, 0.0, 0.2}));
     break;
   default:
     const bool isRed =

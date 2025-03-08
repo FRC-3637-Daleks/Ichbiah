@@ -57,7 +57,7 @@ void Climb::Periodic() {
   }
 
   frc::SmartDashboard::PutString("Climb/state", state_str);
-  frc::SmartDashboard::PutBoolean("Climb/cage intaked?''", m_limSwitch.Get());
+  frc::SmartDashboard::PutBoolean("Climb/cage intaked?", !m_limSwitch.Get());
 }
 
 frc2::CommandPtr Climb::ExtendClimb() { return m_dualPistons.Extend(); }

@@ -144,7 +144,7 @@ void RobotContainer::ConfigureBindings() {
 
   // End Effector
   m_oi.EndEffectorInTrigger.WhileTrue(m_endeffector.MotorBackwardCommand());
-  m_oi.EndEffectorOutTrigger.WhileTrue(m_superStructure.Score());
+  m_oi.EndEffectorOutTrigger.WhileTrue(m_endeffector.MotorForwardCommand());
 
   // Driver Auto Score
   m_oi.IntakeTrigger.OnTrue(m_superStructure.Intake());
@@ -260,10 +260,10 @@ void RobotContainer::ConfigureContinuous() {
    * any races there.
    */
   // ROS to swerve
-  frc2::CommandScheduler::GetInstance().Schedule(frc2::cmd::Run([this] {
-                                                   m_swerve.SetMapToOdom(
-                                                       m_ros.GetMapToOdom());
-                                                 }).IgnoringDisable(true));
+  //   frc2::CommandScheduler::GetInstance().Schedule(frc2::cmd::Run([this] {
+  //                                                    m_swerve.SetMapToOdom(
+  //                                                        m_ros.GetMapToOdom());
+  //                                                  }).IgnoringDisable(true));
 
   if constexpr (frc::RobotBase::IsSimulation()) {
     frc2::CommandScheduler::GetInstance().Schedule(
@@ -273,9 +273,9 @@ void RobotContainer::ConfigureContinuous() {
   }
 }
 
-frc2::Command *RobotContainer::GetAutonomousCommand() {
-  ConfigureAuto();
-  return m_chooser.GetSelected();
+frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
+
+  return AutoBuilder::ThreeL4Auto(m_swerve, m_superStructure, m_updateIsRed);
 }
 
 frc2::CommandPtr RobotContainer::GetDisabledCommand() {
