@@ -161,6 +161,16 @@ void RobotContainer::ConfigureBindings() {
 
   m_oi.ClimbToggleTrigger.OnTrue(m_climb.ToggleClimbCommand());
 
+  //   m_oi.ClimbUpTrigger.OnTrue(m_climb.ExtendClimb().AndThen(frc2::cmd::RunOnce(
+  //       []() { TEMP_COMP_VARIABLES::s_climkExtended = true; })));
+  //   m_oi.ClimbDownTrigger.OnTrue(
+  //       m_climb.RetractClimb().AndThen(frc2::cmd::RunOnce(
+  //           []() { TEMP_COMP_VARIABLES::s_climkExtended = true; })));
+
+  //   m_oi.ClimbToggleTrigger.OnTrue(
+  //       m_climb.ToggleClimbCommand().AndThen(frc2::cmd::RunOnce(
+  //           []() { TEMP_COMP_VARIABLES::s_climkExtended = true; })));
+
   // Rumble
   frc2::Trigger RumbleTrigger(
       [this]() -> bool { return m_endeffector.HasCoral(); });

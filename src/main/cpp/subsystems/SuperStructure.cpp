@@ -39,9 +39,10 @@ frc2::CommandPtr SuperStructure::Intake() {
       frc2::cmd::Either(
           frc2::cmd::None(),
           m_elevator.GoToLevel(m_elevator.INTAKE)
-              .AndThen(m_endeffector.Intake().Until(
-                  [this]() -> bool { return m_endeffector.HasCoral(); })),
-          [this]() -> bool { return m_endeffector.HasCoral(); }),
+              .AndThen(m_endeffector.Intake().Until([this]() -> bool {
+                return m_endeffector.IsOuterBreakBeamBroken();
+              })),
+          [this]() -> bool { return m_endeffector.IsOuterBreakBeamBroken(); }),
       m_endeffector.EffectorContinue());
 }
 

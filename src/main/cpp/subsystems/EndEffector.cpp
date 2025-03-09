@@ -224,15 +224,12 @@ frc2::CommandPtr EndEffector::EffectorIn() {
 }
 
 frc2::CommandPtr EndEffector::EffectorContinue() {
-  return SlowMotorForwardCommand()
-      .Until([this]() -> bool { return !IsInnerBreakBeamBroken(); })
-      .AndThen(SlowMotorBackwardCommand())
-      .WithTimeout(0.1_s);
+  return SlowMotorForwardCommand().Until(
+      [this]() -> bool { return IsOuterBreakBeamBroken(); });
 }
 
 frc2::CommandPtr EndEffector::EffectorOut() {
-  return MotorForwardCommand().Until(
-      [this]() -> bool { return !IsInnerBreakBeamBroken(); });
+  return MotorForwardCommand().Until([this]() -> bool { return !HasCoral(); });
 }
 
 frc2::CommandPtr EndEffector::EffectorOutToL1() {

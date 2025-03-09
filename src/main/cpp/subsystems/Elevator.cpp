@@ -20,7 +20,7 @@ constexpr auto kDistancePerChainLink = 0.25_in; // 25H "pitch" value
 constexpr auto kSprocketCircum = kSprocketTeeth * kDistancePerChainLink;
 constexpr auto kGearReduction = 62.0 / 10.0 * 30.0 / 22.0; // Exact gears used
 // End-Effector heights measured to tip of the V plate from floor
-constexpr auto kMinHeight = 9.5_in;
+constexpr auto kMinHeight = 8.5_in;
 constexpr auto kMaxHeight = 89.5_in;
 constexpr auto kFirstStageLength =
     (kMaxHeight - kMinHeight) / 3; // extension length of stage 1
@@ -32,9 +32,9 @@ constexpr auto kMassEffective = 21.0_kg;
 
 // Level Heights
 constexpr units::length::centimeter_t kL1 = 2_ft + 2_in;
-constexpr units::length::centimeter_t kL2 = 2_ft + 7.875_in;
-constexpr units::length::centimeter_t kL3 = 3_ft + 11.625_in;
-constexpr units::length::centimeter_t kL4 = 6_ft - 1.5_in;
+constexpr units::length::centimeter_t kL2 = 2_ft + 7.875_in - 2.5_in;
+constexpr units::length::centimeter_t kL3 = 3_ft + 11.625_in - 2.5_in;
+constexpr units::length::centimeter_t kL4 = 6_ft - 2.5_in;
 constexpr units::length::centimeter_t kTolerance = 1_in;
 
 // Index 0 is intake height

@@ -42,6 +42,12 @@ constexpr auto kMaxClimbRetractTime =
     kClimbRetractTime + 2 * kMatchTimeStdError;
 } // namespace OperatorConstants
 
+// #pragma GCC diagnostic ignored
+//  DO NOT DO THIS, this is a quick comopetition fix
+//  namespace TEMP_COMP_VARIABLES {
+//  bool s_climkExtended{false};
+//  }
+
 class OperatorInterface {
 
 public:
@@ -58,7 +64,6 @@ public:
   frc2::Trigger DriveToPoseTrigger = m_swerveController.A();
   frc2::Trigger ZeroHeadingTrigger = m_swerveController.Start();
   frc2::Trigger RobotRelativeToggleTrigger = m_swerveController.Back();
-  frc2::Trigger ScoreTrigger = m_swerveController.RightBumper();
   frc2::Trigger ElevatorL1Trigger =
       m_swerveController.POVDown() || m_copilotController.POVDown();
   frc2::Trigger ElevatorL2Trigger =
@@ -75,6 +80,7 @@ public:
       [this] { return m_copilotController.GetRightY() < -0.5; }};
   frc2::Trigger EndEffectorInTrigger = m_copilotController.RightTrigger();
   frc2::Trigger EndEffectorOutTrigger = m_copilotController.LeftTrigger();
+  frc2::Trigger ScoreTrigger = m_copilotController.RightBumper();
   frc2::Trigger IntakeTrigger = m_copilotController.A();
   frc2::Trigger ElevatorIntakeTrigger = m_copilotController.B();
   frc2::Trigger ClimbUpTrigger = m_copilotController.Y();
@@ -82,6 +88,9 @@ public:
   // Automatic Triggers
   frc2::Trigger ClimbTimedExtendTrigger{[this]() -> bool {
     auto time = frc::DriverStation::GetMatchTime();
+    // return !TEMP_COMP_VARIABLES::s_climkExtended &&
+    //        time >= OperatorConstants::kMinClimbExtendTime &&
+    //        time <= OperatorConstants::kMaxClimbExtendTime;
     return time >= OperatorConstants::kMinClimbExtendTime &&
            time <= OperatorConstants::kMaxClimbExtendTime;
   }};
