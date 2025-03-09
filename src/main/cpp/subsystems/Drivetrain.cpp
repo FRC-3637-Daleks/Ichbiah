@@ -317,9 +317,9 @@ void Drivetrain::ResetOdometry(const frc::Pose2d &pose) {
   // by resetting the odometry.
   constexpr frc::Pose2d origin{};
   m_initial_transform = {};
-  m_map_to_odom = {};
   const auto odom_transform = GetOdomPose() - origin;
-  m_initial_transform = (pose + odom_transform.Inverse()) - origin;
+  m_initial_transform =
+      (pose + odom_transform.Inverse()) - (origin + m_map_to_odom);
 }
 
 void Drivetrain::SetMapToOdom(const frc::Transform2d &transform) {
