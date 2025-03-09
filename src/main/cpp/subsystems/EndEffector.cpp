@@ -227,7 +227,7 @@ frc2::CommandPtr EndEffector::EffectorContinue() {
   return SlowMotorForwardCommand()
       .Until([this]() -> bool { return !IsInnerBreakBeamBroken(); })
       .AndThen(SlowMotorBackwardCommand())
-      .WithTimeout(0.25_s);
+      .WithTimeout(0.1_s);
 }
 
 frc2::CommandPtr EndEffector::EffectorOut() {
