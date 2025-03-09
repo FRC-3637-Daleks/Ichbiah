@@ -161,6 +161,8 @@ void EndEffector::FastMotorForward() { m_EndEffectorMotor.SetVoltage(9_V); }
 
 void EndEffector::MotorBack() { m_EndEffectorMotor.SetVoltage(-3_V); }
 
+void EndEffector::SlowMotorBack() { m_EndEffectorMotor.SetVoltage(-0.5_V); }
+
 void EndEffector::MotorStop() { m_EndEffectorMotor.SetVoltage(0_V); }
 
 frc2::CommandPtr EndEffector::MotorForwardCommand() {
@@ -191,6 +193,10 @@ frc2::CommandPtr EndEffector::MotorBackwardCommand() {
   return RunEnd([this]() { MotorBack(); }, [this]() { MotorStop(); });
 }
 
+frc2::CommandPtr EndEffector::SlowMotorBackwardCommand() {
+  return RunEnd([this]() { SlowMotorBack(); }, [this]() { MotorStop(); });
+}
+
 bool EndEffector::IsInnerBreakBeamBroken() { return (m_InnerBreakBeam.Get()); }
 bool EndEffector::IsOuterBreakBeamBroken() { return (m_OuterBreakBeam.Get()); }
 
@@ -201,9 +207,9 @@ bool EndEffector::HasCoral() {
 /*
              ______  _ Motor
 __                  \x|_______
-   \ ______  X back Break Beam
+   \ ______  X inner Break Beam
             \ ______
-                     \ ____ X front Break Beam
+                     \ ____ X outer Break Beam
                             \ ____
                                     ||
                                     ||
@@ -219,9 +225,9 @@ frc2::CommandPtr EndEffector::EffectorIn() {
 
 frc2::CommandPtr EndEffector::EffectorContinue() {
   return SlowMotorForwardCommand()
-      .Until([this]() -> bool { return !IsOuterBreakBeamBroken(); })
-      .AndThen(MotorBackwardCommand())
-      .WithTimeout(0.5_s);
+      .Until([this]() -> bool { return !IsInnerBreakBeamBroken(); })
+      .AndThen(SlowMotorBackwardCommand())
+      .WithTimeout(0.25_s);
 }
 
 frc2::CommandPtr EndEffector::EffectorOut() {

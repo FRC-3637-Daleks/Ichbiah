@@ -35,15 +35,14 @@ frc2::CommandPtr SuperStructure::prePlace(Elevator::Level level) {
 };
 
 frc2::CommandPtr SuperStructure::Intake() {
-  return frc2::cmd::Either(
-             frc2::cmd::None(),
-             m_elevator.GoToLevel(m_elevator.INTAKE)
-                 .AndThen(m_endeffector.Intake().Until(
-                     [this]() -> bool { return m_endeffector.HasCoral(); })),
-             [this]() -> bool {
-               return m_endeffector.IsOuterBreakBeamBroken();
-             })
-      .AndThen(m_endeffector.EffectorContinue());
+  return frc2::cmd::Sequence(
+      frc2::cmd::Either(
+          frc2::cmd::None(),
+          m_elevator.GoToLevel(m_elevator.INTAKE)
+              .AndThen(m_endeffector.Intake().Until(
+                  [this]() -> bool { return m_endeffector.HasCoral(); })),
+          [this]() -> bool { return m_endeffector.HasCoral(); }),
+      m_endeffector.EffectorContinue());
 }
 
 // Pre-requisit is having coral && being at the right

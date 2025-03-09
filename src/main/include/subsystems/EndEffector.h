@@ -28,6 +28,7 @@ public:
   void SlowMotorForward();
   void FastMotorForward();
   void MotorBack();
+  void SlowMotorBack();
   void MotorStop();
 
   bool IsInnerBreakBeamBroken();
@@ -35,6 +36,7 @@ public:
   bool HasCoral();
 
   frc2::CommandPtr MotorBackwardCommand();
+  frc2::CommandPtr SlowMotorBackwardCommand();
   frc2::CommandPtr MotorForwardCommand();
   frc2::CommandPtr SlowMotorForwardCommand();
   frc2::CommandPtr FastMotorForwardCommand();
