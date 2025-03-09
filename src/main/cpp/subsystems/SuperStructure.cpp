@@ -31,17 +31,19 @@ void SuperStructure::InitVisualization(frc::MechanismObject2d *elevator_root) {
 void SuperStructure::UpdateVisualization() {}
 
 frc2::CommandPtr SuperStructure::prePlace(Elevator::Level level) {
-  return /*rember to implement intake here*/ m_endeffector.EffectorContinue()
-      .AlongWith(m_elevator.GoToLevel(level));
+  return m_elevator.GoToLevel(level);
 };
 
 frc2::CommandPtr SuperStructure::Intake() {
   return frc2::cmd::Either(
-      frc2::cmd::None(),
-      m_elevator.GoToLevel(m_elevator.INTAKE)
-          .AndThen(m_endeffector.Intake().Until(
-              [this]() -> bool { return m_endeffector.HasCoral(); })),
-      [this]() -> bool { return m_endeffector.IsOuterBreakBeamBroken(); });
+             frc2::cmd::None(),
+             m_elevator.GoToLevel(m_elevator.INTAKE)
+                 .AndThen(m_endeffector.Intake().Until(
+                     [this]() -> bool { return m_endeffector.HasCoral(); })),
+             [this]() -> bool {
+               return m_endeffector.IsOuterBreakBeamBroken();
+             })
+      .AndThen(m_endeffector.EffectorContinue());
 }
 
 // Pre-requisit is having coral && being at the right
