@@ -119,7 +119,9 @@ Elevator::Elevator()
           configs::SoftwareLimitSwitchConfigs{}
               .WithForwardSoftLimitEnable(true)
               .WithForwardSoftLimitThreshold(
-                  lengthToRotorTurns(ElevatorConstants::softLimit)));
+                  lengthToRotorTurns(ElevatorConstants::softLimit))
+              .WithReverseSoftLimitEnable(true)
+              .WithReverseSoftLimitThreshold(0.0_tr));
   m_ElevatorConfig.WithMotorOutput(
       configs::MotorOutputConfigs{}
           .WithNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake)
