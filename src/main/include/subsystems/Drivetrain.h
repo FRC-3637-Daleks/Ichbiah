@@ -406,21 +406,21 @@ private:
   auto x_speed(LinearPositionSupplier auto &&position) {
     return [this, position = std::forward<decltype(position)>(position)] {
       return units::meters_per_second_t{
-          m_holonomicController.getXController().Calculate(
+          m_holonomicController.GetXController().Calculate(
               units::meter_t{GetPose().X()}.value(), position().value())};
     };
   }
   auto y_speed(LinearPositionSupplier auto &&position) {
     return [this, position = std::forward<decltype(position)>(position)] {
       return units::meters_per_second_t{
-          m_holonomicController.getYController().Calculate(
+          m_holonomicController.GetYController().Calculate(
               units::meter_t{GetPose().Y()}.value(), position().value())};
     };
   }
   auto theta_speed(RotationSupplier auto &&heading) {
     return [this, heading = std::forward<decltype(heading)>(heading)] {
       return units::radians_per_second_t{
-          m_holonomicController.getThetaController().Calculate(
+          m_holonomicController.GetThetaController().Calculate(
               GetPose().Rotation().Radians(), heading())};
     };
   }
