@@ -75,9 +75,9 @@ public:
 
   // Co-pilot Controls
   frc2::Trigger ElevatorUpTrigger{
-      [this] { return m_copilotController.GetRightY() > 0.5; }};
-  frc2::Trigger ElevatorDownTrigger{
       [this] { return m_copilotController.GetRightY() < -0.5; }};
+  frc2::Trigger ElevatorDownTrigger{
+      [this] { return m_copilotController.GetRightY() > 0.5; }};
   frc2::Trigger EndEffectorInTrigger = m_copilotController.RightTrigger();
   frc2::Trigger EndEffectorOutTrigger = m_copilotController.LeftTrigger();
   frc2::Trigger IntakeTrigger = m_copilotController.A();

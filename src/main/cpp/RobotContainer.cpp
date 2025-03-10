@@ -121,8 +121,6 @@ void RobotContainer::ConfigureBindings() {
           [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
           [this] { return m_oi.rot(); }));
 
-  // m_oi.DriveToPoseTrigger.WhileTrue(
-  //   m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));
   m_oi.ZeroHeadingTrigger.OnTrue(frc2::cmd::Parallel(
       m_swerve.ZeroHeadingCommand(), frc2::cmd::Print("Zeroed Heading")));
 
