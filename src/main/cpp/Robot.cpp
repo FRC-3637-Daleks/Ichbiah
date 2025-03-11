@@ -115,6 +115,10 @@ void Robot::AutonomousInit() {
   if (m_autonomousCommand.has_value()) {
     m_autonomousCommand->Schedule();
   }
+
+  if (IsSimulation()) {
+    m_container.m_endeffector.SimulatePreloadCoral();
+  }
 }
 
 void Robot::AutonomousPeriodic() {}
@@ -148,7 +152,7 @@ void Robot::SimulationPeriodic() {
                                             {field_length, field_width}};
   constexpr frc::Translation2d robot_intake{0_in, 15_in};
 
-  const auto robot_pose = m_container.m_swerve.GetSimulatedGroundTruth();
+  const auto robot_pose = m_container.m_swerve.GetPose();
   const auto intake_pose = robot_pose.TransformBy({robot_intake, 0_deg});
 
   for (const auto corner : corners) {
