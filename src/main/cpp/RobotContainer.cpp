@@ -181,7 +181,12 @@ void RobotContainer::ConfigureBindings() {
    */
   m_oi.ElevatorPrePlaceTrigger.WhileTrue(
       FusePose().AlongWith(m_swerve.DriveToPoseIndefinitelyCommand([this] {
-        return ReefAssist::getNearestScoringPose(m_swerve.GetPose());
+        const auto robot = m_swerve.GetPose();
+        const auto nearest_target = ReefAssist::getNearestScoringPose(robot);
+        if (robot.Translation().Distance(nearest_target.Translation()) < 1_m)
+          return nearest_target;
+        else
+          return robot;
       })));
 
   // Climb
