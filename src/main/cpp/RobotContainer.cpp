@@ -195,10 +195,14 @@ void RobotContainer::ConfigureBindings() {
   (m_oi.ElevatorDownTrigger || m_oi.ElevatorUpTrigger)
       .OnFalse(m_elevator.Hold());
 
-  m_oi.L1Manual.OnTrue(m_elevator.GoToLevel(Elevator::L1));
-  m_oi.L2Manual.OnTrue(m_elevator.GoToLevel(Elevator::L2));
-  m_oi.L3Manual.OnTrue(m_elevator.GoToLevel(Elevator::L3));
-  m_oi.L4Manual.OnTrue(m_elevator.GoToLevel(Elevator::L4));
+  m_oi.L1Manual.WhileTrue(
+      m_elevator.GoToLevel(Elevator::L1).AndThen(m_elevator.Hold()));
+  m_oi.L2Manual.WhileTrue(
+      m_elevator.GoToLevel(Elevator::L2).AndThen(m_elevator.Hold()));
+  m_oi.L3Manual.WhileTrue(
+      m_elevator.GoToLevel(Elevator::L3).AndThen(m_elevator.Hold()));
+  m_oi.L4Manual.WhileTrue(
+      m_elevator.GoToLevel(Elevator::L4).AndThen(m_elevator.Hold()));
 
   // End Effector
   m_oi.EndEffectorInTrigger.WhileTrue(m_endeffector.MotorBackwardCommand());
