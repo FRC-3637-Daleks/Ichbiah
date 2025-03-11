@@ -145,7 +145,7 @@ void EndEffector::UpdateVisualization() {
 
 void EndEffector::MotorForward() { m_EndEffectorMotor.SetVoltage(1.5_V); }
 
-void EndEffector::SlowMotorForward() { m_EndEffectorMotor.SetVoltage(0.5_V); }
+void EndEffector::SlowMotorForward() { m_EndEffectorMotor.SetVoltage(0.6_V); }
 
 void EndEffector::FastMotorForward() { m_EndEffectorMotor.SetVoltage(9_V); }
 
@@ -203,10 +203,8 @@ frc2::CommandPtr EndEffector::EffectorIn() {
 }
 
 frc2::CommandPtr EndEffector::EffectorContinue() {
-  return SlowMotorForwardCommand()
-      .Until([this]() -> bool { return !IsInnerBreakBeamBroken(); })
-      .AndThen(SlowMotorBackwardCommand())
-      .WithTimeout(0.1_s);
+  return SlowMotorForwardCommand().Until(
+      [this]() -> bool { return !IsInnerBreakBeamBroken(); });
 }
 
 frc2::CommandPtr EndEffector::EffectorOut() {
@@ -221,9 +219,10 @@ frc2::CommandPtr EndEffector::EffectorOutToL1() {
 // Assumes one break beam
 frc2::CommandPtr EndEffector::Intake() {
   const auto coral_intaked = [this] { return IsOuterBreakBeamBroken(); };
-  return frc2::cmd::Either(frc2::cmd::None(),
-                           MotorForwardCommand().Until(coral_intaked),
-                           coral_intaked);
+  return frc2::cmd::Either(
+      frc2::cmd::None(),
+      EffectorIn().AndThen(SlowMotorForwardCommand().Until(coral_intaked)),
+      coral_intaked);
 }
 
 /*****************************SIMULATION******************************/
