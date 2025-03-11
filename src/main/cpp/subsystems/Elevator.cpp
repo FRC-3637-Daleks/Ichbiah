@@ -287,6 +287,10 @@ frc2::CommandPtr Elevator::MoveDown() {
   return RunEnd([this] { MotorMoveDown(); }, [this] { MotorStop(); });
 }
 
+frc2::CommandPtr Elevator::Hold() {
+  return Run([this] { MotorStop(); });
+}
+
 // frc2::CommandPtr Elevator::HomeEncoder() {
 //     return MoveDown().Until([this] {return isAtBottom();});
 // }

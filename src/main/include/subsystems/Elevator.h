@@ -55,6 +55,7 @@ public:
   // Manual Override Commands
   frc2::CommandPtr MoveUp();
   frc2::CommandPtr MoveDown();
+  frc2::CommandPtr Hold();
 
   // Ensures sensor is homed
   frc2::CommandPtr HomeEncoder();
