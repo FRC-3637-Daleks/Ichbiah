@@ -170,6 +170,11 @@ public:
             [this] {
               m_field.GetObject("Desired Pose")->SetPose({80_m, 80_m, 0_deg});
             })
+        .BeforeStarting([this] {
+          // Without this, it will rotate towards a previous setpoint
+          m_holonomicController.GetThetaController().Reset(
+              GetHeading().Radians());
+        })
         .Until([=, this] {
           return AtPose(desiredPoseSupplier(), tolerance) && IsStopped();
         });
