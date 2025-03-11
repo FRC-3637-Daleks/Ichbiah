@@ -50,6 +50,7 @@ public:
 
   bool isAtTop();
   bool isAtBottom();
+  bool shouldHome();
 
 public:
   // Manual Override Commands
