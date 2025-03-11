@@ -31,34 +31,34 @@ void SuperStructure::InitVisualization(frc::MechanismObject2d *elevator_root) {
 void SuperStructure::UpdateVisualization() {}
 
 frc2::CommandPtr SuperStructure::prePlace(Elevator::Level level) {
-  return m_elevator.GoToLevel(level);
+  // Always intake first. Intake will instantly exit if we already have coral
+  // Parallel empty command means the command runs indefinitely even after
+  // completing the components
+  return Intake()
+      .AndThen(m_elevator.GoToLevel(level).AlongWith(
+          m_endeffector.EffectorContinue()))
+      .AlongWith(Run([] {})); // keep parallel
 };
 
 frc2::CommandPtr SuperStructure::Intake() {
-  return frc2::cmd::Sequence(
-      frc2::cmd::Either(
-          frc2::cmd::None(),
-          m_elevator.GoToLevel(m_elevator.INTAKE)
-              .AndThen(m_endeffector.Intake().Until(
-                  [this]() -> bool { return m_endeffector.HasCoral(); })),
-          [this]() -> bool { return m_endeffector.HasCoral(); }),
-      m_endeffector.EffectorContinue());
+  // The command will run until the endeffector intakes
+  return m_endeffector.Intake().DeadlineFor(
+      m_elevator.GoToLevel(Elevator::INTAKE));
 }
 
 // Pre-requisit is having coral && being at the right
-frc2::CommandPtr SuperStructure::Score() {
-  return frc2::cmd::Either(
-      m_endeffector.EffectorOutToL1()
-          .AndThen(frc2::cmd::Wait(0.25_s))
-          .AndThen(m_elevator.GoToLevel(m_elevator.INTAKE)),
-      m_endeffector.EffectorOut()
-          .AndThen(frc2::cmd::Wait(0.25_s))
-          .AndThen(m_elevator.GoToLevel(m_elevator.INTAKE)),
-      [this]() -> bool { return m_elevator.IsAtLevel(m_elevator.L1); });
+frc2::CommandPtr SuperStructure::Score(Elevator::Level level) {
+  auto out_cmd = (level == Elevator::L1) ? m_endeffector.EffectorOutToL1()
+                                         : m_endeffector.EffectorOut();
 
-  return m_endeffector.EffectorOut()
-      .AndThen(frc2::cmd::Wait(0.25_s))
-      .AndThen(m_elevator.GoToLevel(m_elevator.INTAKE));
+  // Intake first, if we have coral then no problem
+  // Go to the level, wait to get there
+  // Then output at the speed for said level
+  // 2 second timeout just in case pressed with no coral inside
+  return Intake()
+      .AndThen(m_elevator.GoToLevel(level))
+      .AndThen(std::move(out_cmd))
+      .WithTimeout(2.0_s); // if left unchecked
 }
 
 SuperStructure::~SuperStructure() {}

@@ -112,6 +112,7 @@ RobotContainer::RobotContainer() {
 }
 
 void RobotContainer::ConfigureBindings() {
+  // PRIMARY CONTROLS
   m_swerve.SetDefaultCommand(m_swerve.CustomSwerveCommand(
       [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
       [this] { return m_oi.rot(); }));
@@ -129,24 +130,26 @@ void RobotContainer::ConfigureBindings() {
    * commanding the elevator Instead, the driver X button (can change this)
    * actually goes to the target level. The target level starts at L4
    * If they want to score on a different level, the copilot OR pilot can
-   * press the D-pad buttons to change it, and the driver can press X again
+   * press the D-pad buttons to change it.
    */
   std::function<Elevator::Level()> target_selector =
       [this]() -> Elevator::Level { return m_oi.target_level(); };
-  m_oi.ElevatorPrePlaceTrigger.OnTrue(frc2::cmd::Select(
+  m_oi.ElevatorPrePlaceTrigger.WhileTrue(frc2::cmd::Select(
       target_selector,
       std::pair{Elevator::L1, m_superStructure.prePlace(Elevator::L1)},
       std::pair{Elevator::L2, m_superStructure.prePlace(Elevator::L2)},
       std::pair{Elevator::L3, m_superStructure.prePlace(Elevator::L3)},
       std::pair{Elevator::L4, m_superStructure.prePlace(Elevator::L4)}));
 
-  // Test Commands for Elevator
-  m_oi.ElevatorUpTrigger.WhileTrue(m_superStructure.m_elevator.MoveUp());
-  m_oi.ElevatorDownTrigger.WhileTrue(m_superStructure.m_elevator.MoveDown());
+  m_oi.ScoreTrigger.OnTrue(frc2::cmd::Select(
+      target_selector,
+      std::pair{Elevator::L1, m_superStructure.Score(Elevator::L1)},
+      std::pair{Elevator::L2, m_superStructure.Score(Elevator::L2)},
+      std::pair{Elevator::L3, m_superStructure.Score(Elevator::L3)},
+      std::pair{Elevator::L4, m_superStructure.Score(Elevator::L4)}));
 
-  // End Effector
-  m_oi.EndEffectorInTrigger.WhileTrue(m_endeffector.MotorBackwardCommand());
-  m_oi.EndEffectorOutTrigger.WhileTrue(m_endeffector.MotorForwardCommand());
+  // When not holding the prePlace button, go to collapsed position
+  m_elevator.SetDefaultCommand(m_elevator.GoToLevel(Elevator::INTAKE));
 
   // Driver Auto Score
   /* Example of how to use CustomSwerveCommand to align in arbitrary ways.
@@ -174,24 +177,35 @@ void RobotContainer::ConfigureBindings() {
    * values when we actually are trying to align to something.
    * --E
    */
-  m_oi.DriveToPoseTrigger.WhileTrue(
+  m_oi.ElevatorPrePlaceTrigger.WhileTrue(
       FusePose().AlongWith(m_swerve.DriveToPoseIndefinitelyCommand([this] {
         return ReefAssist::getNearestScoringPose(m_swerve.GetPose());
       })));
-
-  m_oi.ScoreTrigger.OnTrue(
-      m_superStructure.Score().AndThen(m_superStructure.Intake()));
 
   // Climb
   m_oi.ClimbTimedExtendTrigger.OnTrue(
       m_climb.ExtendClimb().AlongWith(frc2::cmd::Print("Extending Climb")));
   m_oi.ClimbTimedRetractTrigger.OnTrue(
-      m_climb.RetractClimb().AlongWith(frc2::cmd::Print("Extending Climb")));
+      m_climb.RetractClimb().AlongWith(frc2::cmd::Print("Retracting Climb")));
+
+  // MANUAL OVERRIDES
+  // Test Commands for Elevator
+  m_oi.ElevatorUpTrigger.WhileTrue(m_elevator.MoveUp());
+  m_oi.ElevatorDownTrigger.WhileTrue(m_elevator.MoveDown());
+  (m_oi.ElevatorDownTrigger || m_oi.ElevatorUpTrigger)
+      .OnFalse(m_elevator.Hold());
+
+  m_oi.L1Manual.OnTrue(m_elevator.GoToLevel(Elevator::L1));
+  m_oi.L2Manual.OnTrue(m_elevator.GoToLevel(Elevator::L2));
+  m_oi.L3Manual.OnTrue(m_elevator.GoToLevel(Elevator::L3));
+  m_oi.L4Manual.OnTrue(m_elevator.GoToLevel(Elevator::L4));
+
+  // End Effector
+  m_oi.EndEffectorInTrigger.WhileTrue(m_endeffector.MotorBackwardCommand());
+  m_oi.EndEffectorOutTrigger.WhileTrue(m_endeffector.MotorForwardCommand());
 
   m_oi.ClimbUpTrigger.OnTrue(m_climb.ExtendClimb());
   m_oi.ClimbDownTrigger.OnTrue(m_climb.RetractClimb());
-
-  m_oi.ClimbToggleTrigger.OnTrue(m_climb.ToggleClimbCommand());
 
   // Rumble
   frc2::Trigger RumbleTrigger(

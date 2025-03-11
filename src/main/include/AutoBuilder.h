@@ -36,8 +36,7 @@ auto StartToReefMid =
 
 inline frc2::CommandPtr AutoScore(Elevator::Level level,
                                   SuperStructure &superstructure) {
-  return frc2::cmd::Sequence(superstructure.prePlace(level),
-                             superstructure.Score());
+  return superstructure.Score(level);
 }
 
 inline frc2::CommandPtr ThreeL4Auto(Drivetrain &swerve,

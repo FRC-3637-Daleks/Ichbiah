@@ -21,10 +21,9 @@ public:
   Elevator &m_elevator;
   EndEffector &m_endeffector;
 
-  bool baseAtPos;
   frc2::CommandPtr prePlace(Elevator::Level level);
   frc2::CommandPtr Intake();
-  frc2::CommandPtr Score();
+  frc2::CommandPtr Score(Elevator::Level level);
 
 private:
   friend class SuperStructureSim;

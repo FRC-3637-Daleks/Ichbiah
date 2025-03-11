@@ -30,10 +30,10 @@ OperatorInterface::OperatorInterface()
       m_copilotController{OperatorConstants::kCopilotControllerPort},
       m_target_level{Elevator::L4} {
 
-  ElevatorL1Trigger.OnTrue(SetTargetLevelCommand(Elevator::L1));
-  ElevatorL2Trigger.OnTrue(SetTargetLevelCommand(Elevator::L2));
-  ElevatorL3Trigger.OnTrue(SetTargetLevelCommand(Elevator::L3));
-  ElevatorL4Trigger.OnTrue(SetTargetLevelCommand(Elevator::L4));
+  L1TargetTrigger.OnTrue(SetTargetLevelCommand(Elevator::L1));
+  L2TargetTrigger.OnTrue(SetTargetLevelCommand(Elevator::L2));
+  L3TargetTrigger.OnTrue(SetTargetLevelCommand(Elevator::L3));
+  L4TargetTrigger.OnTrue(SetTargetLevelCommand(Elevator::L4));
 }
 
 double OperatorInterface::throttle() {

@@ -55,36 +55,23 @@ public:
   units::revolutions_per_minute_t rot();
   Elevator::Level target_level() { return m_target_level; }
 
-  // Driver Controls
-  frc2::Trigger ClimbToggleTrigger = m_swerveController.Y();
-  frc2::Trigger FollowPathTrigger = m_swerveController.A();
-  frc2::Trigger DriveToPoseTrigger = m_swerveController.A();
+  // Primary Controls
   frc2::Trigger ZeroHeadingTrigger = m_swerveController.Start();
   frc2::Trigger RobotRelativeToggleTrigger = m_swerveController.Back();
   frc2::Trigger ScoreTrigger = m_swerveController.RightBumper();
-  frc2::Trigger ElevatorL1Trigger =
+  frc2::Trigger L1TargetTrigger =
       m_swerveController.POVDown() || m_copilotController.POVDown();
-  frc2::Trigger ElevatorL2Trigger =
+  frc2::Trigger L2TargetTrigger =
       m_swerveController.POVLeft() || m_copilotController.POVLeft();
-  frc2::Trigger ElevatorL3Trigger =
+  frc2::Trigger L3TargetTrigger =
       m_swerveController.POVRight() || m_copilotController.POVRight();
-  frc2::Trigger ElevatorL4Trigger =
+  frc2::Trigger L4TargetTrigger =
       m_swerveController.POVUp() || m_copilotController.POVUp();
 
   frc2::Trigger ElevatorPrePlaceTrigger = m_swerveController.X();
+  frc2::Trigger IntakeTrigger =
+      m_swerveController.A() || m_copilotController.A();
 
-  // Co-pilot Controls
-  frc2::Trigger ElevatorUpTrigger{
-      [this] { return m_copilotController.GetRightY() < -0.5; }};
-  frc2::Trigger ElevatorDownTrigger{
-      [this] { return m_copilotController.GetRightY() > 0.5; }};
-  frc2::Trigger EndEffectorInTrigger = m_copilotController.RightTrigger();
-  frc2::Trigger EndEffectorOutTrigger = m_copilotController.LeftTrigger();
-  frc2::Trigger IntakeTrigger = m_copilotController.A();
-  frc2::Trigger ElevatorIntakeTrigger = m_copilotController.B();
-  frc2::Trigger ClimbUpTrigger = m_copilotController.Y();
-  frc2::Trigger ClimbDownTrigger = m_copilotController.X();
-  // Automatic Triggers
   frc2::Trigger ClimbTimedExtendTrigger{[this]() -> bool {
     auto time = frc::DriverStation::GetMatchTime();
     return time >= OperatorConstants::kMinClimbExtendTime &&
@@ -95,6 +82,21 @@ public:
     return time >= OperatorConstants::kMinClimbRetractTime &&
            time <= OperatorConstants::kMaxClimbRetractTime;
   }};
+
+  // Manual Override Controls
+  frc2::Trigger ElevatorUpTrigger{
+      [this] { return m_copilotController.GetLeftY() < -0.5; }};
+  frc2::Trigger ElevatorDownTrigger{
+      [this] { return m_copilotController.GetLeftY() > 0.5; }};
+  frc2::Trigger EndEffectorInTrigger = m_copilotController.RightTrigger();
+  frc2::Trigger EndEffectorOutTrigger = m_copilotController.LeftTrigger();
+  frc2::Trigger ElevatorIntakeTrigger = m_copilotController.B();
+  frc2::Trigger ClimbUpTrigger = m_copilotController.Y();
+  frc2::Trigger ClimbDownTrigger = m_copilotController.X();
+  frc2::Trigger L1Manual = m_copilotController.POVDown();
+  frc2::Trigger L2Manual = m_copilotController.POVLeft();
+  frc2::Trigger L3Manual = m_copilotController.POVRight();
+  frc2::Trigger L4Manual = m_copilotController.POVUp();
 
   frc2::CommandPtr RumbleController(units::second_t time, double intensity);
   frc2::CommandPtr SetTargetLevelCommand(Elevator::Level level);
