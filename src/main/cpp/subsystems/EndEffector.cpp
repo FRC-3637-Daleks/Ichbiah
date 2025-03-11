@@ -50,7 +50,6 @@ public:
   frc::DCMotor m_motor;
   rev::spark::SparkFlexSim m_motor_sim;
   frc::sim::FlywheelSim m_ee_model;
-  // frc::sim::DIOSim m_fwd_bb_sim, m_back_bb_sim;
   rev::spark::SparkLimitSwitchSim m_fwd_bb_sim, m_back_bb_sim;
 
   units::inch_t m_coral_pos;
@@ -58,12 +57,10 @@ public:
 };
 
 EndEffector::EndEffector()
-    : // m_InnerBreakBeam{EndEffectorConstants::kInnerBreakBeamID},
-      // m_OuterBreakBeam(EndEffectorConstants::kOuterBreakBeamID),
-      m_EndEffectorMotor{EndEffectorConstants::kMotorID,
+    : m_EndEffectorMotor{EndEffectorConstants::kMotorID,
                          rev::spark::SparkFlex::MotorType::kBrushless},
-      m_InnerBreakBeam{m_EndEffectorMotor.GetForwardLimitSwitch()},
-      m_OuterBreakBeam{m_EndEffectorMotor.GetReverseLimitSwitch()},
+      m_InnerBreakBeam{m_EndEffectorMotor.GetReverseLimitSwitch()},
+      m_OuterBreakBeam{m_EndEffectorMotor.GetForwardLimitSwitch()},
       m_sim_state(new EndEffectorSim(*this)) {
 
   rev::spark::SparkBaseConfig config;
@@ -78,13 +75,6 @@ EndEffector::EndEffector()
       rev::spark::SparkBase::PersistMode::kPersistParameters);
 }
 
-/**
- * Note from Visvam:
- *
- * Don't for get to define functions you declare in your header file!
- *
- * You also don't need to add semicolons after function definitions.
- */
 EndEffector::~EndEffector() {}
 
 void EndEffector::Periodic() { UpdateDashboard(); }
@@ -134,8 +124,8 @@ void EndEffector::UpdateVisualization() {
   if (!m_mech_backbeam)
     return;
 
-  bool back = IsOuterBreakBeamBroken();
-  bool front = IsInnerBreakBeamBroken();
+  bool front = IsOuterBreakBeamBroken();
+  bool back = IsInnerBreakBeamBroken();
   double back_length = 0.0, front_length = 0.0;
 
   if (back && front)
@@ -180,15 +170,6 @@ frc2::CommandPtr EndEffector::FastMotorForwardCommand() {
                 [this] { EndEffector::MotorStop(); });
 }
 
-/**
- * Note from Visvam:
- *
- * This function was being called without a definition. I wrote this code based
- * on how you wrote WhileIn().
- *
- * Please change it to work how you see fit.
- */
-
 frc2::CommandPtr EndEffector::MotorBackwardCommand() {
   return RunEnd([this]() { MotorBack(); }, [this]() { MotorStop(); });
 }
@@ -219,8 +200,6 @@ __                  \x|_______
 frc2::CommandPtr EndEffector::EffectorIn() {
   return MotorForwardCommand().Until(
       [this]() -> bool { return IsInnerBreakBeamBroken(); });
-  // .AlongWith(frc2::cmd::Wait(4_s).AndThen(
-  //     frc2::cmd::RunOnce([this] { SimulateNewCoral(); })));
 }
 
 frc2::CommandPtr EndEffector::EffectorContinue() {
@@ -231,19 +210,20 @@ frc2::CommandPtr EndEffector::EffectorContinue() {
 }
 
 frc2::CommandPtr EndEffector::EffectorOut() {
-  return MotorForwardCommand().Until(
-      [this]() -> bool { return !IsInnerBreakBeamBroken(); });
+  return MotorForwardCommand().Until([this]() -> bool { return !HasCoral(); });
 }
 
 frc2::CommandPtr EndEffector::EffectorOutToL1() {
   return FastMotorForwardCommand().Until(
-      [this]() -> bool { return !IsInnerBreakBeamBroken(); });
+      [this]() -> bool { return !HasCoral(); });
 }
 
 // Assumes one break beam
 frc2::CommandPtr EndEffector::Intake() {
-  return MotorForwardCommand().Until(
-      [this]() -> bool { return IsOuterBreakBeamBroken(); });
+  const auto coral_intaked = [this] { return IsOuterBreakBeamBroken(); };
+  return frc2::cmd::Either(frc2::cmd::None(),
+                           MotorForwardCommand().Until(coral_intaked),
+                           coral_intaked);
 }
 
 /*****************************SIMULATION******************************/
