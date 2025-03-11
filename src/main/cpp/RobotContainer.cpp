@@ -141,12 +141,14 @@ void RobotContainer::ConfigureBindings() {
       std::pair{Elevator::L3, m_superStructure.prePlace(Elevator::L3)},
       std::pair{Elevator::L4, m_superStructure.prePlace(Elevator::L4)}));
 
-  m_oi.ScoreTrigger.OnTrue(frc2::cmd::Select(
-      target_selector,
-      std::pair{Elevator::L1, m_superStructure.Score(Elevator::L1)},
-      std::pair{Elevator::L2, m_superStructure.Score(Elevator::L2)},
-      std::pair{Elevator::L3, m_superStructure.Score(Elevator::L3)},
-      std::pair{Elevator::L4, m_superStructure.Score(Elevator::L4)}));
+  m_oi.ScoreTrigger.OnTrue(
+      frc2::cmd::Select(
+          target_selector,
+          std::pair{Elevator::L1, m_superStructure.Score(Elevator::L1)},
+          std::pair{Elevator::L2, m_superStructure.Score(Elevator::L2)},
+          std::pair{Elevator::L3, m_superStructure.Score(Elevator::L3)},
+          std::pair{Elevator::L4, m_superStructure.Score(Elevator::L4)})
+          .DeadlineFor(m_swerve.Stop()));
 
   // When not holding the prePlace button, go to collapsed position
   m_elevator.SetDefaultCommand(m_elevator.GoToLevel(Elevator::INTAKE));

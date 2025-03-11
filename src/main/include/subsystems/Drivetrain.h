@@ -150,6 +150,10 @@ public:
   // Drive the robot with field-relative swerve controls.
   frc2::CommandPtr BasicSwerveCommand(chassis_speed_supplier_t cmd_vel);
 
+  frc2::CommandPtr Stop() {
+    return BasicSwerveCommand([] { return frc::ChassisSpeeds{}; });
+  }
+
   frc2::CommandPtr DynamicOdomReset();
 
   // Drives the robot to 'desiredPose()' with feedforward 'endVele);o'
