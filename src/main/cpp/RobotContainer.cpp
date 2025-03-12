@@ -335,7 +335,10 @@ void RobotContainer::ConfigureContinuous() {
 }
 
 frc2::CommandPtr RobotContainer::FusePose() {
-  return frc2::cmd::Run([this] { m_swerve.SetMapToOdom(m_ros.GetMapToOdom()); })
+  return frc2::cmd::Run([this] {
+           if (const auto transform = m_ros.GetMapToOdom())
+             m_swerve.SetMapToOdom(transform.value());
+         })
       .IgnoringDisable(true);
 }
 

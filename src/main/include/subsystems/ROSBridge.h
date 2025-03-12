@@ -15,20 +15,21 @@
 #include <networktables/NetworkTableInstance.h>
 #include <networktables/StringTopic.h>
 
+#include <optional>
+
 class ROSBridge {
 public:
   ROSBridge();
 
 public:
-  void PubOdom(const frc::Pose2d &pose,
-               const frc::ChassisSpeeds &vel,
+  void PubOdom(const frc::Pose2d &pose, const frc::ChassisSpeeds &vel,
                units::second_t timestamp);
-  
+
   // publishes the ground truth pose in sim for external use
   void PubSim(const frc::Pose2d &pose);
 
   void CheckFMS();
-  frc::Transform2d GetMapToOdom();
+  std::optional<frc::Transform2d> GetMapToOdom();
 
 private:
   nt::NetworkTableInstance m_ntInst;
