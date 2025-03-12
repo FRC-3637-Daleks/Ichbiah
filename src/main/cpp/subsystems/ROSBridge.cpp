@@ -58,10 +58,16 @@ void ROSBridge::CheckFMS() {
   using DS = frc::DriverStation;
   m_fmsTable->PutString("EventName", DS::GetEventName());
   m_fmsTable->PutString("GameSpecificMessage", DS::GetGameSpecificMessage());
-  m_fmsTable->PutNumber("StationNumber", DS::GetLocation().value_or(0));
-  m_fmsTable->PutNumber("MatchType", DS::GetMatchType());
-  m_fmsTable->PutNumber("MatchNumber", DS::GetMatchNumber());
-  m_fmsTable->PutNumber("ReplayNumber", DS::GetReplayNumber());
+
+  // This is the worst formatting I've ever seen and I can't fix it
+  m_fmsTable->PutValue("StationNumber", nt::NetworkTableValue::MakeInteger(
+                                            DS::GetLocation().value_or(0)));
+  m_fmsTable->PutValue("MatchType",
+                       nt::NetworkTableValue::MakeInteger(DS::GetMatchType()));
+  m_fmsTable->PutValue(
+      "MatchNumber", nt::NetworkTableValue::MakeInteger(DS::GetMatchNumber()));
+  m_fmsTable->PutValue("ReplayNumber", nt::NetworkTableValue::MakeInteger(
+                                           DS::GetReplayNumber()));
 
   HAL_ControlWord fms_state;
   HAL_GetControlWord(&fms_state);
