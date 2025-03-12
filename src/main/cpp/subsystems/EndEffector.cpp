@@ -24,6 +24,12 @@ constexpr int kMotorID = 2;
 constexpr int kInnerBreakBeamID = 1;
 constexpr int kOuterBreakBeamID = 2;
 
+constexpr auto kMaxVoltage = 10_V;
+constexpr double kIntakePct = 0.15;
+constexpr double kIndexPct = 0.06;
+constexpr double kEjectPct = 0.2;
+constexpr double kEjectL1Pct = 0.75;
+
 // Sensor is low when the beam is obstructed
 constexpr bool kBeamBroken = true;
 
@@ -143,39 +149,21 @@ void EndEffector::UpdateVisualization() {
                             m_EndEffectorMotor.GetAppliedOutput() * 200));
 }
 
-void EndEffector::MotorForward() { m_EndEffectorMotor.SetVoltage(1.5_V); }
+void EndEffector::SetSpeed(double speed_pct) {
+  m_EndEffectorMotor.SetVoltage(EndEffectorConstants::kMaxVoltage * speed_pct);
+}
 
-void EndEffector::SlowMotorForward() { m_EndEffectorMotor.SetVoltage(0.6_V); }
-
-void EndEffector::FastMotorForward() { m_EndEffectorMotor.SetVoltage(9_V); }
-
-void EndEffector::MotorBack() { m_EndEffectorMotor.SetVoltage(-3_V); }
-
-void EndEffector::SlowMotorBack() { m_EndEffectorMotor.SetVoltage(-0.5_V); }
-
-void EndEffector::MotorStop() { m_EndEffectorMotor.SetVoltage(0_V); }
+frc2::CommandPtr EndEffector::MotorCommand(double speed_pct) {
+  return RunEnd([this, speed_pct] { SetSpeed(speed_pct); },
+                [this] { MotorStop(); });
+}
 
 frc2::CommandPtr EndEffector::MotorForwardCommand() {
-  return RunEnd([this] { EndEffector::MotorForward(); },
-                [this] { EndEffector::MotorStop(); });
-}
-
-frc2::CommandPtr EndEffector::SlowMotorForwardCommand() {
-  return RunEnd([this] { EndEffector::SlowMotorForward(); },
-                [this] { EndEffector::MotorStop(); });
-}
-
-frc2::CommandPtr EndEffector::FastMotorForwardCommand() {
-  return RunEnd([this] { EndEffector::FastMotorForward(); },
-                [this] { EndEffector::MotorStop(); });
+  return MotorCommand(EndEffectorConstants::kIndexPct);
 }
 
 frc2::CommandPtr EndEffector::MotorBackwardCommand() {
-  return RunEnd([this]() { MotorBack(); }, [this]() { MotorStop(); });
-}
-
-frc2::CommandPtr EndEffector::SlowMotorBackwardCommand() {
-  return RunEnd([this]() { SlowMotorBack(); }, [this]() { MotorStop(); });
+  return MotorCommand(-EndEffectorConstants::kIndexPct);
 }
 
 bool EndEffector::IsInnerBreakBeamBroken() { return (m_InnerBreakBeam.Get()); }
@@ -198,22 +186,26 @@ __                  \x|_______
  */
 
 frc2::CommandPtr EndEffector::EffectorIn() {
-  return MotorForwardCommand().Until(
-      [this]() -> bool { return IsInnerBreakBeamBroken(); });
+  return MotorCommand(EndEffectorConstants::kIntakePct).Until([this]() -> bool {
+    return IsInnerBreakBeamBroken();
+  });
 }
 
 frc2::CommandPtr EndEffector::EffectorContinue() {
-  return SlowMotorForwardCommand().Until(
-      [this]() -> bool { return !IsInnerBreakBeamBroken(); });
+  return MotorCommand(EndEffectorConstants::kIndexPct).Until([this]() -> bool {
+    return !IsInnerBreakBeamBroken();
+  });
 }
 
 frc2::CommandPtr EndEffector::EffectorOut() {
-  return MotorForwardCommand().Until([this]() -> bool { return !HasCoral(); });
+  return MotorCommand(EndEffectorConstants::kEjectPct).Until([this]() -> bool {
+    return !HasCoral();
+  });
 }
 
 frc2::CommandPtr EndEffector::EffectorOutToL1() {
-  return FastMotorForwardCommand().Until(
-      [this]() -> bool { return !HasCoral(); });
+  return MotorCommand(EndEffectorConstants::kEjectL1Pct)
+      .Until([this]() -> bool { return !HasCoral(); });
 }
 
 // Assumes one break beam
@@ -221,7 +213,8 @@ frc2::CommandPtr EndEffector::Intake() {
   const auto coral_intaked = [this] { return IsOuterBreakBeamBroken(); };
   return frc2::cmd::Either(
       frc2::cmd::None(),
-      EffectorIn().AndThen(SlowMotorForwardCommand().Until(coral_intaked)),
+      EffectorIn().AndThen(
+          MotorCommand(EndEffectorConstants::kIndexPct).Until(coral_intaked)),
       coral_intaked);
 }
 
