@@ -156,8 +156,8 @@ void RobotContainer::ConfigureBindings() {
   // Driver Auto Score
   /* Example of how to use CustomSwerveCommand to align in arbitrary ways.
      This code makes it so the robot aligns its angle to the nearest coral
-     station pose */
-  m_oi.IntakeTrigger.WhileTrue(m_swerve.CustomSwerveCommand(
+     station pose once the driver has held the trigger for half a second */
+  m_oi.IntakeTrigger.Debounce(0.5_s).WhileTrue(m_swerve.CustomSwerveCommand(
       [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
       [this] {
         return ReefAssist::GetNearestCoralStationPose(m_swerve.GetPose())
