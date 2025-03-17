@@ -29,10 +29,26 @@ auto ReefCloseToIntake =
     choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("ReefCloseToIntake");
 auto ReefFarToIntake =
     choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("ReefFarToIntake");
-auto StartToReef =
-    choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("StartToReef");
+auto StartBargeToReef =
+    choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("StartBargeToReef");
 auto StartToReefMid =
     choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("StartToReefMid");
+
+auto IntakeToReefCloseProcessor =
+    choreo::Choreo::LoadTrajectory<choreo::SwerveSample>(
+        "IntakeToReefCloseProcessor");
+auto IntakeToReefClose2Processor =
+    choreo::Choreo::LoadTrajectory<choreo::SwerveSample>(
+        "IntakeToReefClose2Processor");
+auto ReefCloseToIntakeProcessor =
+    choreo::Choreo::LoadTrajectory<choreo::SwerveSample>(
+        "ReefCloseToIntakeProcessor");
+auto ReefFarToIntakeProcessor =
+    choreo::Choreo::LoadTrajectory<choreo::SwerveSample>(
+        "ReefFarProcessorToIntake");
+auto StartProcessorToReef =
+    choreo::Choreo::LoadTrajectory<choreo::SwerveSample>(
+        "StartProcessorToReef");
 
 inline frc2::CommandPtr AutoScore(Elevator::Level level,
                                   SuperStructure &superstructure) {
@@ -43,7 +59,7 @@ inline frc2::CommandPtr ThreeL4Auto(Drivetrain &swerve,
                                     SuperStructure &superstructure,
                                     std::function<bool()> isRed) {
   return frc2::cmd::Sequence(
-      swerve.FollowPathCommand(StartToReef.value(), isRed()),
+      swerve.FollowPathCommand(StartBargeToReef.value(), isRed()),
       AutoScore(Elevator::Level::L4, superstructure),
       frc2::cmd::Parallel(
           swerve.FollowPathCommand(ReefFarToIntake.value(), isRed()),
@@ -54,6 +70,24 @@ inline frc2::CommandPtr ThreeL4Auto(Drivetrain &swerve,
           swerve.FollowPathCommand(ReefCloseToIntake.value(), isRed()),
           superstructure.Intake()),
       swerve.FollowPathCommand(IntakeToReefClose2.value(), isRed()),
+      AutoScore(Elevator::Level::L4, superstructure));
+}
+
+inline frc2::CommandPtr ThreeL4AutoProcessor(Drivetrain &swerve,
+                                             SuperStructure &superstructure,
+                                             std::function<bool()> isRed) {
+  return frc2::cmd::Sequence(
+      swerve.FollowPathCommand(StartProcessorToReef.value(), isRed()),
+      AutoScore(Elevator::Level::L4, superstructure),
+      frc2::cmd::Parallel(
+          swerve.FollowPathCommand(ReefFarToIntakeProcessor.value(), isRed()),
+          superstructure.Intake()),
+      swerve.FollowPathCommand(IntakeToReefCloseProcessor.value(), isRed()),
+      AutoScore(Elevator::Level::L4, superstructure),
+      frc2::cmd::Parallel(
+          swerve.FollowPathCommand(ReefCloseToIntakeProcessor.value(), isRed()),
+          superstructure.Intake()),
+      swerve.FollowPathCommand(IntakeToReefClose2Processor.value(), isRed()),
       AutoScore(Elevator::Level::L4, superstructure));
 }
 

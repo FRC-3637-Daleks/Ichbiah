@@ -20,7 +20,7 @@ constexpr frc::Transform2d kSideTransforms[] = {
 // Guessing 15in for frame, 2.5in for bumpers, 1.5in for middle of pipe to get
 // 19in in front.
 // Guessing 12.5in left of robot center
-constexpr frc::Transform2d kEndEffectorTransform{19_in, 12.5_in, 0_deg};
+constexpr frc::Transform2d kEndEffectorTransform{19_in, 16.5_in, 0_deg};
 constexpr frc::Transform2d kIntakeTransform{19_in, 0_in, 90_deg};
 
 namespace Blue {

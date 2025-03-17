@@ -20,7 +20,7 @@ constexpr auto kDistancePerChainLink = 0.25_in; // 25H "pitch" value
 constexpr auto kSprocketCircum = kSprocketTeeth * kDistancePerChainLink;
 constexpr auto kGearReduction = 62.0 / 10.0 * 30.0 / 22.0; // Exact gears used
 // End-Effector heights measured to tip of the V plate from floor
-constexpr auto kMinHeight = 9.5_in;
+constexpr auto kMinHeight = 9.5_in - 1.5_in;
 constexpr auto kMaxHeight = 89.5_in;
 constexpr auto kFirstStageLength =
     (kMaxHeight - kMinHeight) / 3; // extension length of stage 1

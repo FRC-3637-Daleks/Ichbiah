@@ -220,7 +220,7 @@ void RobotContainer::ConfigureBindings() {
 
   // Rumble
   frc2::Trigger RumbleTrigger(
-      [this]() -> bool { return m_endeffector.HasCoral(); });
+      [this]() -> bool { return m_endeffector.IsOuterBreakBeamBroken(); });
   RumbleTrigger.OnTrue(m_oi.RumbleController(0.25_s, 1));
 
   frc2::Trigger RumbleScore([this]() -> bool {
@@ -344,7 +344,8 @@ frc2::CommandPtr RobotContainer::FusePose() {
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
 
-  return AutoBuilder::ThreeL4Auto(m_swerve, m_superStructure, m_updateIsRed);
+  return AutoBuilder::ThreeL4AutoProcessor(m_swerve, m_superStructure,
+                                           m_updateIsRed);
 }
 
 frc2::CommandPtr RobotContainer::GetDisabledCommand() {
