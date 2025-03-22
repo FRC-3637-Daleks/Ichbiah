@@ -75,7 +75,7 @@ namespace PracticeModuleConstants {
 constexpr double kNeutralDeadband = 0.04;
 
 // Current Limit configs
-constexpr auto kDriveMotorCurrentLimit = 70_A;
+constexpr auto kDriveMotorCurrentLimit = 60_A;
 constexpr auto kSteerMotorCurrentLimit = 30_A;
 // Can exceed limit for 40ms seconds
 constexpr auto kCurrentLimitPeriod = 40_ms;

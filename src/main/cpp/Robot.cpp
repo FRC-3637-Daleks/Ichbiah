@@ -126,7 +126,8 @@ void Robot::AutonomousPeriodic() {}
 void Robot::TeleopInit() {}
 
 /**
- * This function is called periodically during operator control.
+ * This function is called periodically
+ *  during operator control.
  */
 void Robot::TeleopPeriodic() {}
 

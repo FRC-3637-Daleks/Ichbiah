@@ -180,14 +180,14 @@ void RobotContainer::ConfigureBindings() {
    * --E
    */
   m_oi.ElevatorPrePlaceTrigger.WhileTrue(
-      FusePose().AlongWith(m_swerve.DriveToPoseIndefinitelyCommand([this] {
+      m_swerve.DriveToPoseIndefinitelyCommand([this] {
         const auto robot = m_swerve.GetPose();
         const auto nearest_target = ReefAssist::getNearestScoringPose(robot);
         if (robot.Translation().Distance(nearest_target.Translation()) < 1_m)
           return nearest_target;
         else
           return robot;
-      })));
+      }));
 
   // Climb
   m_oi.ClimbTimedExtendTrigger.OnTrue(
@@ -324,7 +324,7 @@ void RobotContainer::ConfigureContinuous() {
    */
   // ROS to swerve
   // Commented out until we really trust it
-  // frc2::CommandScheduler::GetInstance().Schedule(FusePose());
+  frc2::CommandScheduler::GetInstance().Schedule(FusePose());
 
   if constexpr (frc::RobotBase::IsSimulation()) {
     frc2::CommandScheduler::GetInstance().Schedule(
@@ -336,8 +336,16 @@ void RobotContainer::ConfigureContinuous() {
 
 frc2::CommandPtr RobotContainer::FusePose() {
   return frc2::cmd::Run([this] {
-           if (const auto transform = m_ros.GetMapToOdom())
-             m_swerve.SetMapToOdom(transform.value());
+           if (const auto transform = m_ros.GetMapToOdom();
+               transform.has_value()) {
+             frc::SmartDashboard::PutNumber("FusePoseTransform/X",
+                                            transform.value().X().value());
+             frc::SmartDashboard::PutNumber("FusePoseTransform/Y",
+                                            transform.value().Y().value());
+             if (!(transform.value().X() <= 0.20_m ||
+                   transform.value().Y() == 0.20_m))
+               m_swerve.SetMapToOdom(transform.value());
+           }
          })
       .IgnoringDisable(true);
 }
