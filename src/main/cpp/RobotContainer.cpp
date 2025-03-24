@@ -117,6 +117,11 @@ void RobotContainer::ConfigureBindings() {
       [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
       [this] { return m_oi.rot(); }));
 
+  auto slow =
+      m_swerve.CustomSwerveCommand([this] { return m_oi.fwd() * 0.3; },
+                                   [this] { return m_oi.strafe() * 0.3; },
+                                   [this] { return m_oi.rot() * 0.3; });
+
   m_oi.RobotRelativeToggleTrigger.ToggleOnTrue(
       m_swerve.CustomRobotRelativeSwerveCommand(
           [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
@@ -141,14 +146,17 @@ void RobotContainer::ConfigureBindings() {
       std::pair{Elevator::L3, m_superStructure.prePlace(Elevator::L3)},
       std::pair{Elevator::L4, m_superStructure.prePlace(Elevator::L4)}));
 
-  m_oi.ScoreTrigger.OnTrue(
-      frc2::cmd::Select(
-          target_selector,
-          std::pair{Elevator::L1, m_superStructure.Score(Elevator::L1)},
-          std::pair{Elevator::L2, m_superStructure.Score(Elevator::L2)},
-          std::pair{Elevator::L3, m_superStructure.Score(Elevator::L3)},
-          std::pair{Elevator::L4, m_superStructure.Score(Elevator::L4)})
-          .DeadlineFor(m_swerve.Stop()));
+  m_oi.ScoreTrigger
+      .WhileTrue(
+          frc2::cmd::Select(
+              target_selector,
+              std::pair{Elevator::L1, m_superStructure.prePlace(Elevator::L1)},
+              std::pair{Elevator::L2, m_superStructure.prePlace(Elevator::L2)},
+              std::pair{Elevator::L3, m_superStructure.prePlace(Elevator::L3)},
+              std::pair{Elevator::L4, m_superStructure.prePlace(Elevator::L4)})
+              .DeadlineFor(std::move(slow))
+              .AndThen(frc2::cmd::Print("Scoring on the drive controller")))
+      .OnFalse(m_endeffector.EffectorOut());
 
   // When not holding the prePlace button, go to collapsed position
   m_elevator.SetDefaultCommand(m_elevator.GoToLevel(Elevator::INTAKE));
@@ -219,8 +227,10 @@ void RobotContainer::ConfigureBindings() {
   m_oi.ClimbDownTrigger.OnTrue(m_climb.RetractClimb());
 
   // Rumble
-  frc2::Trigger RumbleTrigger(
-      [this]() -> bool { return m_endeffector.IsOuterBreakBeamBroken(); });
+  frc2::Trigger RumbleTrigger([this]() -> bool {
+    return m_endeffector.IsOuterBreakBeamBroken() ||
+           frc::SmartDashboard::GetBoolean("Climb/cage intaked?", false);
+  });
   RumbleTrigger.OnTrue(m_oi.RumbleController(0.25_s, 1));
 
   frc2::Trigger RumbleScore([this]() -> bool {

@@ -50,6 +50,7 @@ public:
   OperatorInterface();
   double throttle();
   double boolean_slowdown();
+  bool slowmode();
   units::meters_per_second_t strafe();
   units::meters_per_second_t fwd();
   units::revolutions_per_minute_t rot();
