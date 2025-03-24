@@ -76,6 +76,7 @@ public:
 
   frc2::CommandPtr threel4auto{frc2::cmd::None()};
   frc2::CommandPtr onel4startmidauto{frc2::cmd::None()};
+  frc2::CommandPtr drivethingy{frc2::cmd::None()};
 
 public:
   void ConfigureBindings();

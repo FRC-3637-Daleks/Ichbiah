@@ -117,10 +117,9 @@ void RobotContainer::ConfigureBindings() {
       [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
       [this] { return m_oi.rot(); }));
 
-  auto slow =
-      m_swerve.CustomSwerveCommand([this] { return m_oi.fwd() * 0.3; },
-                                   [this] { return m_oi.strafe() * 0.3; },
-                                   [this] { return m_oi.rot() * 0.3; });
+  auto slow = m_swerve.CustomRobotRelativeSwerveCommand(
+      [this] { return 0_mps; }, [this] { return m_oi.strafe() * 0.3; },
+      [this] { return m_oi.rot() * 0.3; });
 
   m_oi.RobotRelativeToggleTrigger.ToggleOnTrue(
       m_swerve.CustomRobotRelativeSwerveCommand(
@@ -156,7 +155,7 @@ void RobotContainer::ConfigureBindings() {
               std::pair{Elevator::L4, m_superStructure.prePlace(Elevator::L4)})
               .DeadlineFor(std::move(slow))
               .AndThen(frc2::cmd::Print("Scoring on the drive controller")))
-      .OnFalse(m_endeffector.EffectorOut());
+      .OnFalse(m_endeffector.EffectorOut().DeadlineFor(m_elevator.Hold()));
 
   // When not holding the prePlace button, go to collapsed position
   m_elevator.SetDefaultCommand(m_elevator.GoToLevel(Elevator::INTAKE));
@@ -303,13 +302,20 @@ void RobotContainer::ConfigureDashboard() {
 }
 
 void RobotContainer::ConfigureAuto() {
+  auto k =
+      choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("StartBargeToReef");
   threel4auto =
       AutoBuilder::ThreeL4Auto(m_swerve, m_superStructure, m_updateIsRed);
   onel4startmidauto =
       AutoBuilder::OneL4StartMidAuto(m_swerve, m_superStructure, m_updateIsRed);
 
+  drivethingy = k.has_value()
+                    ? m_swerve.FollowPathCommand(k.value(), m_updateIsRed())
+                    : frc2::cmd::None();
+
   m_chooser.SetDefaultOption("Default Auto: Line-Up with wall and score 3 L4",
                              threel4auto.get());
+  m_chooser.AddOption("just drive", drivethingy.get());
   m_chooser.AddOption("One L4 From Middle", onel4startmidauto.get());
 }
 

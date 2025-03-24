@@ -34,9 +34,17 @@ void PathFollower::Initialize() {
 
 void PathFollower::Execute() {
   auto currentTime = m_timer.Get();
-  if (auto desiredState = m_trajectory.SampleAt(currentTime, m_isRed)) {
+  std::cout << "Running!!\n";
+  if (auto desiredState =
+          m_trajectory.SampleAt(currentTime, /* mirror */ false)) {
     auto desiredPose = desiredState->GetPose();
     auto feedForward = desiredState->GetChassisSpeeds();
+    for (auto &e : m_eventPoses) {
+      if (m_driveSubsystem.AtPose(e.second)) {
+        auto command = getCommand(e.first);
+        command->Schedule();
+      }
+    } // error yo
     m_driveSubsystem.DriveToPose(desiredPose, feedForward,
                                  {0.0_m, 0.0_m, 0_deg});
   }
