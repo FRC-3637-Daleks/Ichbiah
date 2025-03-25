@@ -126,8 +126,7 @@ void RobotContainer::ConfigureBindings() {
           [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
           [this] { return m_oi.rot(); }));
 
-  m_oi.ZeroHeadingTrigger.OnTrue(frc2::cmd::Parallel(
-      m_swerve.ZeroHeadingCommand(), frc2::cmd::Print("Zeroed Heading")));
+  m_oi.ZeroHeadingTrigger.OnTrue(m_swerve.ZeroHeadingCommand());
 
   // Auto Elevator
   /* This changes the elevator heights to set a target level, but not actually
@@ -153,8 +152,7 @@ void RobotContainer::ConfigureBindings() {
               std::pair{Elevator::L2, m_superStructure.prePlace(Elevator::L2)},
               std::pair{Elevator::L3, m_superStructure.prePlace(Elevator::L3)},
               std::pair{Elevator::L4, m_superStructure.prePlace(Elevator::L4)})
-              .DeadlineFor(std::move(slow))
-              .AndThen(frc2::cmd::Print("Scoring on the drive controller")))
+              .DeadlineFor(std::move(slow)))
       .OnFalse(m_endeffector.EffectorOut().DeadlineFor(m_elevator.Hold()));
 
   // When not holding the prePlace button, go to collapsed position
@@ -197,10 +195,8 @@ void RobotContainer::ConfigureBindings() {
       }));
 
   // Climb
-  m_oi.ClimbTimedExtendTrigger.OnTrue(
-      m_climb.ExtendClimb().AlongWith(frc2::cmd::Print("Extending Climb")));
-  m_oi.ClimbTimedRetractTrigger.OnTrue(
-      m_climb.RetractClimb().AlongWith(frc2::cmd::Print("Retracting Climb")));
+  m_oi.ClimbTimedExtendTrigger.OnTrue(m_climb.ExtendClimb());
+  m_oi.ClimbTimedRetractTrigger.OnTrue(m_climb.RetractClimb());
 
   // MANUAL OVERRIDES
   // Test Commands for Elevator
@@ -302,20 +298,15 @@ void RobotContainer::ConfigureDashboard() {
 }
 
 void RobotContainer::ConfigureAuto() {
-  auto k =
-      choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("StartBargeToReef");
+
   threel4auto =
       AutoBuilder::ThreeL4Auto(m_swerve, m_superStructure, m_updateIsRed);
   onel4startmidauto =
       AutoBuilder::OneL4StartMidAuto(m_swerve, m_superStructure, m_updateIsRed);
 
-  drivethingy = k.has_value()
-                    ? m_swerve.FollowPathCommand(k.value(), m_updateIsRed())
-                    : frc2::cmd::None();
-
   m_chooser.SetDefaultOption("Default Auto: Line-Up with wall and score 3 L4",
                              threel4auto.get());
-  m_chooser.AddOption("just drive", drivethingy.get());
+  //   m_chooser.AddOption("just drive", drivethingy.get());
   m_chooser.AddOption("One L4 From Middle", onel4startmidauto.get());
 }
 
@@ -367,7 +358,12 @@ frc2::CommandPtr RobotContainer::FusePose() {
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
-
+  //   auto k =
+  //       choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("StartBargeToReef");
+  //   drivethingy = k.has_value()
+  //                     ? m_swerve.FollowPathCommand(k.value(),
+  //                     m_updateIsRed()) : frc2::cmd::None();
+  //   return std::move(drivethingy);
   return AutoBuilder::ThreeL4AutoProcessor(m_swerve, m_superStructure,
                                            m_updateIsRed);
 }
