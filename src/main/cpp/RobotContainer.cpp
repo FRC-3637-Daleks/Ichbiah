@@ -301,11 +301,15 @@ void RobotContainer::ConfigureAuto() {
 
   threel4auto =
       AutoBuilder::ThreeL4Auto(m_swerve, m_superStructure, m_updateIsRed);
+  threel4autoprocessor = AutoBuilder::ThreeL4AutoProcessor(
+      m_swerve, m_superStructure, m_updateIsRed);
   onel4startmidauto =
       AutoBuilder::OneL4StartMidAuto(m_swerve, m_superStructure, m_updateIsRed);
 
   m_chooser.SetDefaultOption("Default Auto: Line-Up with wall and score 3 L4",
                              threel4auto.get());
+  m_chooser.AddOption("Line Up with Processor wall and score 3 L4",
+                      threel4autoprocessor.get());
   //   m_chooser.AddOption("just drive", drivethingy.get());
   m_chooser.AddOption("One L4 From Middle", onel4startmidauto.get());
 }
@@ -357,15 +361,14 @@ frc2::CommandPtr RobotContainer::FusePose() {
       .IgnoringDisable(true);
 }
 
-frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
+frc2::Command *RobotContainer::GetAutonomousCommand() {
   //   auto k =
   //       choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("StartBargeToReef");
   //   drivethingy = k.has_value()
   //                     ? m_swerve.FollowPathCommand(k.value(),
   //                     m_updateIsRed()) : frc2::cmd::None();
   //   return std::move(drivethingy);
-  return AutoBuilder::ThreeL4AutoProcessor(m_swerve, m_superStructure,
-                                           m_updateIsRed);
+  return m_chooser.GetSelected();
 }
 
 frc2::CommandPtr RobotContainer::GetDisabledCommand() {

@@ -42,7 +42,7 @@ public:
   RobotContainer();
 
   frc2::CommandPtr GetDisabledCommand();
-  frc2::CommandPtr GetAutonomousCommand();
+  frc2::Command *GetAutonomousCommand();
 
 public:
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -75,6 +75,7 @@ public:
   frc::SendableChooser<frc2::Command *> m_chooser;
 
   frc2::CommandPtr threel4auto{frc2::cmd::None()};
+  frc2::CommandPtr threel4autoprocessor{frc2::cmd::None()};
   frc2::CommandPtr onel4startmidauto{frc2::cmd::None()};
   frc2::CommandPtr drivethingy{frc2::cmd::None()};
 
