@@ -52,12 +52,12 @@ auto StartProcessorToReef =
 
 inline frc2::CommandPtr AutoScore(Elevator::Level level,
                                   SuperStructure &superstructure) {
-  return superstructure.Score(level);
+  return frc2::cmd::Sequence(superstructure.m_elevator.GoToLevel(level),
+                             superstructure.m_endeffector.EffectorOut());
 }
 
-inline frc2::CommandPtr ThreeL4Auto(Drivetrain &swerve,
-                                    SuperStructure &superstructure,
-                                    std::function<bool()> isRed) {
+frc2::CommandPtr ThreeL4Auto(Drivetrain &swerve, SuperStructure &superstructure,
+                             std::function<bool()> isRed) {
   return frc2::cmd::Sequence(
       swerve.FollowPathCommand(StartBargeToReef.value(), isRed()),
       AutoScore(Elevator::Level::L4, superstructure),
@@ -73,9 +73,9 @@ inline frc2::CommandPtr ThreeL4Auto(Drivetrain &swerve,
       AutoScore(Elevator::Level::L4, superstructure));
 }
 
-inline frc2::CommandPtr ThreeL4AutoProcessor(Drivetrain &swerve,
-                                             SuperStructure &superstructure,
-                                             std::function<bool()> isRed) {
+frc2::CommandPtr ThreeL4AutoProcessor(Drivetrain &swerve,
+                                      SuperStructure &superstructure,
+                                      std::function<bool()> isRed) {
   return frc2::cmd::Sequence(
       swerve.FollowPathCommand(StartProcessorToReef.value(), isRed()),
       AutoScore(Elevator::Level::L4, superstructure),
@@ -91,9 +91,9 @@ inline frc2::CommandPtr ThreeL4AutoProcessor(Drivetrain &swerve,
       AutoScore(Elevator::Level::L4, superstructure));
 }
 
-inline frc2::CommandPtr OneL4StartMidAuto(Drivetrain &swerve,
-                                          SuperStructure &superstructure,
-                                          std::function<bool()> isRed) {
+frc2::CommandPtr OneL4StartMidAuto(Drivetrain &swerve,
+                                   SuperStructure &superstructure,
+                                   std::function<bool()> isRed) {
   return frc2::cmd::Sequence(
       swerve.FollowPathCommand(StartToReefMid.value(), isRed()),
       AutoScore(Elevator::Level::L4, superstructure));
