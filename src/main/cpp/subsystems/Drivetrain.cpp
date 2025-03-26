@@ -401,6 +401,15 @@ frc2::CommandPtr Drivetrain::DynamicOdomReset() {
       .IgnoringDisable(true);
 }
 
+void Drivetrain::AddVisionPoseEstimate(
+    frc::Pose2d pose, units::second_t timestamp,
+    wpi::array<double, 3U> visionMeasurementStdDevs) {
+  m_poseEstimator.AddVisionMeasurement(pose, timestamp,
+                                       visionMeasurementStdDevs);
+
+  m_field.GetObject("vision estimate")->SetPose(pose);
+}
+
 frc2::CommandPtr Drivetrain::ZeroHeadingCommand() {
   return this->RunOnce([&] { ZeroHeading(); });
 }

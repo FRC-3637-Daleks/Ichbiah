@@ -44,7 +44,7 @@ const frc::Transform3d kCameraToRobot{
  * robot, between all 4 swerve modules)*/
 
 inline const frc::AprilTagFieldLayout kTagLayout{
-    frc::LoadAprilTagLayoutField(frc::AprilTagField::k2025ReefscapeWelded)};
+    frc::AprilTagFieldLayout::LoadField(frc::AprilTagField::kDefaultField)};
 inline const Eigen::Matrix<double, 3, 1> kSingleTagStdDevs{0.2, 0.2, 1};
 inline const Eigen::Matrix<double, 3, 1> kMultiTagStdDevs{0.1, 0.1, 0.5};
 inline const Eigen::Matrix<double, 3, 1> kFailedTagStdDevs{
@@ -102,8 +102,7 @@ private:
   photon::PhotonCamera m_Camera{VisionConstants::kPhotonCameraName};
   photon::PhotonPoseEstimator m_Estimator;
 
-  std::optional<photon::EstimatedRobotPose> m_ApriltagEstimate{
-      std::nullopt};
+  std::optional<photon::EstimatedRobotPose> m_ApriltagEstimate{std::nullopt};
   // explicit PhotonPoseEstimator(frc::AprilTagFieldLayout aprilTags,
   //                          PoseStrategy strategy, PhotonCamera&& camera,
   //                          frc::Transform3d robotToCamera);

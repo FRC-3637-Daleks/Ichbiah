@@ -34,8 +34,8 @@ Vision::Vision(
     std::function<frc::Pose2d()> getRobotPose,
     const Eigen::Matrix<double, 3, 1> &initialStdDevs,
     std::function<frc::Pose2d()> getSimulatedPose)
-    : m_Estimator(frc::LoadAprilTagLayoutField(
-                      frc::AprilTagField::k2025ReefscapeWelded),
+    : m_Estimator(frc::AprilTagFieldLayout::LoadField(
+                      frc::AprilTagField::kDefaultField),
                   photon::CLOSEST_TO_REFERENCE_POSE,
                   VisionConstants::kCameraToRobot),
       m_referencePose(getRobotPose) {
@@ -197,8 +197,7 @@ void Vision::UpdateDashboard() {
     m_field_viz->GetObject("Intake Cam Pose")->SetPose(robot_pose.ToPose2d());
 
     std::vector<frc::Pose2d> reprojected_tags;
-    for (const auto &tag :
-         m_Camera.GetLatestResult().GetTargets()) {
+    for (const auto &tag : m_Camera.GetLatestResult().GetTargets()) {
       auto tag_pose = robot_pose.TransformBy(VisionConstants::kCameraToRobot)
                           .TransformBy(tag.GetBestCameraToTarget());
       reprojected_tags.push_back(tag_pose.ToPose2d());
@@ -235,10 +234,9 @@ VisionSim::VisionSim(Vision &vision,
                      std::function<frc::Pose2d()> getSimulatedPose)
     : m_simulatedPose(std::move(getSimulatedPose)),
       m_vision_sim("april_tag_sim"),
-      m_intake_cam_sim(&vision.m_Camera,
-                       getIntakeCameraProperties()) {
+      m_intake_cam_sim(&vision.m_Camera, getIntakeCameraProperties()) {
   m_vision_sim.AddAprilTags(
-      frc::LoadAprilTagLayoutField(frc::AprilTagField::k2025ReefscapeWelded));
+      frc::AprilTagFieldLayout::LoadField(frc::AprilTagField::kDefaultField));
   m_vision_sim.AddCamera(&m_intake_cam_sim, VisionConstants::kCameraToRobot);
 
   m_intake_cam_sim.EnableDrawWireframe(true);

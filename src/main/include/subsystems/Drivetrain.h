@@ -125,6 +125,10 @@ public:
 
   frc::Pose2d GetSimulatedGroundTruth();
 
+  // Add Vision Pose to SwerveDrivePoseEstimator.
+  void AddVisionPoseEstimate(frc::Pose2d pose, units::second_t timestamp,
+                             wpi::array<double, 3U> visionMeasurementStdDevs);
+
   // Returns Current Chassis Speed
   frc::ChassisSpeeds GetChassisSpeed();
 

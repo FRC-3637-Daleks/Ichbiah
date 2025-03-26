@@ -29,6 +29,7 @@
 #include "subsystems/ROSBridge.h"
 #include "subsystems/ReefAssist.h"
 #include "subsystems/SuperStructure.h"
+#include "subsystems/Vision.h"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -63,6 +64,8 @@ public:
   SuperStructure m_superStructure{m_elevator, m_endeffector};
   Climb m_climb;
   LEDSubsystem m_ledSubsystem;
+
+  Vision m_vision;
 
   bool m_isRed;
 
