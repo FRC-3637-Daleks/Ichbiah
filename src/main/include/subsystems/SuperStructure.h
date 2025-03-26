@@ -28,6 +28,7 @@ public:
   frc2::CommandPtr Intake();
   frc2::CommandPtr Score(Elevator::Level level);
 
+  units::millimeter_t GetLaserCANMeasurement();
   bool IsBranchInReach();  
 
 private:

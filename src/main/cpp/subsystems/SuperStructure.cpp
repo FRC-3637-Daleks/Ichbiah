@@ -36,7 +36,13 @@ SuperStructure::SuperStructure(Elevator &elevator, EndEffector &end_effector)
 
 void SuperStructure::Periodic() { UpdateDashboard(); }
 
-void SuperStructure::UpdateDashboard() { UpdateVisualization(); }
+void SuperStructure::UpdateDashboard() {
+  UpdateVisualization();
+  frc::SmartDashboard::PutNumber(
+      "SuperStructure/LaserCAN/Measurement (in)",
+      units::inch_t{GetLaserCANMeasurement()}.value());
+  frc::SmartDashboard::PutBoolean("Lined Up with Reef?", IsBranchInReach());
+}
 
 void SuperStructure::InitVisualization(frc::MechanismObject2d *elevator_root) {
   m_elevator.InitVisualization(elevator_root);
@@ -76,12 +82,17 @@ frc2::CommandPtr SuperStructure::Score(Elevator::Level level) {
       .WithTimeout(2.0_s); // if left unchecked
 }
 
-bool SuperStructure::IsBranchInReach() {
+units::millimeter_t SuperStructure::GetLaserCANMeasurement() {
   auto measurement_opt = m_laser.get_measurement();
   if (measurement_opt.has_value() &&
       measurement_opt.value().status == grpl::LASERCAN_STATUS_VALID_MEASUREMENT)
-    return units::millimeter_t{measurement_opt.value().distance_mm} <=
-           SuperStructureConstants::kBranchThreshold;
+    return units::millimeter_t{measurement_opt.value().distance_mm};
+  else
+    return std::numeric_limits<units::millimeter_t>::max();
+}
+
+bool SuperStructure::IsBranchInReach() {
+  return GetLaserCANMeasurement() <= SuperStructureConstants::kBranchThreshold;
 }
 
 SuperStructure::~SuperStructure() {}
