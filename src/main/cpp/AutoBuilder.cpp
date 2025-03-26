@@ -21,7 +21,7 @@ frc2::CommandPtr AutoBuilder::AutoScore(frc::Pose2d scoring_pose) {
 
 frc2::CommandPtr AutoBuilder::MultiL4Auto(trajectory_t path) {
   std::vector<frc2::CommandPtr> commands;
-  for (int splitInd = 0; (unsigned)splitInd < path.splits.size(); splitInd++) {
+  for (unsigned splitInd = 0; splitInd < path.splits.size(); splitInd++) {
     if (const auto segment = path.GetSplit(splitInd)) {
       if (splitInd % 2 == 0) { // even splits are driving to the reef
         const auto scoring_pose = segment.value().GetFinalPose(isRed()).value();

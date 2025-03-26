@@ -78,7 +78,7 @@ public:
 
   frc::Mechanism2d m_mech{4, 8}; // scaled to feet
 
-  //Auton Stuff
+  // Auton Stuff
   frc::SendableChooser<std::string> m_chooser;
   frc2::CommandPtr m_autonCmd;
   frc::FieldObject2d *m_autonPathViz;

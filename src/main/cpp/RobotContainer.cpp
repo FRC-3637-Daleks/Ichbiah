@@ -73,7 +73,7 @@ RobotContainer::RobotContainer()
           [this]() { return m_swerve.GetPose(); },
           Eigen::Matrix<double, 3, 1>{1.0, 1.0, 1.0},
           [this] { return m_swerve.GetSimulatedGroundTruth(); }),
-     m_autonCmd(m_autobuilder.SimpleAuto()),
+      m_autonCmd(m_autobuilder.SimpleAuto()),
       m_autonPathViz(m_swerve.GetField().GetObject("auton path")) {
   fmt::println("made it to robot container");
   // Initialize all of your commands and subsystems here
