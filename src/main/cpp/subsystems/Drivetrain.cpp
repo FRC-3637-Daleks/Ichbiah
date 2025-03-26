@@ -277,9 +277,10 @@ units::second_t Drivetrain::GetOdomTimestamp() {
 }
 
 frc::Pose2d Drivetrain::GetPose() {
-  constexpr frc::Pose2d origin{};
-  const auto odom_transform = GetOdomPose() - origin;
-  return origin + m_map_to_odom + odom_transform; // order matters
+  // constexpr frc::Pose2d origin{};
+  // const auto odom_transform = GetOdomPose() - origin;
+  // return origin + m_map_to_odom + odom_transform; // order matters
+  return m_poseEstimator.GetEstimatedPosition();
 }
 
 frc::ChassisSpeeds Drivetrain::GetChassisSpeed() {
