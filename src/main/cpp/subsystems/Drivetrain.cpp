@@ -30,6 +30,7 @@
 
 #include <numeric>
 #include <iostream>
+
 namespace KrakenDriveConstants {
   constexpr auto kMaxSpeed = 18.9_fps;
 constexpr auto kMaxAccel = 6_mps_sq; //no test
@@ -137,6 +138,7 @@ constexpr int kPDH = 25;
 
 using namespace KrakenDriveConstants;
 
+
 class DrivetrainSimulation {
 public:
   DrivetrainSimulation(Drivetrain &drivetrain)
@@ -220,7 +222,7 @@ void Drivetrain::RobotRelativeDrive(const frc::ChassisSpeeds &cmd_vel) {
   // Occasionally a drive motor is commanded to go faster than its maximum
   // output can sustain. Desaturation lowers the module speeds so that no motor
   // is driven above its maximum speed, while preserving the intended motion.
-  kDriveKinematics.DesaturateWheelSpeeds(&states, PracticeModuleConstants::kPhysicalMaxSpeed);
+  kDriveKinematics.DesaturateWheelSpeeds(&states, KrakenModuleConstants::kPhysicalMaxSpeed);
 
   // Finally each of the desired states can be sent as commands to the modules.
   SetModuleStates(states);
@@ -371,6 +373,8 @@ void Drivetrain::UpdateDashboard() {
   const auto robot_center = this->GetPose();
   
   m_field.SetRobotPose(this->GetPose());
+  m_field.GetObject("pure odom")->SetPose(GetOdomPose());
+  m_field.GetObject("vision correction")->SetPose(frc::Pose2d{}+m_map_to_odom);
   m_field.GetObject("old odom")->SetPose(m_poseEstimator.GetEstimatedPosition());
   m_field.GetObject("init pose")->SetPose(frc::Pose2d{}.TransformBy(m_initial_transform));
   

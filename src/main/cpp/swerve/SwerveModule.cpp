@@ -31,6 +31,7 @@
 #include <iostream>
 #include <numbers>
 #include <random>
+
 namespace KrakenModuleConstants {
   // Motor outputs under 4% will just be cut to 0 (brake)
 constexpr double kNeutralDeadband = 0.04;
@@ -105,7 +106,6 @@ const auto MotorModel = [] (int N=1) {return frc::DCMotor::Falcon500FOC(N);};
 } // namespace PracticeModuleConstants
 
 using namespace KrakenModuleConstants;
-
 class SwerveModuleSim {
 public:
   SwerveModuleSim(SwerveModule &module)

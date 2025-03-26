@@ -8,8 +8,9 @@
 #include <frc/XboxController.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Pose3d.h>
-#include <frc/trajectory/TrapezoidProfile.h>
 #include <frc/smartdashboard/Mechanism2d.h>
+#include <frc/smartdashboard/SendableChooser.h>
+#include <frc/trajectory/TrapezoidProfile.h>
 #include <frc2/command/Command.h>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/button/CommandJoystick.h>
@@ -17,15 +18,17 @@
 
 #include <frc/smartdashboard/SendableChooser.h>
 
+#include <functional>
 #include <numbers>
 
-#include "subsystems/Drivetrain.h"
-#include "subsystems/ROSBridge.h"
 #include "PathFollower.h"
-#include "subsystems/SuperStructure.h"
 #include "subsystems/Climb.h"
+#include "subsystems/Drivetrain.h"
+#include "subsystems/LEDSubsystem.h"
 #include "subsystems/OperatorInterface.h"
-
+#include "subsystems/ROSBridge.h"
+#include "subsystems/ReefAssist.h"
+#include "subsystems/SuperStructure.h"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -41,8 +44,6 @@ public:
   frc2::CommandPtr GetDisabledCommand();
   frc2::CommandPtr GetAutonomousCommand();
 
-
-
 public:
   // Replace with CommandPS4Controller or CommandJoystick if needed
 
@@ -51,19 +52,30 @@ public:
   Drivetrain m_swerve;
   ROSBridge m_ros;
   OperatorInterface m_oi;
-  
+
   /* Pass elevator and end effector by reference to super structure
-   * Allows us to directly control or query elevator and endeffector for diagnostics
-   * while allowing super structure to define high level controls in another file
+   * Allows us to directly control or query elevator and endeffector for
+   * diagnostics while allowing super structure to define high level controls in
+   * another file
    */
   Elevator m_elevator;
   EndEffector m_endeffector;
   SuperStructure m_superStructure{m_elevator, m_endeffector};
   Climb m_climb;
+  LEDSubsystem m_ledSubsystem;
 
   bool m_isRed;
 
-  frc::Mechanism2d m_mech{4, 8};  // scaled to feet
+  std::function<bool()> m_updateIsRed = [this]() -> bool {
+    return frc::DriverStation::GetAlliance() ==
+           frc::DriverStation::Alliance::kRed;
+  };
+
+  frc::Mechanism2d m_mech{4, 8}; // scaled to feet
+  frc::SendableChooser<frc2::Command *> m_chooser;
+
+  frc2::CommandPtr threel4auto{frc2::cmd::None()};
+  frc2::CommandPtr onel4startmidauto{frc2::cmd::None()};
 
 public:
   void ConfigureBindings();

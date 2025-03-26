@@ -1,6 +1,6 @@
 {
- "name":"Square",
- "version":0,
+ "name":"103FieldTesting",
+ "version":1,
  "type":"Swerve",
  "variables":{
   "expressions":{},
@@ -9,43 +9,43 @@
  "config":{
   "frontLeft":{
    "x":{
-    "exp":"15 in",
-    "val":0.381
+    "exp":"12.5 in",
+    "val":0.3175
    },
    "y":{
-    "exp":"15 in",
-    "val":0.381
+    "exp":"12.5 in",
+    "val":0.3175
    }
   },
   "backLeft":{
    "x":{
-    "exp":"-15 in",
-    "val":-0.381
+    "exp":"-12.5 in",
+    "val":-0.3175
    },
    "y":{
-    "exp":"15 in",
-    "val":0.381
+    "exp":"12.5 in",
+    "val":0.3175
    }
   },
   "mass":{
-   "exp":"70 lbs",
-   "val":31.751465900000003
+   "exp":"115 lbs",
+   "val":52.16312255
   },
   "inertia":{
    "exp":"6 kg m ^ 2",
    "val":6.0
   },
   "gearing":{
-   "exp":"6.5",
-   "val":6.5
+   "exp":"5.36",
+   "val":5.36
   },
   "radius":{
    "exp":"2 in",
    "val":0.0508
   },
   "vmax":{
-   "exp":"6000 RPM",
-   "val":628.3185307179587
+   "exp":"5800 RPM",
+   "val":607.3745796940267
   },
   "tmax":{
    "exp":"1.2 N * m",
@@ -57,16 +57,16 @@
   },
   "bumper":{
    "front":{
-    "exp":"16 in",
-    "val":0.4064
+    "exp":"18 in",
+    "val":0.4572
    },
    "side":{
-    "exp":"16 in",
-    "val":0.4064
+    "exp":"18 in",
+    "val":0.4572
    },
    "back":{
-    "exp":"16 in",
-    "val":0.4064
+    "exp":"18 in",
+    "val":0.4572
    }
   },
   "differentialTrackWidth":{
