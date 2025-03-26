@@ -38,12 +38,12 @@ void PathFollower::Execute() {
   if (auto desiredState = m_trajectory.SampleAt(currentTime, m_isRed())) {
     auto desiredPose = desiredState->GetPose();
     auto feedForward = desiredState->GetChassisSpeeds();
-    for (auto &e : m_eventPoses) {
-      if (m_driveSubsystem.AtPose(e.second)) {
-        auto command = getCommand(e.first);
-        command->Schedule();
-      }
-    } // error yo
+    // for (auto &e : m_eventPoses) {
+    //   if (m_driveSubsystem.AtPose(e.second)) {
+    //     auto command = getCommand(e.first);
+    //     command->Schedule();
+    //   }
+    // } // error yo
     m_driveSubsystem.DriveToPose(desiredPose, feedForward,
                                  {0.0_m, 0.0_m, 0_deg});
   }
