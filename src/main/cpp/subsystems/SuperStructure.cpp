@@ -8,16 +8,31 @@
 
 #include <iostream>
 
-namespace SuperstructureConstants {};
+namespace SuperStructureConstants {
+constexpr int kLaserID = 0;
+
+constexpr grpl::LaserCanROI kLaserROI = {6, 0, 6, 16};
+
+constexpr auto kBranchThreshold = 2_in;
+}; // namespace SuperStructureConstants
 
 class SuperStructureSim {
 public:
   SuperStructureSim(SuperStructure &superstructure);
+
+  grpl::MockLaserCan m_laser_sim;
 };
 
 SuperStructure::SuperStructure(Elevator &elevator, EndEffector &end_effector)
     : m_elevator(elevator), m_endeffector(end_effector),
-      m_sim_state{new SuperStructureSim{*this}} {};
+      m_sim_state{new SuperStructureSim{*this}},
+      m_laser{SuperStructureConstants::kLaserID} {
+
+  // Set up LaserCANs
+  m_laser.set_ranging_mode(grpl::LaserCanRangingMode::Short);
+  m_laser.set_timing_budget(grpl::LaserCanTimingBudget::TB50ms);
+  m_laser.set_roi(SuperStructureConstants::kLaserROI);
+};
 
 void SuperStructure::Periodic() { UpdateDashboard(); }
 
@@ -61,7 +76,17 @@ frc2::CommandPtr SuperStructure::Score(Elevator::Level level) {
       .WithTimeout(2.0_s); // if left unchecked
 }
 
+bool SuperStructure::IsBranchInReach() {
+  auto measurement_opt = m_laser.get_measurement();
+  if (measurement_opt.has_value() &&
+      measurement_opt.value().status == grpl::LASERCAN_STATUS_VALID_MEASUREMENT)
+    return units::millimeter_t{measurement_opt.value().distance_mm} <=
+           SuperStructureConstants::kBranchThreshold;
+}
+
 SuperStructure::~SuperStructure() {}
+
+/***************************  SIMULATION  **************************/
 
 SuperStructureSim::SuperStructureSim(SuperStructure &superstructure) {}
 
