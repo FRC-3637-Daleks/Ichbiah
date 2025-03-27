@@ -16,7 +16,7 @@
 namespace KrakenModuleConstants {
 
 // website value
-constexpr auto kPhysicalMaxSpeed = 18.9_fps;
+constexpr auto kPhysicalMaxSpeed = 12.9_fps;
 
 } // namespace KrakenModuleConstants
 

@@ -22,7 +22,7 @@ constexpr frc::Transform2d kSideTransforms[] = {
 // Guessing 12.5in left of robot center
 // x is how far in front (higher is farther)
 // y is how far to the left (bigger is more to the right)
-constexpr frc::Transform2d kEndEffectorTransform{22_in, 12.5_in, 0_deg};
+constexpr frc::Transform2d kEndEffectorTransform{20_in, 11.5_in, 0_deg};
 constexpr frc::Transform2d kIntakeTransform{19_in, 0_in, 90_deg};
 
 namespace Blue {

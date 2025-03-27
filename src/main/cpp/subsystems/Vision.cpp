@@ -121,7 +121,7 @@ Vision::GetEstimationStdDevs(frc::Pose2d estimatedPose,
 
   auto targets = latestResult.GetTargets();
   auto avgDist = 0.0_m; // Declare and initialize the variable "avgDist"
-  auto minDist = 1.5_m;
+  auto minDist = 3_m;
 
   for (const auto &tgt : targets) {
     auto tagPose = estimator.GetFieldLayout().GetTagPose(tgt.GetFiducialId());

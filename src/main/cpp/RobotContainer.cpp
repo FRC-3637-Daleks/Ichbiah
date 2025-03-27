@@ -228,6 +228,8 @@ void RobotContainer::ConfigureBindings() {
   m_oi.ClimbUpTrigger.OnTrue(m_climb.ExtendClimb());
   m_oi.ClimbDownTrigger.OnTrue(m_climb.RetractClimb());
 
+  m_oi.ClimbToggleTrigger.OnTrue(m_climb.ToggleClimbCommand());
+
   // Rumble
   frc2::Trigger RumbleTrigger([this]() -> bool {
     return m_endeffector.IsOuterBreakBeamBroken() ||

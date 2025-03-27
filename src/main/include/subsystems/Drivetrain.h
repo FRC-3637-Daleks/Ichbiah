@@ -165,7 +165,7 @@ public:
   frc2::CommandPtr
   DriveToPoseCommand(pose_supplier_t desiredPoseSupplier,
                      frc::ChassisSpeeds feedForward = {0_mps, 0_mps, 0_rpm},
-                     const frc::Pose2d &tolerance = {0.03_m, 0.03_m, 1.5_deg}) {
+                     const frc::Pose2d &tolerance = {0.02_m, 0.02_m, 1.5_deg}) {
     return this
         ->RunEnd(
             [=, this] {
