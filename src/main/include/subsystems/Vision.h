@@ -29,11 +29,11 @@
 namespace VisionConstants {
 
 constexpr std::string_view kPhotonCameraName =
-    "Arducam_OV2311_USB_Camera"; // Note, we need an in-built pipeline
+    "Arducam_OV2310_USB_Camera"; // Note, we need an in-built pipeline
                                  // changer, probably between auton and
                                  // teleop
 const frc::Transform3d kCameraToRobot{
-    {-0.5_in, 1.0_in, 22.5_in},
+    {13.0_in, -0.5_in, 7.5_in},
     frc::Rotation3d{// transform3d can be constructed with a variety of
                     // variables, so this should be fine
                     0_deg, 0_deg,
@@ -113,6 +113,7 @@ private:
 
   std::function<frc::Pose2d()> m_referencePose;
   frc::Field2d *m_field_viz;
+  std::vector<photon::PhotonPipelineResult> m_resultsVector;
 
 private:
   friend class VisionSim;

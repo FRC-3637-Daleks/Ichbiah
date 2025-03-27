@@ -181,10 +181,9 @@ void RobotContainer::ConfigureBindings() {
 
   /* Tested in sim. Auto-Aligns robot to nearest branch
    * Test with caution on real robot.
-   * If it seems to be consistent, you can tune the ReefAssist values to make it
-   * accurate.
-   * You can also make 2 separate binds for LEFT/RIGHT if thats easier for
-   * drivers.
+   * If it seems to be consistent, you can tune the ReefAssist values to make
+   * it accurate. You can also make 2 separate binds for LEFT/RIGHT if thats
+   * easier for drivers.
    *
    * FusePose() runs here to get the latest correction from OPi.
    * Ideally this would run all the time (like it used to), but since its

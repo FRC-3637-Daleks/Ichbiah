@@ -60,9 +60,14 @@ Vision::Vision(
 Vision::~Vision() {}
 
 bool Vision::HasTargets() {
-  photon::PhotonPipelineResult Result = m_Camera.GetLatestResult();
+  auto Results = m_resultsVector;
 
-  return Result.HasTargets();
+  for (auto &res : Results) {
+    if (res.HasTargets())
+      return true;
+  }
+
+  return false;
 }
 
 std::optional<photon::EstimatedRobotPose>
@@ -70,16 +75,31 @@ Vision::CalculateRobotPoseEstimate(photon::PhotonPoseEstimator &estimator,
                                    photon::PhotonCamera &camera,
                                    units::second_t &lastEstTimestamp) {
   estimator.SetReferencePose(frc::Pose3d{m_referencePose()});
-  auto visionEst = estimator.Update(camera.GetLatestResult());
+
+  auto results = m_resultsVector;
+
+  std::optional<photon::EstimatedRobotPose> update = std::nullopt;
+  auto timestampDiff = 0_s;
+
+  for (auto &res : results) {
+    auto tempUpdate = estimator.Update(res);
+    if (tempUpdate.has_value()) {
+      update = tempUpdate;
+      // std::cout << "it's got an update \n";
+    }
+    timestampDiff = res.GetLatency();
+  }
+
   units::second_t latestTimestamp =
-      frc::Timer::GetFPGATimestamp() - camera.GetLatestResult().GetLatency();
+      frc::Timer::GetFPGATimestamp() - timestampDiff;
 
   bool newResult =
       units::math::abs(latestTimestamp - lastEstTimestamp) > 1e-7_s;
   if (newResult) {
     lastEstTimestamp = latestTimestamp;
   }
-  return visionEst;
+
+  return update;
 }
 
 Eigen::Matrix<double, 3, 1>
@@ -89,13 +109,19 @@ Vision::GetEstimationStdDevs(frc::Pose2d estimatedPose,
 
   Eigen::Matrix<double, 3, 1> estStdDevs = VisionConstants::kSingleTagStdDevs;
   photon::PhotonPipelineResult latestResult =
-      camera.GetLatestResult(); // Add declaration for GetLatestResult function
+      m_resultsVector.back(); // Add declaration for GetLatestResult function
 
   int numTags = 0; // Declare the variable "numTags" and initialize it to 0
 
+  if (!latestResult.HasTargets()) {
+    return VisionConstants::kFailedTagStdDevs;
+  }
+
+  // std::cout << "getting stddevs\n";
+
   auto targets = latestResult.GetTargets();
   auto avgDist = 0.0_m; // Declare and initialize the variable "avgDist"
-  auto minDist = 10.0_m;
+  auto minDist = 1.5_m;
 
   for (const auto &tgt : targets) {
     auto tagPose = estimator.GetFieldLayout().GetTagPose(tgt.GetFiducialId());
@@ -134,6 +160,8 @@ Vision::GetEstimationStdDevs(frc::Pose2d estimatedPose,
 }
 
 void Vision::Periodic() {
+  m_resultsVector = m_Camera.GetAllUnreadResults();
+
   m_ApriltagEstimate =
       CalculateRobotPoseEstimate(m_Estimator, m_Camera, lastEstTimestamp);
 
@@ -192,15 +220,18 @@ void Vision::Periodic() {
 void Vision::UpdateDashboard() {
   m_field_viz->GetObject("Fused Pose")->SetPose(m_referencePose());
 
-  if (m_ApriltagEstimate) {
+  if (m_ApriltagEstimate.has_value()) {
     auto robot_pose = m_ApriltagEstimate.value().estimatedPose;
     m_field_viz->GetObject("Intake Cam Pose")->SetPose(robot_pose.ToPose2d());
 
     std::vector<frc::Pose2d> reprojected_tags;
-    for (const auto &tag : m_Camera.GetLatestResult().GetTargets()) {
-      auto tag_pose = robot_pose.TransformBy(VisionConstants::kCameraToRobot)
-                          .TransformBy(tag.GetBestCameraToTarget());
-      reprojected_tags.push_back(tag_pose.ToPose2d());
+
+    for (auto &res : m_resultsVector) {
+      for (const auto &tag : res.GetTargets()) {
+        auto tag_pose = robot_pose.TransformBy(VisionConstants::kCameraToRobot)
+                            .TransformBy(tag.GetBestCameraToTarget());
+        reprojected_tags.push_back(tag_pose.ToPose2d());
+      }
     }
 
     m_field_viz->GetObject("Reprojected Tags")->SetPoses(reprojected_tags);
