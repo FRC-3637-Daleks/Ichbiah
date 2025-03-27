@@ -82,7 +82,7 @@ public:
   bool HasTargets();
 
   // Relative stuff
-  frc::Transform3d getAprilTagPos();
+  frc::Transform3d getAprilTagPos(int &tagIDReference);
   frc::Transform3d
   transformCameraToEndEffector(frc::Transform3d CameraRelativePos);
   frc::Transform3d getOffset2NearestReef(frc::Transform3d relativeRobotPos,

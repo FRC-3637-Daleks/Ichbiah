@@ -178,7 +178,8 @@ void Vision::Periodic() {
 
 // If no april tag detected, returns NULL transform
 //*probobly* Returns transform from april tag to camera
-frc::Transform3d Vision::getAprilTagPos() {
+// tagIDReference will be written to
+frc::Transform3d Vision::getAprilTagPos(int &tagIDReference) {
   photon::PhotonPipelineResult result = latestResultStorage;
   if (!result.HasTargets()) {
     return frc::Transform3d(
@@ -195,11 +196,13 @@ frc::Transform3d Vision::getAprilTagPos() {
     return frc::Transform3d(
         0_m, 0_m, 0_m,
         {0_rad, 0_rad, 0_rad}); // May be correct or maybe just made up
+    tagIDReference = 0;
   }
 
   // Returns "the transform that maps camera space (X = forward, Y = left, Z =
   // up) to object/fiducial tag space (X forward, Y left, Z up) with the lowest
   // reprojection error."
+  tagIDReference = tagID;
   return tar.GetBestCameraToTarget();
 }
 

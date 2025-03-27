@@ -201,6 +201,23 @@ void RobotContainer::ConfigureBindings() {
           return robot;
       }));
 
+  // When run, must see tag when pressed
+  m_oi.RelativeTagPlace.OnTrue(m_swerve.DriveToPoseRelativeCommand([this] {
+    int tagID = 0;
+    frc::Transform3d relPos =
+        m_vision.getAprilTagPos(tagID); // Gets pos from tag 2 cam
+    if (relPos.X() == 0_m &&
+        relPos.Y() == 0_m) { // if did not see tag or something weird
+      return frc::Pose2d(
+          0_m, 0_m, {0_deg}); // Is 0ed out, dont want other function to execute
+    }
+    relPos = m_vision.transformCameraToEndEffector(
+        relPos); // Transforms using Cam 2 End Effector
+    relPos = m_vision.getOffset2NearestReef(relPos, tagID);
+    return frc::Pose2d(relPos.X(), relPos.Y(),
+                       {relPos.Rotation().ToRotation2d()});
+  }));
+
   // Climb
   m_oi.ClimbTimedExtendTrigger.OnTrue(m_climb.ExtendClimb());
   m_oi.ClimbTimedRetractTrigger.OnTrue(m_climb.RetractClimb());

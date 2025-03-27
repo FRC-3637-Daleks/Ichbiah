@@ -262,6 +262,19 @@ void Drivetrain::DriveToPose(const frc::Pose2d &desiredPose,
   RobotRelativeDrive(finalSpeeds);
 }
 
+void Drivetrain::DriveToPoseRelative(frc::Pose2d toMove) {
+  frc::ChassisSpeeds chassieSpeed = {toMove.X(), toMove.Y(),
+                                     toMove.Rotation().Radians()};
+  RobotRelativeDrive(chassieSpeed);
+
+  // May want to change it to the following function were it rotates first,
+  // drives later
+  /*
+  RobotRelativeDrive({0_m, 0_m, toMove.Rotation().Radians()});
+  RobotRelativeDrive({toMove.X(), toMove.Y(), 0_rad});
+  */
+}
+
 units::degrees_per_second_t Drivetrain::GetTurnRate() {
   return -m_gyro.GetRate() * 1_deg_per_s;
 }

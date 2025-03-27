@@ -111,6 +111,14 @@ public:
                    frc::ChassisSpeeds feedForward = {0_mps, 0_mps, 0_rpm},
                    const frc::Pose2d &tolerance = {0.06_m, 0.06_m, 3_deg});
 
+  void DriveToPoseRelative(frc::Pose2d toMove);
+
+  frc2::CommandPtr
+  DriveToPoseRelativeCommand(std::function<frc::Pose2d()> toMove) {
+    return this->Run(
+        [this, toMove] { DriveToPoseRelative(toMove());}).WithTimeout(2_s); /*.until goes here*/
+  }
+
   // Returns the rotational velocity of the robot in degrees per second.
   units::degrees_per_second_t GetTurnRate();
 
