@@ -24,7 +24,9 @@
 #include <math.h>
 #include <wpi/array.h>
 
+#include <map>
 #include <memory>
+#include <string>
 
 namespace VisionConstants {
 
@@ -39,6 +41,12 @@ const frc::Transform3d kCameraToRobot{
                     0_deg, 0_deg,
                     0_deg}}; // The camera location relative to the robot's
                              // center. Need to change for actual robot
+
+const frc::Transform3d kCameraToEndEffector{
+    {-13.5_in, 1_in, 22.5_in}, // assumeing coordinate plan from camera
+    frc::Rotation3d{           // in X, Y, Z coordinates
+                    // Z = 22.5 because scared to change from Cam2Robot
+                    0_deg, 0_deg, 0_deg}};
 
 /**A Transform3d that defines the Intake camera offset from the zero (center of
  * robot, between all 4 swerve modules)*/
@@ -72,6 +80,15 @@ public:
   void GetBestPose();
 
   bool HasTargets();
+
+  // Relative stuff
+  frc::Transform3d getAprilTagPos();
+  frc::Transform3d
+  transformCameraToEndEffector(frc::Transform3d CameraRelativePos);
+  frc::Transform3d getOffset2NearestReef(frc::Transform3d relativeRobotPos,
+                                         int tagID);
+
+  photon::PhotonPipelineResult latestResultStorage;
 
   /**
    * Calculate the robot pose estimate using the latest result from a camera.
@@ -114,6 +131,13 @@ private:
   std::function<frc::Pose2d()> m_referencePose;
   frc::Field2d *m_field_viz;
   std::vector<photon::PhotonPipelineResult> m_resultsVector;
+
+  std::map<std::string, double> tagMap = {
+      {"6R", 6.0},   {"6L", -6.0},  {"7R", 6.0},   {"7L", -6.0},  {"8R", 6.0},
+      {"8L", -6.0},  {"9R", 6.0},   {"9L", -6.0},  {"10R", 6.0},  {"10L", -6.0},
+      {"11R", 6.0},  {"11L", -6.0}, {"17R", 6.0},  {"17L", -6.0}, {"18R", 6.0},
+      {"18L", -6.0}, {"19R", 6.0},  {"19L", -6.0}, {"20R", 6.0},  {"20L", -6.0},
+      {"21R", 6.0},  {"21L", -6.0}, {"22R", 6.0},  {"22L", -6.0}};
 
 private:
   friend class VisionSim;

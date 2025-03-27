@@ -161,6 +161,7 @@ Vision::GetEstimationStdDevs(frc::Pose2d estimatedPose,
 
 void Vision::Periodic() {
   m_resultsVector = m_Camera.GetAllUnreadResults();
+  latestResultStorage = m_resultsVector.back();
 
   m_ApriltagEstimate =
       CalculateRobotPoseEstimate(m_Estimator, m_Camera, lastEstTimestamp);
@@ -173,6 +174,61 @@ void Vision::Periodic() {
   }
 
   UpdateDashboard();
+}
+
+// If no april tag detected, returns NULL transform
+//*probobly* Returns transform from april tag to camera
+frc::Transform3d Vision::getAprilTagPos() {
+  photon::PhotonPipelineResult result = latestResultStorage;
+  if (!result.HasTargets()) {
+    return frc::Transform3d(
+        0_m, 0_m, 0_m,
+        {0_rad, 0_rad, 0_rad}); // May be correct or maybe just made up
+  }
+
+  // Get the best Target from pipleine
+  photon::PhotonTrackedTarget tar = result.GetBestTarget();
+
+  // Check if the tag is not a reef tag & return
+  int tagID = tar.GetFiducialId();
+  if (!((tagID <= 22 && tagID >= 17) || (tagID <= 11 && tagID >= 6))) {
+    return frc::Transform3d(
+        0_m, 0_m, 0_m,
+        {0_rad, 0_rad, 0_rad}); // May be correct or maybe just made up
+  }
+
+  // Returns "the transform that maps camera space (X = forward, Y = left, Z =
+  // up) to object/fiducial tag space (X forward, Y left, Z up) with the lowest
+  // reprojection error."
+  return tar.GetBestCameraToTarget();
+}
+
+// Using guess values, change on robot, negitives will probobly have to be
+// flipped
+frc::Transform3d
+Vision::transformCameraToEndEffector(frc::Transform3d CameraRelativePos) {
+  return CameraRelativePos + VisionConstants::kCameraToEndEffector;
+}
+
+// Offset To the nearest reef, calculated in relative space
+// Can be from center of robot or End Effector depending on if you
+// Run this function before or after transformCameraToEndEffector
+// ASSUMES APRIL TAG DIFFERENCE IS ON THE X OFFSET
+// Should calculate basically how much the robot should move relative to itself
+frc::Transform3d
+Vision::getOffset2NearestReef(frc::Transform3d relativeRobotPos, int tagID) {
+  double tagOffset; // represents inches
+  if (relativeRobotPos.X() < 0_m) {
+    tagOffset =
+        tagMap[tagID + "L"]; // Map used so we can adjust relative for every tag
+  } else {
+    tagOffset = tagMap[tagID + "R"];
+  }
+
+  relativeRobotPos.X() =
+      relativeRobotPos.X() -
+      (units::meter_t)((units::inch_t)tagOffset); // may need to be a +
+  return relativeRobotPos;
 }
 
 // void Vision::UpdateDashboard() {
