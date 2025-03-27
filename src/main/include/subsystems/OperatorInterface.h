@@ -72,6 +72,7 @@ public:
   frc2::Trigger ElevatorPrePlaceTrigger = m_swerveController.X();
   frc2::Trigger IntakeTrigger =
       m_swerveController.A() || m_copilotController.A();
+  frc2::Trigger ClimbToggleTrigger = m_swerveController.Y();
 
   frc2::Trigger ClimbTimedExtendTrigger{[this]() -> bool {
     auto time = frc::DriverStation::GetMatchTime();
