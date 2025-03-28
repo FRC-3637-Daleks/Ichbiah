@@ -6,6 +6,7 @@
 
 #include "subsystems/Drivetrain.h"
 #include "subsystems/Elevator.h"
+#include "subsystems/ReefAssist.h"
 #include "subsystems/SuperStructure.h"
 
 #include <choreo/Choreo.h>
@@ -19,83 +20,43 @@
  * integrate with choreo.
  */
 
-namespace AutoBuilder {
+class AutoBuilder {
+  using trajectory_t = choreo::Trajectory<choreo::SwerveSample>;
+  /*
+  const auto IntakeToReefClose =
+      choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("IntakeToReefClose");
+  auto IntakeToReefClose2 =
+      choreo::Choreo::LoadTrajectory<choreo::SwerveSample>(
+          "IntakeToReefClose2");
+  auto ReefCloseToIntake =
+      choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("ReefCloseToIntake");
+  auto ReefFarToIntake =
+      choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("ReefFarToIntake");
+  auto StartToReef =
+      choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("StartToReef");
+  auto StartToReefMid =
+      choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("StartToReefMid");
+    */
+public:
+  AutoBuilder(Drivetrain &swerve, SuperStructure &superstructure);
 
-auto IntakeToReefClose =
-    choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("IntakeToReefClose");
-auto IntakeToReefClose2 =
-    choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("IntakeToReefClose2");
-auto ReefCloseToIntake =
-    choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("ReefCloseToIntake");
-auto ReefFarToIntake =
-    choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("ReefFarToIntake");
-auto StartBargeToReef =
-    choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("StartBargeToReef");
-auto StartToReefMid =
-    choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("StartToReefMid");
+public:
+  frc2::CommandPtr AutoScore(frc::Pose2d scoring_pose);
+  bool isRed();
 
-auto IntakeToReefCloseProcessor =
-    choreo::Choreo::LoadTrajectory<choreo::SwerveSample>(
-        "IntakeToReefCloseProcessor");
-auto IntakeToReefClose2Processor =
-    choreo::Choreo::LoadTrajectory<choreo::SwerveSample>(
-        "IntakeToReefClose2Processor");
-auto ReefCloseToIntakeProcessor =
-    choreo::Choreo::LoadTrajectory<choreo::SwerveSample>(
-        "ReefCloseToIntakeProcessor");
-auto ReefFarToIntakeProcessor =
-    choreo::Choreo::LoadTrajectory<choreo::SwerveSample>(
-        "ReefFarProcessorToIntake");
-auto StartProcessorToReef =
-    choreo::Choreo::LoadTrajectory<choreo::SwerveSample>(
-        "StartProcessorToReef");
+  // path should have choreo splits at each segment
+  // each split will alternate between driving to the reef and driving to a
+  // coral station.
+  // likewise, robot will sequence scoring and intaking actions between each of
+  // these segments
+  frc2::CommandPtr MultiL4Auto(trajectory_t path);
 
-inline frc2::CommandPtr AutoScore(Elevator::Level level,
-                                  SuperStructure &superstructure) {
-  return frc2::cmd::Sequence(superstructure.m_elevator.GoToLevel(level),
-                             superstructure.m_endeffector.EffectorOut());
-}
+  // Full robot-relative, doesn't depend on odom or localization
+  // Drives forward at 1_mps for 2.5_s and then scores at L4.
+  // Do your best to align
+  frc2::CommandPtr SimpleAuto();
 
-frc2::CommandPtr ThreeL4Auto(Drivetrain &swerve, SuperStructure &superstructure,
-                             std::function<bool()> isRed) {
-  return frc2::cmd::Sequence(
-      swerve.FollowPathCommand(StartBargeToReef.value(), isRed),
-      AutoScore(Elevator::Level::L4, superstructure),
-      frc2::cmd::Parallel(
-          swerve.FollowPathCommand(ReefFarToIntake.value(), isRed),
-          superstructure.Intake()),
-      swerve.FollowPathCommand(IntakeToReefClose.value(), isRed),
-      AutoScore(Elevator::Level::L4, superstructure),
-      frc2::cmd::Parallel(
-          swerve.FollowPathCommand(ReefCloseToIntake.value(), isRed),
-          superstructure.Intake()),
-      swerve.FollowPathCommand(IntakeToReefClose2.value(), isRed),
-      AutoScore(Elevator::Level::L4, superstructure));
-}
-
-frc2::CommandPtr ThreeL4AutoProcessor(Drivetrain &swerve,
-                                      SuperStructure &superstructure,
-                                      std::function<bool()> isRed) {
-  return frc2::cmd::Sequence(
-      swerve.FollowPathCommand(StartProcessorToReef.value(), isRed),
-      AutoScore(Elevator::Level::L4, superstructure),
-      frc2::cmd::Parallel(
-          swerve.FollowPathCommand(ReefFarToIntakeProcessor.value(), isRed),
-          superstructure.Intake()),
-      swerve.FollowPathCommand(IntakeToReefCloseProcessor.value(), isRed),
-      AutoScore(Elevator::Level::L4, superstructure),
-      frc2::cmd::Parallel(
-          swerve.FollowPathCommand(ReefCloseToIntakeProcessor.value(), isRed),
-          superstructure.Intake()),
-      swerve.FollowPathCommand(IntakeToReefClose2Processor.value(), isRed),
-      AutoScore(Elevator::Level::L4, superstructure));
-}
-
-frc2::CommandPtr OneL4StartMidAuto(Drivetrain &swerve,
-                                   SuperStructure &superstructure,
-                                   std::function<bool()> isRed) {
-  return frc2::cmd::Sequence(
-      swerve.FollowPathCommand(StartToReefMid.value(), isRed),
-      AutoScore(Elevator::Level::L4, superstructure));
-}
+private:
+  Drivetrain &m_swerve;
+  SuperStructure &m_superstructure;
 }; // namespace AutoBuilder

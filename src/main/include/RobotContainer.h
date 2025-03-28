@@ -21,6 +21,7 @@
 #include <functional>
 #include <numbers>
 
+#include "AutoBuilder.h"
 #include "PathFollower.h"
 #include "subsystems/Climb.h"
 #include "subsystems/Drivetrain.h"
@@ -43,7 +44,7 @@ public:
   RobotContainer();
 
   frc2::CommandPtr GetDisabledCommand();
-  frc2::Command *GetAutonomousCommand();
+  frc2::CommandPtr GetAutonomousCommand();
 
 public:
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -62,6 +63,7 @@ public:
   Elevator m_elevator;
   EndEffector m_endeffector;
   SuperStructure m_superStructure{m_elevator, m_endeffector};
+  AutoBuilder m_autobuilder{m_swerve, m_superStructure};
   Climb m_climb;
   LEDSubsystem m_ledSubsystem;
 
@@ -75,17 +77,17 @@ public:
   };
 
   frc::Mechanism2d m_mech{4, 8}; // scaled to feet
-  frc::SendableChooser<frc2::Command *> m_chooser;
 
-  frc2::CommandPtr threel4auto{frc2::cmd::None()};
-  frc2::CommandPtr threel4autoprocessor{frc2::cmd::None()};
-  frc2::CommandPtr onel4startmidauto{frc2::cmd::None()};
-  frc2::CommandPtr drivethingy{frc2::cmd::None()};
+  //Auton Stuff
+  frc::SendableChooser<std::string> m_chooser;
+  frc2::CommandPtr m_autonCmd;
+  frc::FieldObject2d *m_autonPathViz;
 
 public:
   void ConfigureBindings();
   void ConfigureDashboard();
   void ConfigureAuto();
+  void LoadAuton(std::string_view choreo_filename);
   void ConfigureContinuous();
 
   // Command which fuses in the best guess for the robot pose from sensors

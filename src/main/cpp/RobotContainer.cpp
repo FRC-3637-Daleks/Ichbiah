@@ -72,7 +72,9 @@ RobotContainer::RobotContainer()
           },
           [this]() { return m_swerve.GetPose(); },
           Eigen::Matrix<double, 3, 1>{1.0, 1.0, 1.0},
-          [this] { return m_swerve.GetSimulatedGroundTruth(); }) {
+          [this] { return m_swerve.GetSimulatedGroundTruth(); }),
+     m_autonCmd(m_autobuilder.SimpleAuto()),
+      m_autonPathViz(m_swerve.GetField().GetObject("auton path")) {
   fmt::println("made it to robot container");
   // Initialize all of your commands and subsystems here
   frc::DataLogManager::Start();
@@ -307,20 +309,32 @@ void RobotContainer::ConfigureDashboard() {
 }
 
 void RobotContainer::ConfigureAuto() {
+  m_chooser.SetDefaultOption(
+      "Default Auto: Drive Forward and score 1 L4 blindly", "");
+  m_chooser.AddOption("Left Side Multi", "LeftReefAuto");
+  m_chooser.AddOption("Right Side Multi", "RightReefAuto");
+  m_chooser.OnChange([this](const std::string &choreo_filename) {
+    LoadAuton(choreo_filename);
+  });
+}
 
-  threel4auto =
-      AutoBuilder::ThreeL4Auto(m_swerve, m_superStructure, m_updateIsRed);
-  threel4autoprocessor = AutoBuilder::ThreeL4AutoProcessor(
-      m_swerve, m_superStructure, m_updateIsRed);
-  onel4startmidauto =
-      AutoBuilder::OneL4StartMidAuto(m_swerve, m_superStructure, m_updateIsRed);
+void RobotContainer::LoadAuton(std::string_view choreo_filename) {
+  if (!choreo_filename.empty()) {
+    if (auto path = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>(
+            choreo_filename)) {
+      m_autonPathViz->SetPoses(path->GetPoses());
+      m_autonCmd = m_autobuilder.MultiL4Auto(std::move(path.value()));
+      frc::DataLogManager::Log(
+          fmt::format("Loaded auton {} successfully", choreo_filename));
 
-  m_chooser.SetDefaultOption("Default Auto: Line-Up with wall and score 3 L4",
-                             threel4auto.get());
-  m_chooser.AddOption("Line Up with Processor wall and score 3 L4",
-                      threel4autoprocessor.get());
-  //   m_chooser.AddOption("just drive", drivethingy.get());
-  m_chooser.AddOption("One L4 From Middle", onel4startmidauto.get());
+      return;
+    }
+  }
+
+  // if above failed to load an auton, load a fallback
+  m_autonPathViz->SetPoses({});
+  m_autonCmd = m_autobuilder.SimpleAuto();
+  frc::DataLogManager::Log("Loaded simple drive forward and score auton");
 }
 
 void RobotContainer::ConfigureContinuous() {
@@ -370,14 +384,9 @@ frc2::CommandPtr RobotContainer::FusePose() {
       .IgnoringDisable(true);
 }
 
-frc2::Command *RobotContainer::GetAutonomousCommand() {
-  //   auto k =
-  //       choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("StartBargeToReef");
-  //   drivethingy = k.has_value()
-  //                     ? m_swerve.FollowPathCommand(k.value(),
-  //                     m_updateIsRed()) : frc2::cmd::None();
-  //   return std::move(drivethingy);
-  return m_chooser.GetSelected();
+frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
+  LoadAuton(m_chooser.GetSelected());
+  return std::move(m_autonCmd);
 }
 
 frc2::CommandPtr RobotContainer::GetDisabledCommand() {

@@ -113,7 +113,7 @@ void Robot::AutonomousInit() {
   m_autonomousCommand = m_container.GetAutonomousCommand();
 
   if (m_autonomousCommand.has_value()) {
-    m_autonomousCommand.value()->Schedule();
+    m_autonomousCommand->Schedule();
   }
 
   if (IsSimulation()) {
@@ -157,7 +157,7 @@ void Robot::SimulationPeriodic() {
   const auto intake_pose = robot_pose.TransformBy({robot_intake, 0_deg});
 
   for (const auto corner : corners) {
-    if (intake_pose.Translation().Distance(corner) < 4_ft) {
+    if (intake_pose.Translation().Distance(corner) < 6_ft) {
       // TODO: send it to intake first
       m_container.m_endeffector.SimulateNewCoral();
     }

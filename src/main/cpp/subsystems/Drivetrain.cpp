@@ -277,10 +277,9 @@ units::second_t Drivetrain::GetOdomTimestamp() {
 }
 
 frc::Pose2d Drivetrain::GetPose() {
-  // constexpr frc::Pose2d origin{};
-  // const auto odom_transform = GetOdomPose() - origin;
-  // return origin + m_map_to_odom + odom_transform; // order matters
-  return m_poseEstimator.GetEstimatedPosition();
+  constexpr frc::Pose2d origin{};
+  const auto odom_transform = GetOdomPose() - origin;
+  return origin + m_map_to_odom + odom_transform; // order matters
 }
 
 frc::ChassisSpeeds Drivetrain::GetChassisSpeed() {
@@ -397,6 +396,8 @@ frc2::CommandPtr Drivetrain::DynamicOdomReset() {
   return this
       ->RunOnce([=, this] {
         auto reset_point = m_field.GetObject("reset_point")->GetPose();
+        fmt::println("Resetting Odom to: {}, {}, {}", reset_point.X(),
+                     reset_point.Y(), reset_point.Rotation().Radians());
         ResetOdometry(reset_point);
       })
       .IgnoringDisable(true);
