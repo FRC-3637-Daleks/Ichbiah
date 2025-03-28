@@ -141,6 +141,25 @@ public:
 
   void ResetOdometry(const frc::Pose2d &pose);
 
+  /**
+   * Returns a pose that compensates for errors in the drive encoders by
+   * multiplying a scalar to the distance traveled. DO NOT USE until you have
+   * tuned the kOdomCompensation value in KrakenDriveConstants.
+   *
+   * @param prevPose The estimated position of the robot in the previous loop
+   * tick
+   *
+   * @param currPose The estimated position of the robot in the current loop
+   * tick
+   *
+   * @return The compensated pose.
+   */
+  frc::Pose2d GetCompensatedPose(const frc::Pose2d prevPose,
+                                 const frc::Pose2d &currPose);
+
+  // Use GetCompensatedPose() to account for error in drive encoders.
+  void UpdateOdomWithScalarCompensation();
+
   void SetMapToOdom(const frc::Transform2d &transform);
 
   // Display useful information on Shuffleboard.

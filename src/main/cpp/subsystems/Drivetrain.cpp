@@ -31,7 +31,9 @@
 #include <iostream>
 #include <numeric>
 
+// பெருமள் please forgive me for my use of preprocessor directives. -- Visvam
 #define ENABLE_JERK_ODOM_COMPENSATION true
+#define ENABLE_SCALAR_ODOM_COMPENSATION false
 
 namespace KrakenDriveConstants {
 constexpr auto kMaxSpeed = 18.9_fps;
@@ -45,6 +47,7 @@ constexpr auto kMaxTurnAcceleration = 6 * std::numbers::pi * 1_rad_per_s_sq;
 constexpr auto kPeriod = 20_ms;
 constexpr auto kOdomPeriod = 5_ms;
 constexpr int kOdomHertz = 200;
+constexpr double kOdometryCompensationFactor = 0.05;
 
 constexpr double kPTheta = 3.62;
 constexpr double kITheta = 0.00;
@@ -195,17 +198,27 @@ void Drivetrain::Periodic() {
 
   auto jerk = (currAccel - prevAccel) / 20_ms;
 
-  if (jerk <= kJerkThreshold)
+  if (jerk <= kJerkThreshold) {
+#if ENABLE_SCALAR_ODOM_COMPENSATION
+    // Update the odometry with scalar compensation.
+    UpdateOdomWithScalarCompensation();
+#else
     // Update the odometry with the current gyro angle and module states.
     m_poseEstimator.Update(GetGyroHeading(), each_position());
-  else
+#endif
+  } else
     m_poseEstimator.ResetRotation(GetGyroHeading());
 
   prevAccel = currAccel;
 
 #else
+#if ENABLE_SCALAR_ODOM_COMPENSATION
+  // Update the odometry with scalar compensation.
+  UpdateOdomWithScalarCompensation();
+#else
+  // Update the odometry with the current gyro angle and module states.
   m_poseEstimator.Update(GetGyroHeading(), each_position());
-
+#endif
 #endif
 
   this->UpdateDashboard();
@@ -343,6 +356,30 @@ void Drivetrain::ResetOdometry(const frc::Pose2d &pose) {
   const auto odom_transform = GetOdomPose() - origin;
   m_initial_transform =
       (pose + odom_transform.Inverse()) - (origin + m_map_to_odom);
+}
+
+frc::Pose2d Drivetrain::GetCompensatedPose(const frc::Pose2d prevPose,
+                                           const frc::Pose2d &currPose) {
+  auto rel_transform = currPose - prevPose;
+  auto dist = rel_transform.Translation().Norm();
+
+  auto corrected_pose =
+      currPose.TransformBy({0_m, -dist * kOdometryCompensationFactor, 0_deg});
+
+  return corrected_pose;
+}
+
+void Drivetrain::UpdateOdomWithScalarCompensation() {
+  // Update the odometry with the current gyro angle and module states.
+  auto prev_pose = m_poseEstimator.GetEstimatedPosition();
+  m_poseEstimator.Update(GetGyroHeading(), each_position());
+  auto curr_pose = m_poseEstimator.GetEstimatedPosition();
+
+  // Forgive me God for I have sinned
+  // -- Eric, and now Visvam.
+  m_poseEstimator.AddVisionMeasurement(
+      GetCompensatedPose(prev_pose, curr_pose),
+      wpi::math::MathSharedStore::GetTimestamp(), {0.0, 0.0, 0.0});
 }
 
 void Drivetrain::SetMapToOdom(const frc::Transform2d &transform) {
