@@ -37,6 +37,7 @@
 
 namespace KrakenDriveConstants {
 constexpr auto kMaxSpeed = 18.9_fps;
+constexpr auto kMaxAutoSpeed = 12_fps;
 constexpr auto kMaxAccel = 6_mps_sq; // no test
 constexpr auto kJerkThreshold = 1_mps_sq / 1_s;
 constexpr auto kWeight = 135_lb;
@@ -239,6 +240,19 @@ void Drivetrain::RobotRelativeDrive(const frc::ChassisSpeeds &cmd_vel) {
   SetModuleStates(states);
 }
 
+void Drivetrain::RobotRelativeDrive(const frc::ChassisSpeeds &cmd_vel,
+                                    units::meters_per_second_t max_speed) {
+  auto states = kDriveKinematics.ToSwerveModuleStates(cmd_vel);
+
+  // Occasionally a drive motor is commanded to go faster than its maximum
+  // output can sustain. Desaturation lowers the module speeds so that no motor
+  // is driven above its maximum speed, while preserving the intended motion.
+  kDriveKinematics.DesaturateWheelSpeeds(&states, max_speed);
+
+  // Finally each of the desired states can be sent as commands to the modules.
+  SetModuleStates(states);
+}
+
 void Drivetrain::Drive(const frc::ChassisSpeeds &cmd_vel) {
   RobotRelativeDrive(
       frc::ChassisSpeeds::FromFieldRelativeSpeeds(cmd_vel, GetHeading()));
@@ -295,7 +309,7 @@ void Drivetrain::DriveToPose(const frc::Pose2d &desiredPose,
                                                 desiredPose.Rotation());
   frc::ChassisSpeeds finalSpeeds = {speeds.vx, speeds.vy,
                                     (speeds.omega + feedForward.omega)};
-  RobotRelativeDrive(finalSpeeds);
+  RobotRelativeDrive(finalSpeeds, kMaxAutoSpeed);
 }
 
 units::degrees_per_second_t Drivetrain::GetTurnRate() {

@@ -85,6 +85,12 @@ public:
   void RobotRelativeDrive(const frc::ChassisSpeeds &cmd_vel);
 
   // Executes given command velocity (x, y, omega)
+  // Motion is relative to the robot's frame
+  // Allows you to supply a custom max speed.
+  void RobotRelativeDrive(const frc::ChassisSpeeds &cmd_vel,
+                          units::meters_per_second_t max_speed);
+
+  // Executes given command velocity (x, y, omega)
   // X and Y velocities are relative to the field coordinates.
   void Drive(const frc::ChassisSpeeds &cmd_vel);
 
@@ -179,7 +185,7 @@ public:
 
   frc2::CommandPtr DynamicOdomReset();
 
-  // Drives the robot to 'desiredPose()' with feedforward 'endVele);o'
+  // Drives the robot to 'desiredPose()' with feedforward 'endVelo'
   // until its within 'tolerance' of 'desiredPose'
   frc2::CommandPtr
   DriveToPoseCommand(pose_supplier_t desiredPoseSupplier,
