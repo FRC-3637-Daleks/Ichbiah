@@ -228,7 +228,7 @@ public:
 
   frc2::CommandPtr
   FollowPathCommand(choreo::Trajectory<choreo::SwerveSample> trajectory,
-                    std::function<bool()> isRed);
+                    bool isRed);
 
   /* Constructs a swerve control command from 3 independent controls
    * Each 'cmd' can be one of the following:

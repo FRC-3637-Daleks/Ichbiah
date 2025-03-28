@@ -31,7 +31,7 @@ public:
    * @param subsystem The subsystem used by this command.
    */
   PathFollower(trajectory_t trajectory, Drivetrain &subsystem,
-               std::function<bool()> isRed);
+               bool isRed);
 
   void Initialize() override;
 
@@ -71,5 +71,5 @@ private:
   Drivetrain &m_driveSubsystem;
   frc::Timer m_timer;
   frc::Field2d *m_field;
-  std::function<bool()> m_isRed;
+  bool m_isRed;
 };

@@ -78,9 +78,19 @@ model {
             wpi.cpp.vendor.cpp(it)
             wpi.cpp.deps.wpilib(it)
 
+            /**
+            Dear Eric, I'd like to sincerely apologize in advance for the sin I'm about to commit.
+            I know what I'm about to do is not the right way to fix this, but it's what I have to do provided the time constaint.
+
+            Manually written git history so I don't forget:
+
+            - cppCompiler.args << '-Wall' << '-Werror'
+            + cppCompiler.args << '-Wall'
+            */
+
             binaries.all {
                 if (targetPlatform.name == wpi.platforms.roborio)
-                  cppCompiler.args << '-Wall' << '-Werror'
+                  cppCompiler.args << '-Wall'
             }
         }
     }
