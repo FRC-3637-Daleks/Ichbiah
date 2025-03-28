@@ -387,6 +387,8 @@ private:
   frc2::CommandPtr zeroEncodersCommand{ZeroAbsEncodersCommand()};
   frc2::CommandPtr resetOdomCommand{DynamicOdomReset()};
 
+  units::meters_per_second_squared_t prevAccel{0_mps_sq};
+
 private:
   friend class DrivetrainSimulation;
   std::unique_ptr<DrivetrainSimulation> m_sim_state;
