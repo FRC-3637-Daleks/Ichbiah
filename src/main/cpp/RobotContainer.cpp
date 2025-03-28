@@ -195,9 +195,15 @@ void RobotContainer::ConfigureBindings() {
       m_swerve.DriveToPoseIndefinitelyCommand([this] {
         const auto robot = m_swerve.GetPose();
         const auto nearest_target = ReefAssist::getNearestScoringPose(robot);
-        if (robot.Translation().Distance(nearest_target.Translation()) < 1_m)
+        if (robot.Translation().Distance(nearest_target.Translation()) <
+            1.5_m) {
+          if (abs((robot.Rotation().Degrees() -
+                   nearest_target.Rotation().Degrees())
+                      .value()) > 4) {
+            return frc::Pose2d(robot.X(), robot.Y(), nearest_target.Rotation());
+          }
           return nearest_target;
-        else
+        } else
           return robot;
       }));
 
@@ -232,7 +238,8 @@ void RobotContainer::ConfigureBindings() {
 
   // Rumble
   frc2::Trigger RumbleTrigger([this]() -> bool {
-    return m_endeffector.IsOuterBreakBeamBroken() ||
+    return (m_endeffector.IsOuterBreakBeamBroken() &&
+            m_endeffector.IsInnerBreakBeamBroken()) ||
            frc::SmartDashboard::GetBoolean("Climb/cage intaked?", false);
   });
   RumbleTrigger.OnTrue(m_oi.RumbleController(0.25_s, 1));
