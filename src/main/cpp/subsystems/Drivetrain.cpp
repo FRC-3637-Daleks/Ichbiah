@@ -31,10 +31,13 @@
 #include <iostream>
 #include <numeric>
 
+#define ENABLE_JERK_ODOM_COMPENSATION true
+
 namespace KrakenDriveConstants {
 constexpr auto kMaxSpeed = 18.9_fps;
 constexpr auto kMaxAccel = 6_mps_sq; // no test
-constexpr auto kWeight = 70_lb;
+constexpr auto kJerkThreshold = 1_mps_sq / 1_s;
+constexpr auto kWeight = 135_lb;
 constexpr auto kBatteryWeight = 12.9_lb;
 constexpr auto kMaxTurnRate = 2.5 * std::numbers::pi * 1_rad_per_s;
 constexpr auto kMaxTurnAcceleration = 6 * std::numbers::pi * 1_rad_per_s_sq;
@@ -182,8 +185,28 @@ void Drivetrain::Periodic() {
   SwerveModule::RefreshAllSignals(m_modules);
   m_odom_thread.RefreshData();
 
-  // Update the odometry with the current gyro angle and module states.
+#if ENABLE_JERK_ODOM_COMPENSATION
+
+  // Calculate magnitude of current acceleration
+  auto currAccel = std::sqrt(std::pow(m_gyro.GetWorldLinearAccelX(), 2) +
+                             std::pow(m_gyro.GetWorldLinearAccelY(), 2) +
+                             std::pow(m_gyro.GetWorldLinearAccelZ(), 2)) *
+                   9.8_mps_sq;
+
+  auto jerk = (currAccel - prevAccel) / 20_ms;
+
+  if (jerk <= kJerkThreshold)
+    // Update the odometry with the current gyro angle and module states.
+    m_poseEstimator.Update(GetGyroHeading(), each_position());
+  else
+    m_poseEstimator.ResetRotation(GetGyroHeading());
+
+  prevAccel = currAccel;
+
+#else
   m_poseEstimator.Update(GetGyroHeading(), each_position());
+
+#endif
 
   this->UpdateDashboard();
 }
