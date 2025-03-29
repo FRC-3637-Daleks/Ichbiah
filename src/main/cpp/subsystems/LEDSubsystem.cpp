@@ -36,10 +36,13 @@ void LEDSubsystem::Periodic() {
       setState(LEDSTATE::CoralInIntake1);
       countDown = 500;
     }
-    if (frc::SmartDashboard::GetBoolean(SDCONST::cageIntaked, false) ||
-        frc::SmartDashboard::GetBoolean("BranchInReach?", false)) {
+    if (frc::SmartDashboard::GetBoolean(SDCONST::cageIntaked, false)) {
       setState(LEDSTATE::CageIntaked1);
       countDown2 = 3000;
+    }
+    if (frc::SmartDashboard::GetBoolean("BranchInReach?", false)) {
+      setState(LEDSTATE::CageIntaked1);
+      countDown2 = 500;
     }
     break;
   case LEDSTATE::CoralInIntake1:

@@ -211,16 +211,15 @@ void RobotContainer::ConfigureBindings() {
   // frc2::Trigger SavePosTrigger(
   //     [this]() -> bool { return m_superStructure.IsBranchInReach(); });
 
-  // m_oi.AutoScoreTrigger.WhileTrue(frc2::cmd::Either(
-  //     frc2::cmd::Sequence(
-  //         m_swerve.CustomSwerveCommand(0_mps, 0_mps, 0_rad_per_s),
-  //         m_endeffector.EffectorOut()),
-  //     frc2::cmd::None(), [this]() -> bool {
-  //       return frc::SmartDashboard::GetBoolean("BranchInReach?", false) &&
-  //              frc::SmartDashboard::GetString("Elevator/Target Level", "L1")
-  //              ==
-  //                  "L4";
-  //     }));
+  m_oi.AutoScoreTrigger.WhileTrue(frc2::cmd::Either(
+      frc2::cmd::Sequence(
+          m_swerve.CustomSwerveCommand(0_mps, 0_mps, 0_rad_per_s),
+          m_endeffector.EffectorOut()),
+      frc2::cmd::None(), [this]() -> bool {
+        return frc::SmartDashboard::GetBoolean("BranchInReach?", false) &&
+               frc::SmartDashboard::GetString("Elevator/Target Level", "L1") ==
+                   "L4";
+      }));
 
   // SavePosTrigger.OnTrue([this] { reefPose = m_swerve.GetPose(); });
   // Climb

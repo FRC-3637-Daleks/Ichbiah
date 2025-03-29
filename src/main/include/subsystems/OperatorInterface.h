@@ -33,7 +33,7 @@
 namespace OperatorConstants {
 constexpr auto kMatchTimeStdError = 20_ms;
 constexpr auto kClimbExtendTime = 30_s;
-constexpr auto kClimbRetractTime = 0.5_s;
+constexpr auto kClimbRetractTime = 1.5_s;
 
 constexpr auto kMinClimbExtendTime = kClimbExtendTime - 2 * kMatchTimeStdError;
 constexpr auto kMaxClimbExtendTime = kClimbExtendTime + 2 * kMatchTimeStdError;
