@@ -60,6 +60,7 @@ public:
   frc2::Trigger ZeroHeadingTrigger = m_swerveController.Start();
   frc2::Trigger RobotRelativeToggleTrigger = m_swerveController.Back();
   frc2::Trigger ScoreTrigger = m_swerveController.RightBumper();
+  frc2::Trigger CancelScoreTrigger = m_swerveController.B();
   frc2::Trigger L1TargetTrigger =
       m_swerveController.POVDown() || m_copilotController.POVDown();
   frc2::Trigger L2TargetTrigger =

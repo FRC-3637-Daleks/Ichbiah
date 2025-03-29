@@ -40,10 +40,16 @@ void LEDSubsystem::Periodic() {
       setState(LEDSTATE::CageIntaked1);
       countDown2 = 3000;
     }
+    // if (frc::SmartDashboard::GetBoolean("BranchInReach?", false)) {
+    //   setState(LEDSTATE::CageIntaked1);
+    //   countDown2 = 500;
+    // }
     if (frc::SmartDashboard::GetBoolean("BranchInReach?", false)) {
-      setState(LEDSTATE::CageIntaked1);
-      countDown2 = 500;
+      setAllSpanPatterns(frc::LEDPattern::Solid(frc::Color::kRed));
     }
+    // if (!frc::SmartDashboard::GetBoolean("BranchInReach?", false)) {
+    //   setAllSpanPatterns(frc::LEDPattern::Solid(frc::Color::kRed));
+    // }
     break;
   case LEDSTATE::CoralInIntake1:
     if (countDown <= 0.0) {
