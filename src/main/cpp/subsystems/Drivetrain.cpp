@@ -32,12 +32,12 @@
 #include <numeric>
 
 // பெருமள் please forgive me for my use of preprocessor directives. -- Visvam
-#define ENABLE_JERK_ODOM_COMPENSATION true
+#define ENABLE_JERK_ODOM_COMPENSATION false
 #define ENABLE_SCALAR_ODOM_COMPENSATION false
 
 namespace KrakenDriveConstants {
 constexpr auto kMaxSpeed = 18.9_fps;
-constexpr auto kMaxAutoSpeed = 12_fps;
+constexpr auto kMaxAutoSpeed = 6_fps;
 constexpr auto kMaxAccel = 6_mps_sq; // no test
 constexpr auto kJerkThreshold = 1_mps_sq / 1_s;
 constexpr auto kWeight = 135_lb;
