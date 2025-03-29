@@ -191,22 +191,38 @@ void RobotContainer::ConfigureBindings() {
    * values when we actually are trying to align to something.
    * --E
    */
-  m_oi.ElevatorPrePlaceTrigger.WhileTrue(
-      m_swerve.DriveToPoseIndefinitelyCommand([this] {
-        const auto robot = m_swerve.GetPose();
-        const auto nearest_target = ReefAssist::getNearestScoringPose(robot);
-        if (robot.Translation().Distance(nearest_target.Translation()) <
-            1.5_m) {
-          if (abs((robot.Rotation().Degrees() -
-                   nearest_target.Rotation().Degrees())
-                      .value()) > 4) {
-            return frc::Pose2d(robot.X(), robot.Y(), nearest_target.Rotation());
-          }
-          return nearest_target;
-        } else
-          return robot;
-      }));
+  // m_oi.ElevatorPrePlaceTrigger
+  //     .WhileTrue(
+  //         frc2::cmd::Select(
+  //             target_selector,
+  //             std::pair{Elevator::L1,
+  //             m_superStructure.prePlace(Elevator::L1)},
+  //             std::pair{Elevator::L2,
+  //             m_superStructure.prePlace(Elevator::L2)},
+  //             std::pair{Elevator::L3,
+  //             m_superStructure.prePlace(Elevator::L3)},
+  //             std::pair{Elevator::L4,
+  //             m_superStructure.prePlace(Elevator::L4)})
+  //             .DeadlineFor(std::mov%e(slow))
+  //             .AndThen(m_swerve.DriveToPoseIndefinitelyCommand(
+  //                 [this] { return reefPose; })))
+  //     .OnFalse(m_endeffector.EffectorOut().DeadlineFor(m_elevator.Hold()));
 
+  // frc2::Trigger SavePosTrigger(
+  //     [this]() -> bool { return m_superStructure.IsBranchInReach(); });
+
+  // m_oi.AutoScoreTrigger.WhileTrue(frc2::cmd::Either(
+  //     frc2::cmd::Sequence(
+  //         m_swerve.CustomSwerveCommand(0_mps, 0_mps, 0_rad_per_s),
+  //         m_endeffector.EffectorOut()),
+  //     frc2::cmd::None(), [this]() -> bool {
+  //       return frc::SmartDashboard::GetBoolean("BranchInReach?", false) &&
+  //              frc::SmartDashboard::GetString("Elevator/Target Level", "L1")
+  //              ==
+  //                  "L4";
+  //     }));
+
+  // SavePosTrigger.OnTrue([this] { reefPose = m_swerve.GetPose(); });
   // Climb
   m_oi.ClimbTimedExtendTrigger.OnTrue(m_climb.ExtendClimb());
   m_oi.ClimbTimedRetractTrigger.OnTrue(m_climb.RetractClimb());
@@ -240,7 +256,10 @@ void RobotContainer::ConfigureBindings() {
   frc2::Trigger RumbleTrigger([this]() -> bool {
     return (m_endeffector.IsOuterBreakBeamBroken() &&
             m_endeffector.IsInnerBreakBeamBroken()) ||
-           frc::SmartDashboard::GetBoolean("Climb/cage intaked?", false);
+           frc::SmartDashboard::GetBoolean("Climb/cage intaked?", false) ||
+           (m_superStructure.IsBranchInReach() &&
+            frc::SmartDashboard::GetString("Elevator/Target Level", "L1") ==
+                "L4");
   });
   RumbleTrigger.OnTrue(m_oi.RumbleController(0.25_s, 1));
 

@@ -68,6 +68,7 @@ public:
   Vision m_vision;
 
   bool m_isRed;
+  frc::Pose2d reefPose;
 
   std::function<bool()> m_updateIsRed = [this]() -> bool {
     return frc::DriverStation::GetAlliance() ==

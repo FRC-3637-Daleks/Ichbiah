@@ -9,11 +9,11 @@
 #include <iostream>
 
 namespace SuperStructureConstants {
-constexpr int kLaserID = 0;
+constexpr int kLaserID = 23;
 
 constexpr grpl::LaserCanROI kLaserROI = {6, 0, 6, 16};
 
-constexpr auto kBranchThreshold = 2_in;
+constexpr auto kBranchThreshold = 10_in;
 }; // namespace SuperStructureConstants
 
 class SuperStructureSim {
@@ -86,13 +86,21 @@ units::millimeter_t SuperStructure::GetLaserCANMeasurement() {
   auto measurement_opt = m_laser.get_measurement();
   if (measurement_opt.has_value() &&
       measurement_opt.value().status == grpl::LASERCAN_STATUS_VALID_MEASUREMENT)
-    return units::millimeter_t{measurement_opt.value().distance_mm};
+    return units::millimeter_t{(double)measurement_opt.value().distance_mm};
   else
     return std::numeric_limits<units::millimeter_t>::max();
 }
 
 bool SuperStructure::IsBranchInReach() {
-  return GetLaserCANMeasurement() <= SuperStructureConstants::kBranchThreshold;
+  bool var =
+      GetLaserCANMeasurement() <= SuperStructureConstants::kBranchThreshold &&
+      GetLaserCANMeasurement() > (units::length::millimeter_t)0.1;
+  if (frc::SmartDashboard::GetString("Elevator/Target Level", "L1") == "L4") {
+    frc::SmartDashboard::PutBoolean("BranchInReach?", var);
+  } else {
+    frc::SmartDashboard::PutBoolean("BranchInReach?", false);
+  };
+  return var;
 }
 
 SuperStructure::~SuperStructure() {}

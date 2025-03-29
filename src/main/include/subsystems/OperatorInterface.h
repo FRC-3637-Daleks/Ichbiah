@@ -93,6 +93,7 @@ public:
   frc2::Trigger EndEffectorInTrigger = m_copilotController.RightTrigger();
   frc2::Trigger EndEffectorOutTrigger = m_copilotController.LeftTrigger();
   frc2::Trigger ElevatorIntakeTrigger = m_copilotController.B();
+  frc2::Trigger AutoScoreTrigger = m_copilotController.RightBumper();
   frc2::Trigger ClimbUpTrigger = m_copilotController.Y();
   frc2::Trigger ClimbDownTrigger = m_copilotController.X();
   frc2::Trigger L1Manual = m_copilotController.POVDown();
