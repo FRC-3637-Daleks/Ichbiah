@@ -193,23 +193,8 @@ void RobotContainer::ConfigureBindings() {
    * values when we actually are trying to align to something.
    * --E
    */
-  // m_oi.ElevatorPrePlaceTrigger
-  //     .WhileTrue(
-  //         frc2::cmd::Select(
-  //             target_selector,
-  //             std::pair{Elevator::L1,
-  //             m_superStructure.prePlace(Elevator::L1)},
-  //             std::pair{Elevator::L2,
-  //             m_superStructure.prePlace(Elevator::L2)},
-  //             std::pair{Elevator::L3,
-  //             m_superStructure.prePlace(Elevator::L3)},
-  //             std::pair{Elevator::L4,
-  //             m_superStructure.prePlace(Elevator::L4)})
-  //             .DeadlineFor(std::mov%e(slow))
-  //             .AndThen(m_swerve.DriveToPoseIndefinitelyCommand(
-  //                 [this] { return reefPose; })))
-  //     .OnFalse(m_endeffector.EffectorOut().DeadlineFor(m_elevator.Hold()));
-
+  //   m_oi.ElevatorPrePlaceTrigger.WhileTrue(AutoBuilder::LineUp(
+  //       AutoBuilder::Direction::RIGHT, m_swerve, m_superStructure));
   // frc2::Trigger SavePosTrigger(
   //     [this]() -> bool { return m_superStructure.IsBranchInReach(); });
 
@@ -260,7 +245,10 @@ void RobotContainer::ConfigureBindings() {
            frc::SmartDashboard::GetBoolean("Climb/cage intaked?", false) ||
            (m_superStructure.IsBranchInReach() &&
             frc::SmartDashboard::GetString("Elevator/Target Level", "L1") ==
-                "L4");
+                "L4") ||
+           (m_superStructure.IsBranchInReachL23() &&
+            frc::SmartDashboard::GetString("Elevator/Target Level", "Intake") !=
+                "Intake");
   });
   RumbleTrigger.OnTrue(m_oi.RumbleController(0.25_s, 1));
 

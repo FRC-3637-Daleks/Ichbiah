@@ -17,7 +17,7 @@ constexpr int kModualID = 3; // Remember to change to real value
 
 constexpr int kLimitSwitchID = 1;
 
-constexpr units::pounds_per_square_inch_t kMaxPressure = 120_psi;
+constexpr units::pounds_per_square_inch_t kMaxPressure = 130_psi;
 
 constexpr units::pounds_per_square_inch_t kMinPressure = 80_psi;
 } // namespace ClimbConstants

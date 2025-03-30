@@ -23,7 +23,7 @@ namespace AutoBuilder {
 
 enum Direction { NONE, LEFT, RIGHT };
 
-constexpr auto kLineUpSpeed = 0.1_mps;
+constexpr auto kLineUpSpeed = 0.25_mps;
 
 // Left Side Paths
 auto IntakeToReefClose =
@@ -92,7 +92,8 @@ inline frc2::CommandPtr AutoScore(Elevator::Level level, Direction direction,
   return frc2::cmd::Sequence(
       superstructure.m_elevator.GoToLevel(level),
       frc2::cmd::Parallel(superstructure.m_elevator.Hold(),
-                          LineUp(direction, swerve, superstructure)),
+                          LineUp(direction, swerve, superstructure))
+          .WithTimeout(2.5_s),
       superstructure.m_endeffector.EffectorOut());
 }
 

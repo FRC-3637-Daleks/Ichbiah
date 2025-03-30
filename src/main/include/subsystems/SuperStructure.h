@@ -29,7 +29,8 @@ public:
   frc2::CommandPtr Score(Elevator::Level level);
 
   units::millimeter_t GetLaserCANMeasurement();
-  bool IsBranchInReach();  
+  bool IsBranchInReach();
+  bool IsBranchInReachL23();
 
 private:
   friend class SuperStructureSim;

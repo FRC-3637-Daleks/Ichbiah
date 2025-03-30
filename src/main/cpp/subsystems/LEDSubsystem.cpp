@@ -44,9 +44,6 @@ void LEDSubsystem::Periodic() {
     //   setState(LEDSTATE::CageIntaked1);
     //   countDown2 = 500;
     // }
-    if (frc::SmartDashboard::GetBoolean("BranchInReach?", false)) {
-      setAllSpanPatterns(frc::LEDPattern::Solid(frc::Color::kRed));
-    }
     // if (!frc::SmartDashboard::GetBoolean("BranchInReach?", false)) {
     //   setAllSpanPatterns(frc::LEDPattern::Solid(frc::Color::kRed));
     // }
@@ -119,6 +116,10 @@ void LEDSubsystem::Periodic() {
             .count();
   }
   previousFrameTime = std::chrono::system_clock::now();
+
+  if (frc::SmartDashboard::GetBoolean("BranchInReach?", false)) {
+    setAllSpanPatterns(frc::LEDPattern::Solid(frc::Color::kRed));
+  }
 }
 
 void LEDSubsystem::setState(LEDSTATE state) {

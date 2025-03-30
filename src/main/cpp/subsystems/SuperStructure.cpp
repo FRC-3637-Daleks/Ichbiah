@@ -103,6 +103,18 @@ bool SuperStructure::IsBranchInReach() {
   return var;
 }
 
+bool SuperStructure::IsBranchInReachL23() {
+  bool var = GetLaserCANMeasurement() <= 20_in &&
+             GetLaserCANMeasurement() > (units::length::millimeter_t)0.1;
+  // if (frc::SmartDashboard::GetString("Elevator/Target Level", "L1") == "L4")
+  // {
+  //   frc::SmartDashboard::PutBoolean("BranchInReach?", var);
+  // } else {
+  //   frc::SmartDashboard::PutBoolean("BranchInReach?", false);
+  // };
+  return var;
+}
+
 SuperStructure::~SuperStructure() {}
 
 /***************************  SIMULATION  **************************/
