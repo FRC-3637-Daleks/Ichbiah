@@ -28,55 +28,45 @@ LEDSubsystem::LEDSubsystem() {
 }
 
 void LEDSubsystem::Periodic() {
-  //   const bool hasCoral =
-  //       frc::SmartDashboard::GetBoolean(SDCONST::coralInIntake, false);
   switch (m_currState) {
   case LEDSTATE::Default:
-    if (frc::SmartDashboard::GetBoolean(SDCONST::coralInIntake, false)) {
-      setState(LEDSTATE::CoralInIntake1);
-      countDown = 500;
-    }
     if (frc::SmartDashboard::GetBoolean(SDCONST::cageIntaked, false)) {
       setState(LEDSTATE::CageIntaked1);
       countDown2 = 3000;
+    } else if (frc::SmartDashboard::GetBoolean(SDCONST::coralInIntake, false)) {
+      if (frc::SmartDashboard::GetBoolean(SDCONST::branchFound, false)) {
+        setState(LEDSTATE::BranchFound);
+      } else {
+        setState(LEDSTATE::CoralInIntake);
+      }
     }
-    // if (frc::SmartDashboard::GetBoolean("BranchInReach?", false)) {
-    //   setState(LEDSTATE::CageIntaked1);
-    //   countDown2 = 500;
-    // }
-    if (frc::SmartDashboard::GetBoolean("BranchInReach?", false)) {
-      setAllSpanPatterns(frc::LEDPattern::Solid(frc::Color::kRed));
-    }
-    // if (!frc::SmartDashboard::GetBoolean("BranchInReach?", false)) {
-    //   setAllSpanPatterns(frc::LEDPattern::Solid(frc::Color::kRed));
-    // }
     break;
-  case LEDSTATE::CoralInIntake1:
-    if (countDown <= 0.0) {
-      countDown = 250;
-      setState(LEDSTATE::CoralInIntake2);
-    }
-    if (!frc::SmartDashboard::GetBoolean(SDCONST::coralInIntake, false)) {
+
+  case LEDSTATE::CoralInIntake:
+    if (frc::SmartDashboard::GetBoolean(SDCONST::cageIntaked, false)) {
+      setState(LEDSTATE::CageIntaked1);
+      countDown2 = 3000;
+    } else if (!frc::SmartDashboard::GetBoolean(SDCONST::coralInIntake,
+                                                false)) {
       setState(LEDSTATE::Default);
+    } else if (frc::SmartDashboard::GetBoolean(SDCONST::branchFound, false)) {
+      setState(LEDSTATE::BranchFound);
     }
+    break;
+
+  case LEDSTATE::BranchFound:
     if (frc::SmartDashboard::GetBoolean(SDCONST::cageIntaked, false)) {
       setState(LEDSTATE::CageIntaked1);
       countDown2 = 3000;
+    } else if (!frc::SmartDashboard::GetBoolean(SDCONST::branchFound, false)) {
+      if (frc::SmartDashboard::GetBoolean(SDCONST::coralInIntake, false)) {
+        setState(LEDSTATE::CoralInIntake);
+      } else {
+        setState(LEDSTATE::Default);
+      }
     }
     break;
-  case LEDSTATE::CoralInIntake2:
-    if (countDown <= 0.0) {
-      countDown = 250;
-      setState(LEDSTATE::CoralInIntake1);
-    }
-    if (!frc::SmartDashboard::GetBoolean(SDCONST::coralInIntake, false)) {
-      setState(LEDSTATE::Default);
-    }
-    if (frc::SmartDashboard::GetBoolean(SDCONST::cageIntaked, false)) {
-      setState(LEDSTATE::CageIntaked1);
-      countDown2 = 3000;
-    }
-    break;
+
   case LEDSTATE::CageIntaked1:
     if (countDown <= 0.0) {
       countDown = 125;
@@ -123,19 +113,23 @@ void LEDSubsystem::Periodic() {
 
 void LEDSubsystem::setState(LEDSTATE state) {
   switch (state) {
-  case LEDSTATE::CoralInIntake1:
-    setAllSpanPatterns(frc::LEDPattern::Gradient(
-                           frc::LEDPattern::GradientType::kContinuous,
-                           std::array<frc::Color, 2>{frc::Color{127, 127, 0},
-                                                     frc::Color{0, 255, 0}})
-                           .ScrollAtAbsoluteSpeed(1_mps, kLedSpacing));
+  case LEDSTATE::CoralInIntake:
+    setAllSpanPatterns(frc::LEDPattern::Solid(frc::Color{1.0, 0.0, 0.0}));
     break;
+
+  case LEDSTATE::BranchFound:
+    setAllSpanPatterns(frc::LEDPattern::Rainbow(255, 255).ScrollAtAbsoluteSpeed(
+        1_mps, kLedSpacing));
+    break;
+
   case LEDSTATE::CageIntaked1:
     setAllSpanPatterns(frc::LEDPattern::Solid(frc::Color{0.0, 1.0, 1.0}));
     break;
+
   case LEDSTATE::CageIntaked2:
     setAllSpanPatterns(frc::LEDPattern::Solid(frc::Color{0.2, 0.0, 0.2}));
     break;
+
   default:
     const bool isRed =
         frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed;
