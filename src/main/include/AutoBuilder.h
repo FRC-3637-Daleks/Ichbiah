@@ -136,6 +136,6 @@ frc2::CommandPtr OneL4StartMidAuto(Drivetrain &swerve,
                                    std::function<bool()> isRed) {
   return frc2::cmd::Sequence(
       swerve.FollowPathCommand(StartToReefMid.value(), isRed),
-      AutoScore(Elevator::Level::L4, Direction::NONE, swerve, superstructure));
+      AutoScore(Elevator::Level::L4, Direction::LEFT, swerve, superstructure));
 }
 }; // namespace AutoBuilder
