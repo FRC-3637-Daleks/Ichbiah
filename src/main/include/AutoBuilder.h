@@ -88,12 +88,13 @@ inline frc2::CommandPtr LineUp(Direction direction, Drivetrain &swerve,
 
 inline frc2::CommandPtr AutoScore(Elevator::Level level, Direction direction,
                                   Drivetrain &swerve,
-                                  SuperStructure &superstructure) {
+                                  SuperStructure &superstructure,
+                                  units::second_t timeout = 1.5_s) {
   return frc2::cmd::Sequence(
       superstructure.m_elevator.GoToLevel(level),
       frc2::cmd::Parallel(superstructure.m_elevator.Hold(),
                           LineUp(direction, swerve, superstructure))
-          .WithTimeout(1.7_s),
+          .WithTimeout(timeout),
       superstructure.m_endeffector.EffectorOut());
 }
 
@@ -108,7 +109,8 @@ frc2::CommandPtr ThreeL4Auto(Drivetrain &swerve, SuperStructure &superstructure,
           .WithTimeout(4.0_s),
       swerve.FollowPathCommand(IntakeToReefClose.value(), isRed)
           .WithTimeout(3.2_s),
-      AutoScore(Elevator::Level::L4, Direction::RIGHT, swerve, superstructure),
+      AutoScore(Elevator::Level::L4, Direction::RIGHT, swerve, superstructure,
+                1.7_s),
       frc2::cmd::Parallel(
           swerve.FollowPathCommand(ReefCloseToIntake.value(), isRed),
           superstructure.Intake()),
