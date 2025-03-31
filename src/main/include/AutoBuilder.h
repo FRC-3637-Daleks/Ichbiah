@@ -105,10 +105,10 @@ frc2::CommandPtr ThreeL4Auto(Drivetrain &swerve, SuperStructure &superstructure,
       frc2::cmd::Parallel(
           swerve.FollowPathCommand(ReefFarToIntake.value(), isRed),
           superstructure.Intake())
-          .WithTimeout(3.5_s),
+          .WithTimeout(4.0_s),
       swerve.FollowPathCommand(IntakeToReefClose.value(), isRed)
           .WithTimeout(3.2_s),
-      AutoScore(Elevator::Level::L4, Direction::LEFT, swerve, superstructure),
+      AutoScore(Elevator::Level::L4, Direction::RIGHT, swerve, superstructure),
       frc2::cmd::Parallel(
           swerve.FollowPathCommand(ReefCloseToIntake.value(), isRed),
           superstructure.Intake()),
