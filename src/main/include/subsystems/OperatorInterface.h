@@ -53,6 +53,7 @@ public:
   bool slowmode();
   units::meters_per_second_t strafe();
   units::meters_per_second_t fwd();
+  units::meters_per_second_t alt_fwd();
   units::revolutions_per_minute_t rot();
   Elevator::Level target_level() { return m_target_level; }
 

@@ -126,7 +126,8 @@ void RobotContainer::ConfigureBindings() {
       [this] { return m_oi.rot(); }));
 
   auto slow = m_swerve.CustomRobotRelativeSwerveCommand(
-      [this] { return 0_mps; }, [this] { return m_oi.strafe() * 0.3; },
+      [this] { return m_oi.alt_fwd() * 0.3; },
+      [this] { return m_oi.strafe() * 0.4; },
       [this] { return m_oi.rot() * 0.3; });
 
   m_oi.RobotRelativeToggleTrigger.ToggleOnTrue(
