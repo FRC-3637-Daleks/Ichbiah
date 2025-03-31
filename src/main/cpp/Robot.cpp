@@ -110,6 +110,8 @@ void Robot::DisabledPeriodic() {}
  * RobotContainer} class.
  */
 void Robot::AutonomousInit() {
+  frc::Shuffleboard::SelectTab("Autonomous");
+
   m_autonomousCommand = m_container.GetAutonomousCommand();
 
   if (m_autonomousCommand.has_value()) {
@@ -123,7 +125,7 @@ void Robot::AutonomousInit() {
 
 void Robot::AutonomousPeriodic() {}
 
-void Robot::TeleopInit() {}
+void Robot::TeleopInit() { frc::Shuffleboard::SelectTab("Teleoperated"); }
 
 /**
  * This function is called periodically
