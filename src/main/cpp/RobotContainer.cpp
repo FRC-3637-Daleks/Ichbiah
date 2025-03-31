@@ -341,16 +341,14 @@ void RobotContainer::ConfigureDashboard() {
 
 void RobotContainer::ConfigureAuto() {
 
-  threel4auto =
-      AutoBuilder::ThreeL4Auto(m_swerve, m_superStructure, m_updateIsRed);
-  threel4autoprocessor = AutoBuilder::ThreeL4AutoProcessor(
-      m_swerve, m_superStructure, m_updateIsRed);
-  onel4startmidauto =
-      AutoBuilder::OneL4StartMidAuto(m_swerve, m_superStructure, m_updateIsRed);
+  threel4auto = AutoBuilder::LeftThreeL4Auto(m_swerve, m_superStructure);
+  threel4autoprocessor =
+      AutoBuilder::RightThreeL4Auto(m_swerve, m_superStructure);
+  onel4startmidauto = AutoBuilder::CenterOneL4Auto(m_swerve, m_superStructure);
 
-  m_chooser.SetDefaultOption("Default Auto: Line-Up with wall and score 3 L4",
-                             threel4auto.get());
-  m_chooser.AddOption("Line Up with Processor wall and score 3 L4",
+  m_chooser.SetDefaultOption(
+      "Default Auto: Line-Up with left wall and score 3 L4", threel4auto.get());
+  m_chooser.AddOption("Line Up with right wall and score 3 L4",
                       threel4autoprocessor.get());
   //   m_chooser.AddOption("just drive", drivethingy.get());
   m_chooser.AddOption("One L4 From Middle", onel4startmidauto.get());
