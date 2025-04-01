@@ -145,7 +145,7 @@ void RobotContainer::ConfigureBindings() {
    */
   std::function<Elevator::Level()> target_selector =
       [this]() -> Elevator::Level { return m_oi.target_level(); };
-  m_oi.ElevatorPrePlaceTrigger.WhileTrue(frc2::cmd::Select(
+  m_oi.ElevatorPrePlaceTrigger.OnTrue(frc2::cmd::Select(
       target_selector,
       std::pair{Elevator::L1, m_superStructure.prePlace(Elevator::L1)},
       std::pair{Elevator::L2, m_superStructure.prePlace(Elevator::L2)},
@@ -153,7 +153,7 @@ void RobotContainer::ConfigureBindings() {
       std::pair{Elevator::L4, m_superStructure.prePlace(Elevator::L4)}));
 
   m_oi.ScoreTrigger
-      .WhileTrue(
+      .OnTrue(
           frc2::cmd::Select(
               target_selector,
               std::pair{Elevator::L1, m_superStructure.prePlace(Elevator::L1)},
@@ -166,8 +166,7 @@ void RobotContainer::ConfigureBindings() {
                      return m_oi.CancelScoreTrigger.Get() ||
                             frc::SmartDashboard::GetString(
                                 "Elevator/Target Level", "INTAKE") == "INTAKE";
-                                
-                   }));
+                                      }));
 
   // Easy on-stop cancel button for everything.
   m_oi.CancelScoreTrigger.OnTrue(m_superStructure.Reset());
