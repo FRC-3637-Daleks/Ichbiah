@@ -38,8 +38,6 @@ public:
   // Sets the motor position (ends as soon as run)
   void SetGoalHeight(units::centimeter_t length);
   void SetGoalHeight(Level level);
-  void SetTargetLevel(Level level);
-
   // Moves the motor up and down manually
   void MotorMoveUp();
   void MotorMoveDown();

@@ -162,9 +162,16 @@ void RobotContainer::ConfigureBindings() {
               std::pair{Elevator::L3, m_superStructure.prePlace(Elevator::L3)},
               std::pair{Elevator::L4, m_superStructure.prePlace(Elevator::L4)})
               .DeadlineFor(std::move(slow)))
-      .OnFalse(m_endeffector.EffectorOut()
-                   .DeadlineFor(m_elevator.Hold())
-                   .Unless([this] { return m_oi.CancelScoreTrigger.Get(); }));
+      .OnFalse((m_endeffector.EffectorOut().DeadlineFor(m_elevator.Hold()))
+                   .Unless([this, target_selector] {
+                     return m_oi.CancelScoreTrigger.Get() ||
+                            frc::SmartDashboard::GetString(
+                                "Elevator/Target Level", "INTAKE") == "INTAKE";
+                                
+                   }));
+
+  // Easy on-stop cancel button for everything.
+  m_oi.CancelScoreTrigger.OnTrue(m_superStructure.Reset());
 
   // When not holding the prePlace button, go to collapsed position
   m_elevator.SetDefaultCommand(m_elevator.GoToLevel(Elevator::INTAKE));

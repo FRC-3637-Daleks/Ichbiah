@@ -28,6 +28,8 @@ public:
   frc2::CommandPtr Intake();
   frc2::CommandPtr Score(Elevator::Level level);
 
+  frc2::CommandPtr Reset();
+
   units::millimeter_t GetLaserCANMeasurement();
   bool IsBranchInReach();
   bool IsBranchInReachL23();
