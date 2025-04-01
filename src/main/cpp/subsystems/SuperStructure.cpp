@@ -82,6 +82,11 @@ frc2::CommandPtr SuperStructure::Score(Elevator::Level level) {
       .WithTimeout(2.0_s); // if left unchecked
 }
 
+frc2::CommandPtr SuperStructure::Reset() {
+  return frc2::cmd::Parallel(m_endeffector.EffectorContinue(),
+                             m_elevator.GoToLevel(Elevator::Level::INTAKE));
+}
+
 units::millimeter_t SuperStructure::GetLaserCANMeasurement() {
   auto measurement_opt = m_laser.get_measurement();
   if (measurement_opt.has_value() &&
