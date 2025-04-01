@@ -187,7 +187,7 @@ __                  \x|_______
 
 frc2::CommandPtr EndEffector::EffectorIn() {
   return MotorCommand(EndEffectorConstants::kIntakePct).Until([this]() -> bool {
-    return IsInnerBreakBeamBroken();
+    return HasCoral();
   });
 }
 
