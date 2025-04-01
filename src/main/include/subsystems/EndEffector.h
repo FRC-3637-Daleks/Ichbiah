@@ -24,22 +24,17 @@ public:
   void InitVisualization(frc::MechanismObject2d *elevator_end);
   void UpdateVisualization();
 
-  void MotorForward();
-  void SlowMotorForward();
-  void FastMotorForward();
-  void MotorBack();
-  void SlowMotorBack();
-  void MotorStop();
+  // -1 <= speed_pct <= 1
+  void SetSpeed(double speed_pct);
+  void MotorStop() { SetSpeed(0.0); }
 
   bool IsInnerBreakBeamBroken();
   bool IsOuterBreakBeamBroken();
   bool HasCoral();
 
-  frc2::CommandPtr MotorBackwardCommand();
-  frc2::CommandPtr SlowMotorBackwardCommand();
+  frc2::CommandPtr MotorCommand(double speed_pct);
   frc2::CommandPtr MotorForwardCommand();
-  frc2::CommandPtr SlowMotorForwardCommand();
-  frc2::CommandPtr FastMotorForwardCommand();
+  frc2::CommandPtr MotorBackwardCommand();
   frc2::CommandPtr EffectorIn();
   frc2::CommandPtr EffectorContinue();
   frc2::CommandPtr EffectorOut();

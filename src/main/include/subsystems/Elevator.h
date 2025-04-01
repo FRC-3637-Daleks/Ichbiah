@@ -29,7 +29,7 @@ public:
   frc::MechanismLigament2d *GetElevatorLigament() { return m_mech_current; }
   void UpdateVisualization();
 
-  enum Level { INTAKE = 0, L1, L2, L3, L4, N };
+  enum Level : int { INTAKE = 0, L1, L2, L3, L4, N };
 
   // Return bool on if its at the peram: pos
   bool IsAtPos(units::centimeter_t pos);
@@ -50,11 +50,13 @@ public:
 
   bool isAtTop();
   bool isAtBottom();
+  bool shouldHome();
 
 public:
   // Manual Override Commands
   frc2::CommandPtr MoveUp();
   frc2::CommandPtr MoveDown();
+  frc2::CommandPtr Hold();
 
   // Ensures sensor is homed
   frc2::CommandPtr HomeEncoder();

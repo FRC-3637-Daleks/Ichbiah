@@ -64,7 +64,15 @@ constexpr auto mid_line = field_length / 2;
 
 } // namespace FieldConstants
 
-RobotContainer::RobotContainer() {
+RobotContainer::RobotContainer()
+    : m_vision(
+          [this](frc::Pose2d pose, units::second_t timestamp,
+                 wpi::array<double, 3U> stdDevs) {
+            m_swerve.AddVisionPoseEstimate(pose, timestamp, stdDevs);
+          },
+          [this]() { return m_swerve.GetPose(); },
+          Eigen::Matrix<double, 3, 1>{1.0, 1.0, 1.0},
+          [this] { return m_swerve.GetSimulatedGroundTruth(); }) {
   fmt::println("made it to robot container");
   // Initialize all of your commands and subsystems here
   frc::DataLogManager::Start();
@@ -112,49 +120,118 @@ RobotContainer::RobotContainer() {
 }
 
 void RobotContainer::ConfigureBindings() {
+  // PRIMARY CONTROLS
   m_swerve.SetDefaultCommand(m_swerve.CustomSwerveCommand(
       [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
       [this] { return m_oi.rot(); }));
+
+  auto slow = m_swerve.CustomRobotRelativeSwerveCommand(
+      [this] { return 0_mps; }, [this] { return m_oi.strafe() * 0.3; },
+      [this] { return m_oi.rot() * 0.3; });
 
   m_oi.RobotRelativeToggleTrigger.ToggleOnTrue(
       m_swerve.CustomRobotRelativeSwerveCommand(
           [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
           [this] { return m_oi.rot(); }));
 
-  // m_oi.DriveToPoseTrigger.WhileTrue(
-  //   m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));
-  m_oi.ZeroHeadingTrigger.OnTrue(frc2::cmd::Parallel(
-      m_swerve.ZeroHeadingCommand(), frc2::cmd::Print("Zeroed Heading")));
+  m_oi.ZeroHeadingTrigger.OnTrue(m_swerve.ZeroHeadingCommand());
 
-  // Elevator
-  m_oi.ElevatorIntakeTrigger.OnTrue(
-      m_superStructure.prePlace(m_superStructure.m_elevator.INTAKE));
-  m_oi.ElevatorL1Trigger.OnTrue(
-      m_superStructure.prePlace(m_superStructure.m_elevator.L1));
-  m_oi.ElevatorL2Trigger.OnTrue(
-      m_superStructure.prePlace(m_superStructure.m_elevator.L2));
-  m_oi.ElevatorL3Trigger.OnTrue(
-      m_superStructure.prePlace(m_superStructure.m_elevator.L3));
-  m_oi.ElevatorL4Trigger.OnTrue(
-      m_superStructure.prePlace(m_superStructure.m_elevator.L4));
+  // Auto Elevator
+  /* This changes the elevator heights to set a target level, but not actually
+   * commanding the elevator Instead, the driver X button (can change this)
+   * actually goes to the target level. The target level starts at L4
+   * If they want to score on a different level, the copilot OR pilot can
+   * press the D-pad buttons to change it.
+   */
+  std::function<Elevator::Level()> target_selector =
+      [this]() -> Elevator::Level { return m_oi.target_level(); };
+  m_oi.ElevatorPrePlaceTrigger.WhileTrue(frc2::cmd::Select(
+      target_selector,
+      std::pair{Elevator::L1, m_superStructure.prePlace(Elevator::L1)},
+      std::pair{Elevator::L2, m_superStructure.prePlace(Elevator::L2)},
+      std::pair{Elevator::L3, m_superStructure.prePlace(Elevator::L3)},
+      std::pair{Elevator::L4, m_superStructure.prePlace(Elevator::L4)}));
 
+  m_oi.ScoreTrigger
+      .WhileTrue(
+          frc2::cmd::Select(
+              target_selector,
+              std::pair{Elevator::L1, m_superStructure.prePlace(Elevator::L1)},
+              std::pair{Elevator::L2, m_superStructure.prePlace(Elevator::L2)},
+              std::pair{Elevator::L3, m_superStructure.prePlace(Elevator::L3)},
+              std::pair{Elevator::L4, m_superStructure.prePlace(Elevator::L4)})
+              .DeadlineFor(std::move(slow)))
+      .OnFalse(m_endeffector.EffectorOut()
+                   .DeadlineFor(m_elevator.Hold())
+                   .Unless([this] { return m_oi.CancelScoreTrigger.Get(); }));
+
+  // When not holding the prePlace button, go to collapsed position
+  m_elevator.SetDefaultCommand(m_elevator.GoToLevel(Elevator::INTAKE));
+
+  // Driver Auto Score
+  /* Example of how to use CustomSwerveCommand to align in arbitrary ways.
+     This code makes it so the robot aligns its angle to the nearest coral
+     station pose once the driver has held the trigger for half a second */
+  m_oi.IntakeTrigger.Debounce(0.5_s).WhileTrue(m_swerve.CustomSwerveCommand(
+      [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
+      [this] {
+        return ReefAssist::GetNearestCoralStationPose(m_swerve.GetPose())
+            .Rotation()
+            .Radians();
+      }));
+  m_oi.IntakeTrigger.OnTrue(m_superStructure.Intake());
+
+  /* Tested in sim. Auto-Aligns robot to nearest branch
+   * Test with caution on real robot.
+   * If it seems to be consistent, you can tune the ReefAssist values to make
+   * it accurate. You can also make 2 separate binds for LEFT/RIGHT if thats
+   * easier for drivers.
+   *
+   * FusePose() runs here to get the latest correction from OPi.
+   * Ideally this would run all the time (like it used to), but since its
+   * unstable and untested, I've isolated it to a command so we only use its
+   * values when we actually are trying to align to something.
+   * --E
+   */
+  //   m_oi.ElevatorPrePlaceTrigger.WhileTrue(AutoBuilder::LineUp(
+  //       AutoBuilder::Direction::RIGHT, m_swerve, m_superStructure));
+  // frc2::Trigger SavePosTrigger(
+  //     [this]() -> bool { return m_superStructure.IsBranchInReach(); });
+
+  m_oi.AutoScoreTrigger.WhileTrue(frc2::cmd::Either(
+      frc2::cmd::Sequence(
+          m_swerve.CustomSwerveCommand(0_mps, 0_mps, 0_rad_per_s),
+          m_endeffector.EffectorOut()),
+      frc2::cmd::None(), [this]() -> bool {
+        return frc::SmartDashboard::GetBoolean("BranchInReach?", false) &&
+               frc::SmartDashboard::GetString("Elevator/Target Level", "L1") ==
+                   "L4";
+      }));
+
+  // SavePosTrigger.OnTrue([this] { reefPose = m_swerve.GetPose(); });
+  // Climb
+  m_oi.ClimbTimedExtendTrigger.OnTrue(m_climb.ExtendClimb());
+  m_oi.ClimbTimedRetractTrigger.OnTrue(m_climb.RetractClimb());
+
+  // MANUAL OVERRIDES
   // Test Commands for Elevator
-  m_oi.ElevatorUpTrigger.WhileTrue(m_superStructure.m_elevator.MoveUp());
-  m_oi.ElevatorDownTrigger.WhileTrue(m_superStructure.m_elevator.MoveDown());
+  m_oi.ElevatorUpTrigger.WhileTrue(m_elevator.MoveUp());
+  m_oi.ElevatorDownTrigger.WhileTrue(m_elevator.MoveDown());
+  (m_oi.ElevatorDownTrigger || m_oi.ElevatorUpTrigger)
+      .OnFalse(m_elevator.Hold());
+
+  m_oi.L1Manual.WhileTrue(
+      m_elevator.GoToLevel(Elevator::L1).AndThen(m_elevator.Hold()));
+  m_oi.L2Manual.WhileTrue(
+      m_elevator.GoToLevel(Elevator::L2).AndThen(m_elevator.Hold()));
+  m_oi.L3Manual.WhileTrue(
+      m_elevator.GoToLevel(Elevator::L3).AndThen(m_elevator.Hold()));
+  m_oi.L4Manual.WhileTrue(
+      m_elevator.GoToLevel(Elevator::L4).AndThen(m_elevator.Hold()));
 
   // End Effector
   m_oi.EndEffectorInTrigger.WhileTrue(m_endeffector.MotorBackwardCommand());
   m_oi.EndEffectorOutTrigger.WhileTrue(m_endeffector.MotorForwardCommand());
-
-  // Driver Auto Score
-  m_oi.IntakeTrigger.OnTrue(m_superStructure.Intake());
-  m_oi.ScoreTrigger.OnTrue(m_superStructure.Score());
-
-  // Climb
-  m_oi.ClimbTimedExtendTrigger.OnTrue(
-      m_climb.ExtendClimb().AlongWith(frc2::cmd::Print("Extending Climb")));
-  m_oi.ClimbTimedRetractTrigger.OnTrue(
-      m_climb.RetractClimb().AlongWith(frc2::cmd::Print("Extending Climb")));
 
   m_oi.ClimbUpTrigger.OnTrue(m_climb.ExtendClimb());
   m_oi.ClimbDownTrigger.OnTrue(m_climb.RetractClimb());
@@ -172,8 +249,17 @@ void RobotContainer::ConfigureBindings() {
   //           []() { TEMP_COMP_VARIABLES::s_climkExtended = true; })));
 
   // Rumble
-  frc2::Trigger RumbleTrigger(
-      [this]() -> bool { return m_endeffector.HasCoral(); });
+  frc2::Trigger RumbleTrigger([this]() -> bool {
+    return (m_endeffector.IsOuterBreakBeamBroken() &&
+            m_endeffector.IsInnerBreakBeamBroken()) ||
+           frc::SmartDashboard::GetBoolean("Climb/cage intaked?", false) ||
+           (m_superStructure.IsBranchInReach() &&
+            frc::SmartDashboard::GetString("Elevator/Target Level", "L1") ==
+                "L4") ||
+           (m_superStructure.IsBranchInReachL23() &&
+            frc::SmartDashboard::GetString("Elevator/Target Level", "Intake") !=
+                "Intake");
+  });
   RumbleTrigger.OnTrue(m_oi.RumbleController(0.25_s, 1));
 
   frc2::Trigger RumbleScore([this]() -> bool {
@@ -184,6 +270,12 @@ void RobotContainer::ConfigureBindings() {
 
 void RobotContainer::ConfigureDashboard() {
   frc::SmartDashboard::PutData("Drivebase", &m_swerve);
+
+  frc2::CommandScheduler::GetInstance().Schedule(
+      frc2::cmd::Run([this] {
+        frc::SmartDashboard::PutNumber("Target Height", m_oi.target_level());
+      }).IgnoringDisable(true));
+
   // auto pose = m_swerve.GetPose();
   m_swerve.GetField()
       .GetObject("Blue Reef")
@@ -240,13 +332,19 @@ void RobotContainer::ConfigureDashboard() {
 }
 
 void RobotContainer::ConfigureAuto() {
+
   threel4auto =
       AutoBuilder::ThreeL4Auto(m_swerve, m_superStructure, m_updateIsRed);
+  threel4autoprocessor = AutoBuilder::ThreeL4AutoProcessor(
+      m_swerve, m_superStructure, m_updateIsRed);
   onel4startmidauto =
       AutoBuilder::OneL4StartMidAuto(m_swerve, m_superStructure, m_updateIsRed);
 
   m_chooser.SetDefaultOption("Default Auto: Line-Up with wall and score 3 L4",
                              threel4auto.get());
+  m_chooser.AddOption("Line Up with Processor wall and score 3 L4",
+                      threel4autoprocessor.get());
+  //   m_chooser.AddOption("just drive", drivethingy.get());
   m_chooser.AddOption("One L4 From Middle", onel4startmidauto.get());
 }
 
@@ -270,10 +368,8 @@ void RobotContainer::ConfigureContinuous() {
    * any races there.
    */
   // ROS to swerve
-  //   frc2::CommandScheduler::GetInstance().Schedule(frc2::cmd::Run([this] {
-  //                                                    m_swerve.SetMapToOdom(
-  //                                                        m_ros.GetMapToOdom());
-  //                                                  }).IgnoringDisable(true));
+  // Commented out until we really trust it
+  frc2::CommandScheduler::GetInstance().Schedule(FusePose());
 
   if constexpr (frc::RobotBase::IsSimulation()) {
     frc2::CommandScheduler::GetInstance().Schedule(
@@ -283,9 +379,30 @@ void RobotContainer::ConfigureContinuous() {
   }
 }
 
-frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
+frc2::CommandPtr RobotContainer::FusePose() {
+  return frc2::cmd::Run([this] {
+           if (const auto transform = m_ros.GetMapToOdom();
+               transform.has_value()) {
+             frc::SmartDashboard::PutNumber("FusePoseTransform/X",
+                                            transform.value().X().value());
+             frc::SmartDashboard::PutNumber("FusePoseTransform/Y",
+                                            transform.value().Y().value());
+             if (!(transform.value().X() <= 0.20_m ||
+                   transform.value().Y() == 0.20_m))
+               m_swerve.SetMapToOdom(transform.value());
+           }
+         })
+      .IgnoringDisable(true);
+}
 
-  return AutoBuilder::ThreeL4Auto(m_swerve, m_superStructure, m_updateIsRed);
+frc2::Command *RobotContainer::GetAutonomousCommand() {
+  //   auto k =
+  //       choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("StartBargeToReef");
+  //   drivethingy = k.has_value()
+  //                     ? m_swerve.FollowPathCommand(k.value(),
+  //                     m_updateIsRed()) : frc2::cmd::None();
+  //   return std::move(drivethingy);
+  return m_chooser.GetSelected();
 }
 
 frc2::CommandPtr RobotContainer::GetDisabledCommand() {

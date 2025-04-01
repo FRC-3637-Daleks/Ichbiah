@@ -15,41 +15,41 @@ ROSBridge::ROSBridge() {
   m_ntInst.StartClient4("RosDrivetrain");
 
   m_pubOdomTimestamp =
-    m_ntInst.GetIntegerTopic("/Drivetrain/nt2ros/odom/timestamp").Publish();
+      m_ntInst.GetIntegerTopic("/Drivetrain/nt2ros/odom/timestamp").Publish();
   m_pubOdomPosLinear =
-    m_ntInst.GetDoubleArrayTopic("/Drivetrain/nt2ros/odom/position/linear")
-            .Publish();
+      m_ntInst.GetDoubleArrayTopic("/Drivetrain/nt2ros/odom/position/linear")
+          .Publish();
   m_pubOdomPosAngular =
-    m_ntInst.GetDoubleArrayTopic("/Drivetrain/nt2ros/odom/position/angular")
-            .Publish();
+      m_ntInst.GetDoubleArrayTopic("/Drivetrain/nt2ros/odom/position/angular")
+          .Publish();
   m_pubOdomVelLinear =
-    m_ntInst.GetDoubleArrayTopic("/Drivetrain/nt2ros/odom/velocity/linear")
-            .Publish();
+      m_ntInst.GetDoubleArrayTopic("/Drivetrain/nt2ros/odom/velocity/linear")
+          .Publish();
   m_pubOdomVelAngular =
-    m_ntInst.GetDoubleArrayTopic("/Drivetrain/nt2ros/odom/velocity/angular")
-            .Publish();
+      m_ntInst.GetDoubleArrayTopic("/Drivetrain/nt2ros/odom/velocity/angular")
+          .Publish();
   m_pubOdomAccLinear =
-    m_ntInst.GetDoubleArrayTopic("/Drivetrain/nt2ros/odom/acceleration/linear")
-            .Publish();
+      m_ntInst
+          .GetDoubleArrayTopic("/Drivetrain/nt2ros/odom/acceleration/linear")
+          .Publish();
 
   m_subMapToOdomLinear =
-    m_ntInst.GetDoubleArrayTopic("/Drivetrain/ros2nt/map2odom/linear")
-            .Subscribe(wpi::array{0., 0., 0.});
+      m_ntInst.GetDoubleArrayTopic("/Drivetrain/ros2nt/map2odom/linear")
+          .Subscribe(wpi::array{0., 0., 0.});
   m_subMapToOdomAngular =
-    m_ntInst.GetDoubleArrayTopic("/Drivetrain/ros2nt/map2odom/angular")
-            .Subscribe(wpi::array{0., 0., 0.});
-  
-  m_pubSimTimestamp =
-    m_ntInst.GetIntegerTopic("/Drivetrain/nt2ros/sim/timestamp")
-            .Publish();
+      m_ntInst.GetDoubleArrayTopic("/Drivetrain/ros2nt/map2odom/angular")
+          .Subscribe(wpi::array{0., 0., 0.});
 
-  m_pubSimPosLinear = 
-    m_ntInst.GetDoubleArrayTopic("/Drivetrain/nt2ros/sim/position/linear")
-            .Publish();
-  
+  m_pubSimTimestamp =
+      m_ntInst.GetIntegerTopic("/Drivetrain/nt2ros/sim/timestamp").Publish();
+
+  m_pubSimPosLinear =
+      m_ntInst.GetDoubleArrayTopic("/Drivetrain/nt2ros/sim/position/linear")
+          .Publish();
+
   m_pubSimPosAngular =
-    m_ntInst.GetDoubleArrayTopic("/Drivetrain/nt2ros/sim/position/angular")
-            .Publish();
+      m_ntInst.GetDoubleArrayTopic("/Drivetrain/nt2ros/sim/position/angular")
+          .Publish();
 
   m_fmsTable = m_ntInst.GetTable("FMSInfo");
 }
@@ -58,24 +58,28 @@ void ROSBridge::CheckFMS() {
   using DS = frc::DriverStation;
   m_fmsTable->PutString("EventName", DS::GetEventName());
   m_fmsTable->PutString("GameSpecificMessage", DS::GetGameSpecificMessage());
-  m_fmsTable->PutNumber("StationNumber", DS::GetLocation().value_or(0));
-  m_fmsTable->PutNumber("MatchType", DS::GetMatchType());
-  m_fmsTable->PutNumber("MatchNumber", DS::GetMatchNumber());
-  m_fmsTable->PutNumber("ReplayNumber", DS::GetReplayNumber());
-  
+
+  // This is the worst formatting I've ever seen and I can't fix it
+  m_fmsTable->PutValue("StationNumber", nt::NetworkTableValue::MakeInteger(
+                                            DS::GetLocation().value_or(0)));
+  m_fmsTable->PutValue("MatchType",
+                       nt::NetworkTableValue::MakeInteger(DS::GetMatchType()));
+  m_fmsTable->PutValue(
+      "MatchNumber", nt::NetworkTableValue::MakeInteger(DS::GetMatchNumber()));
+  m_fmsTable->PutValue("ReplayNumber", nt::NetworkTableValue::MakeInteger(
+                                           DS::GetReplayNumber()));
+
   HAL_ControlWord fms_state;
   HAL_GetControlWord(&fms_state);
   m_fmsTable->PutValue(
-    "FMSControlData",
-    nt::NetworkTableValue::MakeInteger(std::bit_cast<int32_t>(fms_state))
-  );
-  
+      "FMSControlData",
+      nt::NetworkTableValue::MakeInteger(std::bit_cast<int32_t>(fms_state)));
+
   m_fmsTable->PutBoolean("IsRedAlliance",
                          DS::GetAlliance() == DS::Alliance::kRed);
 }
 
-void ROSBridge::PubOdom(const frc::Pose2d &pose,
-                        const frc::ChassisSpeeds &vel,
+void ROSBridge::PubOdom(const frc::Pose2d &pose, const frc::ChassisSpeeds &vel,
                         const units::second_t timestamp) {
   auto current_time_micros = units::microsecond_t{timestamp}.value();
   m_pubOdomTimestamp.Set(current_time_micros, current_time_micros);
@@ -113,12 +117,15 @@ void ROSBridge::PubSim(const frc::Pose2d &pose) {
   m_ntInst.Flush();
 }
 
-frc::Transform2d ROSBridge::GetMapToOdom() {
+std::optional<frc::Transform2d> ROSBridge::GetMapToOdom() {
+  if (!m_subMapToOdomAngular.Exists() || !m_subMapToOdomLinear.Exists())
+    return std::nullopt;
+
   // disgusting allocations, can be optimized
   auto orientation = m_subMapToOdomAngular.Get();
   auto offset = m_subMapToOdomLinear.Get();
-  if (orientation.size() < 3) orientation = {0., 0., 0.};
-  if (offset.size() < 3) offset = {0., 0., 0.};
+  if (orientation.size() < 3 || offset.size() < 3)
+    return std::nullopt;
 
   const units::meter_t x{offset[0]};
   const units::meter_t y{offset[1]};

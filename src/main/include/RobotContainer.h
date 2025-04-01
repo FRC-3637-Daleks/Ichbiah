@@ -29,6 +29,7 @@
 #include "subsystems/ROSBridge.h"
 #include "subsystems/ReefAssist.h"
 #include "subsystems/SuperStructure.h"
+#include "subsystems/Vision.h"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -42,7 +43,7 @@ public:
   RobotContainer();
 
   frc2::CommandPtr GetDisabledCommand();
-  frc2::CommandPtr GetAutonomousCommand();
+  frc2::Command *GetAutonomousCommand();
 
 public:
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -64,7 +65,10 @@ public:
   Climb m_climb;
   LEDSubsystem m_ledSubsystem;
 
+  Vision m_vision;
+
   bool m_isRed;
+  frc::Pose2d reefPose;
 
   std::function<bool()> m_updateIsRed = [this]() -> bool {
     return frc::DriverStation::GetAlliance() ==
@@ -75,13 +79,21 @@ public:
   frc::SendableChooser<frc2::Command *> m_chooser;
 
   frc2::CommandPtr threel4auto{frc2::cmd::None()};
+  frc2::CommandPtr threel4autoprocessor{frc2::cmd::None()};
   frc2::CommandPtr onel4startmidauto{frc2::cmd::None()};
+  frc2::CommandPtr drivethingy{frc2::cmd::None()};
 
 public:
   void ConfigureBindings();
   void ConfigureDashboard();
   void ConfigureAuto();
   void ConfigureContinuous();
+
+  // Command which fuses in the best guess for the robot pose from sensors
+  // Can run while disabled, at the start of auton, when aligning to the reef,
+  // or always Making it its own command gives programmers finer control over
+  // when the pose estimate is taken over.
+  frc2::CommandPtr FusePose();
 
 public:
   bool IsRed();

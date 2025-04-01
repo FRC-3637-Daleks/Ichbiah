@@ -20,7 +20,7 @@ constexpr auto kDistancePerChainLink = 0.25_in; // 25H "pitch" value
 constexpr auto kSprocketCircum = kSprocketTeeth * kDistancePerChainLink;
 constexpr auto kGearReduction = 62.0 / 10.0 * 30.0 / 22.0; // Exact gears used
 // End-Effector heights measured to tip of the V plate from floor
-constexpr auto kMinHeight = 8.5_in;
+constexpr auto kMinHeight = 9.5_in - 1.5_in;
 constexpr auto kMaxHeight = 89.5_in;
 constexpr auto kFirstStageLength =
     (kMaxHeight - kMinHeight) / 3; // extension length of stage 1
@@ -32,14 +32,15 @@ constexpr auto kMassEffective = 21.0_kg;
 
 // Level Heights
 constexpr units::length::centimeter_t kL1 = 2_ft + 2_in;
-constexpr units::length::centimeter_t kL2 = 2_ft + 7.875_in - 2.5_in;
-constexpr units::length::centimeter_t kL3 = 3_ft + 11.625_in - 2.5_in;
-constexpr units::length::centimeter_t kL4 = 6_ft - 2.5_in;
+constexpr units::length::centimeter_t kL2 = 2_ft + 7.875_in + 2_in;
+constexpr units::length::centimeter_t kL3 = 3_ft + 11.625_in;
+constexpr units::length::centimeter_t kL4 = 6_ft;
 constexpr units::length::centimeter_t kTolerance = 1_in;
 
-// Index 0 is intake height
-constexpr units::length::centimeter_t goal_heights[] = {kMinHeight, kL1, kL2,
-                                                        kL3, kL4};
+// Index 0 is intake height. subtract an inch so that it tries to reach the
+// limit
+constexpr units::length::centimeter_t goal_heights[] = {kMinHeight - 0.5_in,
+                                                        kL1, kL2, kL3, kL4};
 constexpr std::string_view goal_names[] = {"INTAKE", "L1", "L2", "L3", "L4"};
 
 // Measured from top, few inches off
@@ -119,7 +120,9 @@ Elevator::Elevator()
           configs::SoftwareLimitSwitchConfigs{}
               .WithForwardSoftLimitEnable(true)
               .WithForwardSoftLimitThreshold(
-                  lengthToRotorTurns(ElevatorConstants::softLimit)));
+                  lengthToRotorTurns(ElevatorConstants::softLimit))
+              .WithReverseSoftLimitEnable(true)
+              .WithReverseSoftLimitThreshold(0.0_tr));
   m_ElevatorConfig.WithMotorOutput(
       configs::MotorOutputConfigs{}
           .WithNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake)
@@ -212,6 +215,13 @@ bool Elevator::IsAtLevel(Elevator::Level level) {
 
 bool Elevator::isAtBottom() { return !(m_reverseLimit.Get()); };
 
+bool Elevator::shouldHome() {
+  // Only home when not moving up
+  // This helps an issue where the latency between the rio and the Talon
+  // results in it homing after its moved an inch past the sensor
+  return isAtBottom() && m_leadMotor.GetVelocity().GetValue() <= 0.01_rpm;
+}
+
 bool Elevator::isAtTop() {
 #ifdef ELEVATOR_TOP_LIMIT_SWITCH
   return m_forwardLimit.Get();
@@ -233,7 +243,7 @@ void Elevator::SetGoalHeight(const units::centimeter_t length) {
 
   auto request = ctre::phoenix6::controls::MotionMagicVoltage{0_tr}.WithSlot(0);
   m_leadMotor.SetControl(request.WithPosition(lengthToRotorTurns(length))
-                             .WithLimitReverseMotion(isAtBottom())
+                             .WithLimitReverseMotion(shouldHome())
 #ifdef ELEVATOR_TOP_LIMIT_SWITCH
                              .WithLimitForwardMotion(isAtTop())
 #endif
@@ -250,7 +260,7 @@ void Elevator::SetGoalHeight(Elevator::Level level) {
 void Elevator::MotorMoveUp() {
   auto request = ctre::phoenix6::controls::VoltageOut{3_V};
   m_leadMotor.SetControl(request
-                             .WithLimitReverseMotion(isAtBottom())
+                             .WithLimitReverseMotion(shouldHome())
 #ifdef ELEVATOR_TOP_LIMIT_SWITCH
                              .WithLimitForwardMotion(isAtTop())
 #endif
@@ -260,7 +270,7 @@ void Elevator::MotorMoveUp() {
 void Elevator::MotorMoveDown() {
   auto request = ctre::phoenix6::controls::VoltageOut{-1.5_V};
   m_leadMotor.SetControl(request
-                             .WithLimitReverseMotion(isAtBottom())
+                             .WithLimitReverseMotion(shouldHome())
 #ifdef ELEVATOR_TOP_LIMIT_SWITCH
                              .WithLimitForwardMotion(isAtTop())
 #endif
@@ -270,7 +280,7 @@ void Elevator::MotorMoveDown() {
 void Elevator::MotorStop() {
   auto request = ctre::phoenix6::controls::VoltageOut{ElevatorConstants::kG};
   m_leadMotor.SetControl(request
-                             .WithLimitReverseMotion(isAtBottom())
+                             .WithLimitReverseMotion(shouldHome())
 #ifdef ELEVATOR_TOP_LIMIT_SWITCH
                              .WithLimitForwardMotion(isAtTop())
 #endif
@@ -285,9 +295,15 @@ frc2::CommandPtr Elevator::MoveDown() {
   return RunEnd([this] { MotorMoveDown(); }, [this] { MotorStop(); });
 }
 
-// frc2::CommandPtr Elevator::HomeEncoder() {
-//     return MoveDown().Until([this] {return isAtBottom();});
-// }
+frc2::CommandPtr Elevator::Hold() {
+  return Run([this] { MotorStop(); });
+}
+
+frc2::CommandPtr Elevator::HomeEncoder() {
+  return frc2::cmd::Either(frc2::cmd::None(),
+                           MoveDown().Until([this] { return isAtBottom(); }),
+                           [this] { return isAtBottom(); });
+}
 
 frc2::CommandPtr Elevator::GoToLevel(Level goal) {
   return Run([this, goal] { SetGoalHeight(goal); }).Until([this, goal] {

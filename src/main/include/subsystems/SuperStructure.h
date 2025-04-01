@@ -2,8 +2,11 @@
 
 #include "subsystems/Elevator.h"
 #include "subsystems/EndEffector.h"
+
 #include <frc2/command/ConditionalCommand.h>
 #include <frc2/command/SubsystemBase.h>
+
+#include <grpl/LaserCan.h>
 
 // Forward Declaration
 class SuperStructureSim;
@@ -21,13 +24,18 @@ public:
   Elevator &m_elevator;
   EndEffector &m_endeffector;
 
-  bool baseAtPos;
   frc2::CommandPtr prePlace(Elevator::Level level);
   frc2::CommandPtr Intake();
-  frc2::CommandPtr Score();
+  frc2::CommandPtr Score(Elevator::Level level);
+
+  units::millimeter_t GetLaserCANMeasurement();
+  bool IsBranchInReach();
+  bool IsBranchInReachL23();
 
 private:
   friend class SuperStructureSim;
   std::unique_ptr<SuperStructureSim> m_sim_state;
   void SimulationPeriodic() override;
+
+  grpl::LaserCan m_laser;
 };

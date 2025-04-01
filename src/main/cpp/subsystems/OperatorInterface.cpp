@@ -27,7 +27,14 @@ constexpr auto kMaxTeleopTurnSpeed = 2.5 * std::numbers::pi * 1_rad_per_s;
 } // namespace OperatorConstants
 OperatorInterface::OperatorInterface()
     : m_swerveController{OperatorConstants::kSwerveControllerPort},
-      m_copilotController{OperatorConstants::kCopilotControllerPort} {}
+      m_copilotController{OperatorConstants::kCopilotControllerPort},
+      m_target_level{Elevator::L4} {
+
+  L1TargetTrigger.OnTrue(SetTargetLevelCommand(Elevator::L1));
+  L2TargetTrigger.OnTrue(SetTargetLevelCommand(Elevator::L2));
+  L3TargetTrigger.OnTrue(SetTargetLevelCommand(Elevator::L3));
+  L4TargetTrigger.OnTrue(SetTargetLevelCommand(Elevator::L4));
+}
 
 double OperatorInterface::throttle() {
   double input = m_swerveController.GetHID().GetRightTriggerAxis();
@@ -88,4 +95,9 @@ frc2::CommandPtr OperatorInterface::RumbleController(units::second_t time,
         m_swerveController.SetRumble(frc::GenericHID::RumbleType::kBothRumble,
                                      0);
       });
+}
+
+frc2::CommandPtr
+OperatorInterface::SetTargetLevelCommand(Elevator::Level level) {
+  return frc2::cmd::RunOnce([this, level] { m_target_level = level; });
 }

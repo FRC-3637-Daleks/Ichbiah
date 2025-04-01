@@ -125,6 +125,10 @@ public:
 
   frc::Pose2d GetSimulatedGroundTruth();
 
+  // Add Vision Pose to SwerveDrivePoseEstimator.
+  void AddVisionPoseEstimate(frc::Pose2d pose, units::second_t timestamp,
+                             wpi::array<double, 3U> visionMeasurementStdDevs);
+
   // Returns Current Chassis Speed
   frc::ChassisSpeeds GetChassisSpeed();
 
@@ -150,6 +154,10 @@ public:
   // Drive the robot with field-relative swerve controls.
   frc2::CommandPtr BasicSwerveCommand(chassis_speed_supplier_t cmd_vel);
 
+  frc2::CommandPtr Stop() {
+    return BasicSwerveCommand([] { return frc::ChassisSpeeds{}; });
+  }
+
   frc2::CommandPtr DynamicOdomReset();
 
   // Drives the robot to 'desiredPose()' with feedforward 'endVele);o'
@@ -157,7 +165,7 @@ public:
   frc2::CommandPtr
   DriveToPoseCommand(pose_supplier_t desiredPoseSupplier,
                      frc::ChassisSpeeds feedForward = {0_mps, 0_mps, 0_rpm},
-                     const frc::Pose2d &tolerance = {0.06_m, 0.06_m, 3_deg}) {
+                     const frc::Pose2d &tolerance = {0.02_m, 0.02_m, 1.5_deg}) {
     return this
         ->RunEnd(
             [=, this] {
@@ -166,6 +174,11 @@ public:
             [this] {
               m_field.GetObject("Desired Pose")->SetPose({80_m, 80_m, 0_deg});
             })
+        .BeforeStarting([this] {
+          // Without this, it will rotate towards a previous setpoint
+          m_holonomicController.GetThetaController().Reset(
+              GetHeading().Radians());
+        })
         .Until([=, this] {
           return AtPose(desiredPoseSupplier(), tolerance) && IsStopped();
         });
@@ -215,7 +228,7 @@ public:
 
   frc2::CommandPtr
   FollowPathCommand(choreo::Trajectory<choreo::SwerveSample> trajectory,
-                    bool isRed);
+                    std::function<bool()> isRed);
 
   /* Constructs a swerve control command from 3 independent controls
    * Each 'cmd' can be one of the following:
@@ -406,25 +419,22 @@ private:
   auto x_speed(LinearPositionSupplier auto &&position) {
     return [this, position = std::forward<decltype(position)>(position)] {
       return units::meters_per_second_t{
-          m_holonomicController.getXController().Calculate(
-              units::meter_t{GetPose().X()}.value(),
-              std::forward<decltype(position)>(position)().value())};
+          m_holonomicController.GetXController().Calculate(
+              units::meter_t{GetPose().X()}.value(), position().value())};
     };
   }
   auto y_speed(LinearPositionSupplier auto &&position) {
     return [this, position = std::forward<decltype(position)>(position)] {
       return units::meters_per_second_t{
-          m_holonomicController.getYController().Calculate(
-              units::meter_t{GetPose().Y()}.value(),
-              std::forward<decltype(position)>(position)().value())};
+          m_holonomicController.GetYController().Calculate(
+              units::meter_t{GetPose().Y()}.value(), position().value())};
     };
   }
   auto theta_speed(RotationSupplier auto &&heading) {
     return [this, heading = std::forward<decltype(heading)>(heading)] {
       return units::radians_per_second_t{
-          m_holonomicController.getThetaController().Calculate(
-              GetPose().Rotation().Radians(),
-              std::forward<decltype(heading)>(heading)())};
+          m_holonomicController.GetThetaController().Calculate(
+              GetPose().Rotation().Radians(), heading())};
     };
   }
 

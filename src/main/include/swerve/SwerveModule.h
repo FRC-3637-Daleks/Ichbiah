@@ -16,17 +16,16 @@
 namespace KrakenModuleConstants {
 
 // website value
-constexpr auto kPhysicalMaxSpeed = 18.9_fps;
+constexpr auto kPhysicalMaxSpeed = 12.9_fps;
 
-}
+} // namespace KrakenModuleConstants
 
 namespace PracticeModuleConstants {
 
 // Values measured with the drivetrain suspended.
 constexpr auto kPhysicalMaxSpeed = 15.7_fps;
 
-}
-
+} // namespace PracticeModuleConstants
 
 // forward declaration
 class SwerveModuleSim;
@@ -40,7 +39,7 @@ class SwerveModuleSim;
  * its wheel will be driven at the specified velocity in the specified
  * direction. The Drivetrain subsystem makes use of SwerveModule objects so that
  * it doesn't need to deal with directly commanding each motor.
- * 
+ *
  */
 class SwerveModule {
 public:
@@ -50,10 +49,10 @@ public:
    * copied to maintain multiple thread-safe views into the module state.
    */
   struct SignalGroup {
-    using position_signal_t = ctre::phoenix6::StatusSignal<
-      units::angle::turn_t>;
+    using position_signal_t =
+        ctre::phoenix6::StatusSignal<units::angle::turn_t>;
     using velocity_signal_t = ctre::phoenix6::StatusSignal<
-      units::angular_velocity::turns_per_second_t>;
+        units::angular_velocity::turns_per_second_t>;
 
     position_signal_t m_drivePosition;
     velocity_signal_t m_driveVelocity;
@@ -90,27 +89,32 @@ public:
     template <std::same_as<SignalGroup>... T>
     static bool WaitForAllSignals(units::time::second_t timeout, T &...groups) {
       return ctre::phoenix6::BaseStatusSignal::WaitForAll(
-        timeout,
-        groups.m_drivePosition..., groups.m_driveVelocity...,
-        groups.m_steerPosition..., groups.m_steerVelocity...
-      ) != ctre::phoenix::StatusCode::OK;
+                 timeout, groups.m_drivePosition..., groups.m_driveVelocity...,
+                 groups.m_steerPosition...,
+                 groups.m_steerVelocity...) != ctre::phoenix::StatusCode::OK;
     }
 
     template <auto N>
     static void RefreshAllSignals(std::array<SignalGroup, N> &groups) {
-      std::apply([](auto&& ...gs) {
-          RefreshAllSignals(std::forward<decltype(gs)>(gs)...);
-        }, groups);
+      std::apply(
+          [](auto &&...gs) {
+            RefreshAllSignals(std::forward<decltype(gs)>(gs)...);
+          },
+          groups);
     }
 
     template <auto N>
-    static bool WaitForAllSignals(
-      units::time::second_t timeout,std::array<SignalGroup, N> &groups) {
-      return std::apply([timeout](auto&& ...gs) {
-          return WaitForAllSignals(timeout, std::forward<decltype(gs)>(gs)...);
-        }, groups);
+    static bool WaitForAllSignals(units::time::second_t timeout,
+                                  std::array<SignalGroup, N> &groups) {
+      return std::apply(
+          [timeout](auto &&...gs) {
+            return WaitForAllSignals(timeout,
+                                     std::forward<decltype(gs)>(gs)...);
+          },
+          groups);
     }
   };
+
 public:
   // The ctor of the SwerveModule class.
   SwerveModule(const std::string name, const int driveMotorId,
@@ -123,7 +127,7 @@ public:
   // Getters will not return different values until signals are refreshed again
   void RefreshSignals();
 
-  SignalGroup GetSignals() {return m_signals;}
+  SignalGroup GetSignals() { return m_signals; }
 
   // This one is even more efficient than RefreshSignals as it groups ALL
   // swerve module signals into a single call
@@ -133,15 +137,15 @@ public:
   }
   template <auto N>
   static void RefreshAllSignals(std::array<SwerveModule, N> &modules) {
-    std::apply([](auto&& ...ms) {
-        RefreshAllSignals(std::forward<decltype(ms)>(ms)...);
-      }, modules);
+    std::apply(
+        [](auto &&...ms) {
+          RefreshAllSignals(std::forward<decltype(ms)>(ms)...);
+        },
+        modules);
   }
 
   // Returns the meters driven based on encoder reading.
-  units::meter_t GetModuleDistance() {
-    return m_signals.GetModuleDistance();
-  }
+  units::meter_t GetModuleDistance() { return m_signals.GetModuleDistance(); }
 
   // Returns the velocity of the module in m/s.
   units::meters_per_second_t GetModuleVelocity() {
@@ -149,21 +153,15 @@ public:
   }
 
   // Returns the module heading in the scope [-180,180] degrees.
-  frc::Rotation2d GetModuleHeading() {
-    return m_signals.GetModuleHeading();
-  }
+  frc::Rotation2d GetModuleHeading() { return m_signals.GetModuleHeading(); }
 
   // Combines GetModuleDistance() and GetModuleHeading().
-  frc::SwerveModulePosition GetPosition() {
-    return m_signals.GetPosition();
-  }
+  frc::SwerveModulePosition GetPosition() { return m_signals.GetPosition(); }
 
   // Combines GetModuleVelocity() and GetModuleHeading().
-  frc::SwerveModuleState GetState() {
-    return m_signals.GetState();
-  }
+  frc::SwerveModuleState GetState() { return m_signals.GetState(); }
 
-  const std::string& GetName() {return m_name;}
+  const std::string &GetName() { return m_name; }
 
   void CoastMode(bool coast);
 

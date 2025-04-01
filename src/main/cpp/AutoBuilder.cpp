@@ -1,5 +1,4 @@
 // #include "AutoBuilder.h"
-
 // #include "PathFollower.h"
 // #include "subsystems/Drivetrain.h"
 // #include "subsystems/SuperStructure.h"
@@ -7,7 +6,8 @@
 // #include <choreo/Choreo.h>
 
 // inline frc2::CommandPtr AutoBuilder::ThreeL4Auto(Drivetrain &swerve,
-//                                           SuperStructure &superstructure) {
+//                                           SuperStructure &superstructure)
+//                                           {
 //   auto IntakeToReefClose =
 //       choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("IntakeToReefClose");
 //   auto IntakeToReefClose2 =

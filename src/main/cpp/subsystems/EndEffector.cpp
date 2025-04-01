@@ -24,8 +24,14 @@ constexpr int kMotorID = 2;
 constexpr int kInnerBreakBeamID = 1;
 constexpr int kOuterBreakBeamID = 2;
 
+constexpr auto kMaxVoltage = 10_V;
+constexpr double kIntakePct = 0.15;
+constexpr double kIndexPct = 0.06;
+constexpr double kEjectPct = 0.2;
+constexpr double kEjectL1Pct = 0.75;
+
 // Sensor is low when the beam is obstructed
-constexpr bool kBeamBroken = false;
+constexpr bool kBeamBroken = true;
 
 constexpr auto kRollerMass = 0.25_lb; // just need ballpark numbers
 constexpr auto kCoralMass = 1_lb;     // sure toss this into the mix "realism"
@@ -50,7 +56,6 @@ public:
   frc::DCMotor m_motor;
   rev::spark::SparkFlexSim m_motor_sim;
   frc::sim::FlywheelSim m_ee_model;
-  // frc::sim::DIOSim m_fwd_bb_sim, m_back_bb_sim;
   rev::spark::SparkLimitSwitchSim m_fwd_bb_sim, m_back_bb_sim;
 
   units::inch_t m_coral_pos;
@@ -58,12 +63,10 @@ public:
 };
 
 EndEffector::EndEffector()
-    : // m_InnerBreakBeam{EndEffectorConstants::kInnerBreakBeamID},
-      // m_OuterBreakBeam(EndEffectorConstants::kOuterBreakBeamID),
-      m_EndEffectorMotor{EndEffectorConstants::kMotorID,
+    : m_EndEffectorMotor{EndEffectorConstants::kMotorID,
                          rev::spark::SparkFlex::MotorType::kBrushless},
-      m_InnerBreakBeam{m_EndEffectorMotor.GetForwardLimitSwitch()},
-      m_OuterBreakBeam{m_EndEffectorMotor.GetReverseLimitSwitch()},
+      m_InnerBreakBeam{m_EndEffectorMotor.GetReverseLimitSwitch()},
+      m_OuterBreakBeam{m_EndEffectorMotor.GetForwardLimitSwitch()},
       m_sim_state(new EndEffectorSim(*this)) {
 
   rev::spark::SparkBaseConfig config;
@@ -78,13 +81,6 @@ EndEffector::EndEffector()
       rev::spark::SparkBase::PersistMode::kPersistParameters);
 }
 
-/**
- * Note from Visvam:
- *
- * Don't for get to define functions you declare in your header file!
- *
- * You also don't need to add semicolons after function definitions.
- */
 EndEffector::~EndEffector() {}
 
 void EndEffector::Periodic() { UpdateDashboard(); }
@@ -134,8 +130,8 @@ void EndEffector::UpdateVisualization() {
   if (!m_mech_backbeam)
     return;
 
-  bool back = IsOuterBreakBeamBroken();
-  bool front = IsInnerBreakBeamBroken();
+  bool front = IsOuterBreakBeamBroken();
+  bool back = IsInnerBreakBeamBroken();
   double back_length = 0.0, front_length = 0.0;
 
   if (back && front)
@@ -153,53 +149,21 @@ void EndEffector::UpdateVisualization() {
                             m_EndEffectorMotor.GetAppliedOutput() * 200));
 }
 
-void EndEffector::MotorForward() { m_EndEffectorMotor.SetVoltage(1.5_V); }
+void EndEffector::SetSpeed(double speed_pct) {
+  m_EndEffectorMotor.SetVoltage(EndEffectorConstants::kMaxVoltage * speed_pct);
+}
 
-void EndEffector::SlowMotorForward() { m_EndEffectorMotor.SetVoltage(0.5_V); }
-
-void EndEffector::FastMotorForward() { m_EndEffectorMotor.SetVoltage(9_V); }
-
-void EndEffector::MotorBack() { m_EndEffectorMotor.SetVoltage(-3_V); }
-
-void EndEffector::SlowMotorBack() { m_EndEffectorMotor.SetVoltage(-0.5_V); }
-
-void EndEffector::MotorStop() { m_EndEffectorMotor.SetVoltage(0_V); }
+frc2::CommandPtr EndEffector::MotorCommand(double speed_pct) {
+  return RunEnd([this, speed_pct] { SetSpeed(speed_pct); },
+                [this] { MotorStop(); });
+}
 
 frc2::CommandPtr EndEffector::MotorForwardCommand() {
-  return RunEnd([this] { EndEffector::MotorForward(); },
-                [this] { EndEffector::MotorStop(); });
+  return MotorCommand(EndEffectorConstants::kIndexPct);
 }
-
-frc2::CommandPtr EndEffector::SlowMotorForwardCommand() {
-  return RunEnd([this] { EndEffector::SlowMotorForward(); },
-                [this] { EndEffector::MotorStop(); });
-}
-
-frc2::CommandPtr EndEffector::FastMotorForwardCommand() {
-  return RunEnd([this] { EndEffector::FastMotorForward(); },
-                [this] { EndEffector::MotorStop(); });
-}
-
-frc2::CommandPtr EndEffector::WhileIn2(){
-    return RunEnd([this]{ EndEffector::MotorForward2(); },
-                  [this] {EndEffector::MotorStop(); });
-}
-
-/**
- * Note from Visvam:
- *
- * This function was being called without a definition. I wrote this code based
- * on how you wrote WhileIn().
- *
- * Please change it to work how you see fit.
- */
 
 frc2::CommandPtr EndEffector::MotorBackwardCommand() {
-  return RunEnd([this]() { MotorBack(); }, [this]() { MotorStop(); });
-}
-
-frc2::CommandPtr EndEffector::SlowMotorBackwardCommand() {
-  return RunEnd([this]() { SlowMotorBack(); }, [this]() { MotorStop(); });
+  return MotorCommand(-EndEffectorConstants::kIndexPct);
 }
 
 bool EndEffector::IsInnerBreakBeamBroken() { return (m_InnerBreakBeam.Get()); }
@@ -222,30 +186,36 @@ __                  \x|_______
  */
 
 frc2::CommandPtr EndEffector::EffectorIn() {
-  return MotorForwardCommand().Until(
-      [this]() -> bool { return IsInnerBreakBeamBroken(); });
-  // .AlongWith(frc2::cmd::Wait(4_s).AndThen(
-  //     frc2::cmd::RunOnce([this] { SimulateNewCoral(); })));
+  return MotorCommand(EndEffectorConstants::kIntakePct).Until([this]() -> bool {
+    return IsInnerBreakBeamBroken();
+  });
 }
 
 frc2::CommandPtr EndEffector::EffectorContinue() {
-  return SlowMotorForwardCommand().Until(
-      [this]() -> bool { return IsOuterBreakBeamBroken(); });
+  return MotorCommand(EndEffectorConstants::kIndexPct).Until([this]() -> bool {
+    return !IsInnerBreakBeamBroken();
+  });
 }
 
 frc2::CommandPtr EndEffector::EffectorOut() {
-  return MotorForwardCommand().Until([this]() -> bool { return !HasCoral(); });
+  return MotorCommand(EndEffectorConstants::kEjectPct).Until([this]() -> bool {
+    return !HasCoral();
+  });
 }
 
 frc2::CommandPtr EndEffector::EffectorOutToL1() {
-  return FastMotorForwardCommand().Until(
-      [this]() -> bool { return !IsInnerBreakBeamBroken(); });
+  return MotorCommand(EndEffectorConstants::kEjectL1Pct)
+      .Until([this]() -> bool { return !HasCoral(); });
 }
 
 // Assumes one break beam
 frc2::CommandPtr EndEffector::Intake() {
-  return MotorForwardCommand().Until(
-      [this]() -> bool { return IsOuterBreakBeamBroken(); });
+  const auto coral_intaked = [this] { return IsOuterBreakBeamBroken(); };
+  return frc2::cmd::Either(
+      frc2::cmd::None(),
+      EffectorIn().AndThen(
+          MotorCommand(EndEffectorConstants::kIndexPct).Until(coral_intaked)),
+      coral_intaked);
 }
 
 /*****************************SIMULATION******************************/

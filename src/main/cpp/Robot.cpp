@@ -10,7 +10,7 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc2/command/CommandScheduler.h>
 
-void Robot::RobotInit() {}
+void Robot::RobotInit() { m_disabledCommand = m_container.FusePose(); }
 
 void Robot::DriverStationConnected() {}
 
@@ -93,7 +93,15 @@ void Robot::RobotPeriodic() {
  * can use it to reset any subsystem information you want to clear when the
  * robot is disabled.
  */
-void Robot::DisabledInit() {}
+void Robot::DisabledInit() {
+  if (m_disabledCommand)
+    m_disabledCommand->Schedule();
+}
+
+void Robot::DisabledExit() {
+  if (m_disabledCommand)
+    m_disabledCommand->Cancel();
+}
 
 void Robot::DisabledPeriodic() {}
 
@@ -105,7 +113,11 @@ void Robot::AutonomousInit() {
   m_autonomousCommand = m_container.GetAutonomousCommand();
 
   if (m_autonomousCommand.has_value()) {
-    m_autonomousCommand->Schedule();
+    m_autonomousCommand.value()->Schedule();
+  }
+
+  if (IsSimulation()) {
+    m_container.m_endeffector.SimulatePreloadCoral();
   }
 }
 
@@ -114,7 +126,8 @@ void Robot::AutonomousPeriodic() {}
 void Robot::TeleopInit() {}
 
 /**
- * This function is called periodically during operator control.
+ * This function is called periodically
+ *  during operator control.
  */
 void Robot::TeleopPeriodic() {}
 
@@ -140,7 +153,7 @@ void Robot::SimulationPeriodic() {
                                             {field_length, field_width}};
   constexpr frc::Translation2d robot_intake{0_in, 15_in};
 
-  const auto robot_pose = m_container.m_swerve.GetSimulatedGroundTruth();
+  const auto robot_pose = m_container.m_swerve.GetPose();
   const auto intake_pose = robot_pose.TransformBy({robot_intake, 0_deg});
 
   for (const auto corner : corners) {
