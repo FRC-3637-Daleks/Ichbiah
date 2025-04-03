@@ -38,6 +38,8 @@ auto IntakeToReefClose2 =
     choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("IntakeToReefClose2");
 auto ReefCloseToIntake =
     choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("ReefCloseToIntake");
+auto ReefClose2ToIntake =
+    choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("ReefClose2ToIntake");
 auto ReefFarToIntake =
     choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("ReefFarToIntake");
 auto StartBargeToReef =
@@ -111,8 +113,8 @@ inline frc2::CommandPtr AutoScore(Elevator::Level level, Direction direction,
                                   units::second_t timeout = 1.5_s) {
   return frc2::cmd::Sequence(
       superstructure.m_elevator.GoToLevel(level),
-      frc2::cmd::Parallel(superstructure.m_elevator.Hold(),
-                          LineUp(direction, swerve, superstructure))
+      frc2::cmd::Deadline(LineUp(direction, swerve, superstructure),
+                          superstructure.m_elevator.Hold())
           .WithTimeout(timeout),
       superstructure.m_endeffector.EffectorOut());
 }
@@ -157,7 +159,8 @@ frc2::CommandPtr LeftThreeL4Auto(Drivetrain &swerve,
       util::GoToScore(Elevator::Level::L4, IntakeToReefClose2, swerve,
                       superstructure, 5_s),
       util::AutoScore(Elevator::Level::L4, Direction::LEFT, swerve,
-                      superstructure));
+                      superstructure),
+      util::AutoIntake(ReefClose2ToIntake, swerve, superstructure));
 }
 
 frc2::CommandPtr RightThreeL4Auto(Drivetrain &swerve,
