@@ -257,16 +257,20 @@ void RobotContainer::ConfigureBindings() {
 
   // Rumble
   frc2::Trigger RumbleTrigger([this]() -> bool {
-    return (m_endeffector.IsOuterBreakBeamBroken() &&
-            m_endeffector.IsInnerBreakBeamBroken()) ||
-           frc::SmartDashboard::GetBoolean("Climb/cage intaked?", false) ||
-           (m_superStructure.IsBranchInReach() &&
-            frc::SmartDashboard::GetString("Elevator/Target Level", "L1") ==
-                "L4") ||
-           (m_superStructure.IsBranchInReachL23() &&
-            frc::SmartDashboard::GetString("Elevator/Target Level", "Intake") !=
-                "Intake");
+    return
+        // (m_endeffector.IsOuterBreakBeamBroken() &&
+        //         m_endeffector.IsInnerBreakBeamBroken()) ||
+        frc::SmartDashboard::GetBoolean("Climb/cage intaked?", false) ||
+        (m_superStructure.IsBranchInReach() &&
+         frc::SmartDashboard::GetString("Elevator/Target Level", "L1") ==
+             "L4") ||
+        (m_superStructure.IsBranchInReachL23() &&
+         (frc::SmartDashboard::GetString("Elevator/Target Level", "Intake") ==
+              "L2" ||
+          frc::SmartDashboard::GetString("Elevator/Target Level", "Intake") ==
+              "L3"));
   });
+
   RumbleTrigger.OnTrue(m_oi.RumbleController(0.25_s, 1));
 
   frc2::Trigger RumbleScore([this]() -> bool {

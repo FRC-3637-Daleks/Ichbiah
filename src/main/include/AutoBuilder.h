@@ -77,9 +77,11 @@ inline frc2::CommandPtr LineUp(Direction direction, Drivetrain &swerve,
                                                  [] { return 0_rad_per_s; }))
             .Until(
                 [&superstructure] { return superstructure.IsBranchInReach(); }),
-        swerve.CustomRobotRelativeSwerveCommand([] { return 0_mps; },
-                                                [] { return 0_mps; },
-                                                [] { return 0_rad_per_s; }));
+        swerve
+            .CustomRobotRelativeSwerveCommand([] { return 0_mps; },
+                                              [] { return 0_mps; },
+                                              [] { return 0_rad_per_s; })
+            .WithTimeout(0.1_s));
   }
   if (direction == Direction::RIGHT) {
     return frc2::cmd::Sequence(
@@ -88,12 +90,17 @@ inline frc2::CommandPtr LineUp(Direction direction, Drivetrain &swerve,
                                                  [] { return 0_rad_per_s; }))
             .Until(
                 [&superstructure] { return superstructure.IsBranchInReach(); }),
-        swerve.CustomRobotRelativeSwerveCommand([] { return 0_mps; },
-                                                [] { return 0_mps; },
-                                                [] { return 0_rad_per_s; }));
+        swerve
+            .CustomRobotRelativeSwerveCommand([] { return 0_mps; },
+                                              [] { return 0_mps; },
+                                              [] { return 0_rad_per_s; })
+            .WithTimeout(0.1_s));
   }
-  return swerve.CustomRobotRelativeSwerveCommand(
-      [] { return 0_mps; }, [] { return 0_mps; }, [] { return 0_rad_per_s; });
+  return swerve
+      .CustomRobotRelativeSwerveCommand([] { return 0_mps; },
+                                        [] { return 0_mps; },
+                                        [] { return 0_rad_per_s; })
+      .WithTimeout(0.1_s);
 }
 
 bool IsCloseToGoal(units::meter_t tolerance,

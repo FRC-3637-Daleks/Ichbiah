@@ -58,7 +58,7 @@ frc2::CommandPtr SuperStructure::prePlace(Elevator::Level level) {
   return Intake()
       .AndThen(m_elevator.GoToLevel(level).AlongWith(
           m_endeffector.EffectorContinue().AndThen(
-              m_endeffector.MotorBackwardCommand().WithTimeout(0.5_s))))
+              m_endeffector.MotorBackwardCommand().WithTimeout(0.2_s))))
       .AlongWith(Run([] {})); // keep parallel
 };
 
@@ -110,7 +110,7 @@ bool SuperStructure::IsBranchInReach() {
 }
 
 bool SuperStructure::IsBranchInReachL23() {
-  bool var = GetLaserCANMeasurement() <= 20_in &&
+  bool var = GetLaserCANMeasurement() <= 15_in &&
              GetLaserCANMeasurement() > (units::length::millimeter_t)0.1;
   // if (frc::SmartDashboard::GetString("Elevator/Target Level", "L1") == "L4")
   // {
