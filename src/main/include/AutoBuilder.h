@@ -24,7 +24,7 @@ namespace AutoBuilder {
 
 enum Direction { NONE, LEFT, RIGHT };
 
-constexpr auto kLineUpSpeed = 0.32_mps;
+constexpr auto kLineUpSpeed = 0.35_mps;
 
 auto isRed = []() -> bool {
   return (frc::DriverStation::GetAlliance() ==
