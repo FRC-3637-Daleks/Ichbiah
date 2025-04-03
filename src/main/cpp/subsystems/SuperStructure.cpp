@@ -53,10 +53,10 @@ void SuperStructure::InitVisualization(frc::MechanismObject2d *elevator_root) {
 void SuperStructure::UpdateVisualization() {}
 
 frc2::CommandPtr SuperStructure::prePlace(Elevator::Level level) {
-  // Always intake first. Intake will instantly exit if we already have coral
+  // Always intake first. Ensuring coral is reset to known position
   // Parallel empty command means the command runs indefinitely even after
   // completing the components
-  return Intake()
+  return m_endeffector.Intake()
       .AndThen(m_elevator.GoToLevel(level).AlongWith(
           m_endeffector.EffectorContinue().AndThen(
               m_endeffector.MotorBackwardCommand().WithTimeout(0.2_s))))
@@ -74,11 +74,12 @@ frc2::CommandPtr SuperStructure::Score(Elevator::Level level) {
   auto out_cmd = (level == Elevator::L1) ? m_endeffector.EffectorOutToL1()
                                          : m_endeffector.EffectorOut();
 
-  // Intake first, if we have coral then no problem
+  // Ensure coral secured
   // Go to the level, wait to get there
   // Then output at the speed for said level
   // 2 second timeout just in case pressed with no coral inside
-  return Intake()
+  return m_endeffector.Intake()
+      .Unless([this] { return m_endeffector.IsOuterBreakBeamBroken(); })
       .AndThen(m_elevator.GoToLevel(level))
       .AndThen(std::move(out_cmd))
       .WithTimeout(2.0_s); // if left unchecked
@@ -126,7 +127,7 @@ bool SuperStructure::IsBranchInReachL23() {
 }
 
 bool SuperStructure::ReadyToScore(Elevator::Level level) {
-  if (m_elevator.IsAtLevel(level)) {
+  if (m_elevator.IsAtLevel(level) && m_endeffector.HasCoral()) {
     if (level == Elevator::L4)
       return IsBranchInReach();
     else if (level == Elevator::L3 || level == Elevator::L3)
@@ -134,7 +135,7 @@ bool SuperStructure::ReadyToScore(Elevator::Level level) {
     else
       return true; // L1
   } else {
-    return false; // not at the target height
+    return false; // not at the target height or lack coral
   }
 }
 

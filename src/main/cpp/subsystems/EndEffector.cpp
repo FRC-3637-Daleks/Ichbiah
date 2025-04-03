@@ -208,14 +208,20 @@ frc2::CommandPtr EndEffector::EffectorOutToL1() {
       .Until([this]() -> bool { return !HasCoral(); });
 }
 
-// Assumes one break beam
 frc2::CommandPtr EndEffector::Intake() {
   const auto coral_intaked = [this] { return IsOuterBreakBeamBroken(); };
+  const auto coral_secure = [this] {
+    return IsOuterBreakBeamBroken() && IsInnerBreakBeamBroken();
+  };
+
   return frc2::cmd::Either(
       frc2::cmd::None(),
-      EffectorIn().AndThen(
-          MotorCommand(EndEffectorConstants::kIndexPct).Until(coral_intaked)),
-      coral_intaked);
+      EffectorIn()
+          .AndThen(MotorCommand(EndEffectorConstants::kIndexPct)
+                       .Until(coral_intaked))
+          .AndThen(MotorCommand(-EndEffectorConstants::kIndexPct)
+                       .Until(coral_secure)),
+      coral_secure);
 }
 
 /*****************************SIMULATION******************************/

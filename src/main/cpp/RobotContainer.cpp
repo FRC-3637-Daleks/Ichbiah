@@ -150,7 +150,7 @@ void RobotContainer::ConfigureBindings() {
 
     // Release score button while ready to score
     (!m_oi.ScoreTrigger && m_oi.LevelSelected(level) && ReadyToScore)
-        .OnTrue(m_superStructure.Score(level));
+        .OnTrue(m_superStructure.Score(level).DeadlineFor(m_swerve.Stop()));
   }
 
   // Easy on-stop cancel button for everything.
