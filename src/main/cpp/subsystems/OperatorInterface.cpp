@@ -57,6 +57,15 @@ units::meters_per_second_t OperatorInterface::fwd() {
          throttle() * boolean_slowdown();
 }
 
+units::meters_per_second_t OperatorInterface::alt_fwd() {
+  auto input = frc::ApplyDeadband(m_swerveController.GetHID().GetRightY(),
+                                  OperatorConstants::kStrafeDeadband);
+  auto squaredInput = input * std::abs(input);
+  auto alliance_flip = IsRed() ? -1 : 1;
+  return -OperatorConstants::kMaxTeleopSpeed * squaredInput * alliance_flip *
+         throttle() * boolean_slowdown();
+}
+
 units::meters_per_second_t OperatorInterface::strafe() {
   auto input = frc::ApplyDeadband(m_swerveController.GetHID().GetLeftX(),
                                   OperatorConstants::kStrafeDeadband);

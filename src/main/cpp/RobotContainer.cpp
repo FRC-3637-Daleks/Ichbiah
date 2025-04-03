@@ -126,7 +126,8 @@ void RobotContainer::ConfigureBindings() {
       [this] { return m_oi.rot(); }));
 
   auto slow = m_swerve.CustomRobotRelativeSwerveCommand(
-      [this] { return 0_mps; }, [this] { return m_oi.strafe() * 0.3; },
+      [this] { return m_oi.alt_fwd() * 0.3; },
+      [this] { return m_oi.strafe() * 0.4; },
       [this] { return m_oi.rot() * 0.3; });
 
   m_oi.RobotRelativeToggleTrigger.ToggleOnTrue(
@@ -145,7 +146,7 @@ void RobotContainer::ConfigureBindings() {
    */
   std::function<Elevator::Level()> target_selector =
       [this]() -> Elevator::Level { return m_oi.target_level(); };
-  m_oi.ElevatorPrePlaceTrigger.WhileTrue(frc2::cmd::Select(
+  m_oi.ElevatorPrePlaceTrigger.OnTrue(frc2::cmd::Select(
       target_selector,
       std::pair{Elevator::L1, m_superStructure.prePlace(Elevator::L1)},
       std::pair{Elevator::L2, m_superStructure.prePlace(Elevator::L2)},
@@ -153,7 +154,7 @@ void RobotContainer::ConfigureBindings() {
       std::pair{Elevator::L4, m_superStructure.prePlace(Elevator::L4)}));
 
   m_oi.ScoreTrigger
-      .WhileTrue(
+      .OnTrue(
           frc2::cmd::Select(
               target_selector,
               std::pair{Elevator::L1, m_superStructure.prePlace(Elevator::L1)},
@@ -166,7 +167,6 @@ void RobotContainer::ConfigureBindings() {
                      return m_oi.CancelScoreTrigger.Get() ||
                             frc::SmartDashboard::GetString(
                                 "Elevator/Target Level", "INTAKE") == "INTAKE";
-                                
                    }));
 
   // Easy on-stop cancel button for everything.
@@ -340,16 +340,14 @@ void RobotContainer::ConfigureDashboard() {
 
 void RobotContainer::ConfigureAuto() {
 
-  threel4auto =
-      AutoBuilder::ThreeL4Auto(m_swerve, m_superStructure, m_updateIsRed);
-  threel4autoprocessor = AutoBuilder::ThreeL4AutoProcessor(
-      m_swerve, m_superStructure, m_updateIsRed);
-  onel4startmidauto =
-      AutoBuilder::OneL4StartMidAuto(m_swerve, m_superStructure, m_updateIsRed);
+  threel4auto = AutoBuilder::LeftThreeL4Auto(m_swerve, m_superStructure);
+  threel4autoprocessor =
+      AutoBuilder::RightThreeL4Auto(m_swerve, m_superStructure);
+  onel4startmidauto = AutoBuilder::CenterOneL4Auto(m_swerve, m_superStructure);
 
-  m_chooser.SetDefaultOption("Default Auto: Line-Up with wall and score 3 L4",
-                             threel4auto.get());
-  m_chooser.AddOption("Line Up with Processor wall and score 3 L4",
+  m_chooser.SetDefaultOption(
+      "Default Auto: Line-Up with left wall and score 3 L4", threel4auto.get());
+  m_chooser.AddOption("Line Up with right wall and score 3 L4",
                       threel4autoprocessor.get());
   //   m_chooser.AddOption("just drive", drivethingy.get());
   m_chooser.AddOption("One L4 From Middle", onel4startmidauto.get());

@@ -57,7 +57,8 @@ frc2::CommandPtr SuperStructure::prePlace(Elevator::Level level) {
   // completing the components
   return Intake()
       .AndThen(m_elevator.GoToLevel(level).AlongWith(
-          m_endeffector.EffectorContinue()))
+          m_endeffector.EffectorContinue().AndThen(
+              m_endeffector.MotorBackwardCommand().WithTimeout(0.5_s))))
       .AlongWith(Run([] {})); // keep parallel
 };
 
