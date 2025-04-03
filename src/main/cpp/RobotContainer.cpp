@@ -125,11 +125,6 @@ void RobotContainer::ConfigureBindings() {
       [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
       [this] { return m_oi.rot(); }));
 
-  auto slow = m_swerve.CustomRobotRelativeSwerveCommand(
-      [this] { return m_oi.alt_fwd() * 0.3; },
-      [this] { return m_oi.strafe() * 0.4; },
-      [this] { return m_oi.rot() * 0.3; });
-
   m_oi.RobotRelativeToggleTrigger.ToggleOnTrue(
       m_swerve.CustomRobotRelativeSwerveCommand(
           [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
@@ -137,40 +132,29 @@ void RobotContainer::ConfigureBindings() {
 
   m_oi.ZeroHeadingTrigger.OnTrue(m_swerve.ZeroHeadingCommand());
 
-  // Auto Elevator
-  /* This changes the elevator heights to set a target level, but not actually
-   * commanding the elevator Instead, the driver X button (can change this)
-   * actually goes to the target level. The target level starts at L4
-   * If they want to score on a different level, the copilot OR pilot can
-   * press the D-pad buttons to change it.
-   */
-  std::function<Elevator::Level()> target_selector =
-      [this]() -> Elevator::Level { return m_oi.target_level(); };
-  m_oi.ElevatorPrePlaceTrigger.OnTrue(frc2::cmd::Select(
-      target_selector,
-      std::pair{Elevator::L1, m_superStructure.prePlace(Elevator::L1)},
-      std::pair{Elevator::L2, m_superStructure.prePlace(Elevator::L2)},
-      std::pair{Elevator::L3, m_superStructure.prePlace(Elevator::L3)},
-      std::pair{Elevator::L4, m_superStructure.prePlace(Elevator::L4)}));
+  // Setting up triggers for each level
+  for (int i = 0; i < 4; i++) {
+    const auto level = static_cast<Elevator::Level>(Elevator::L1 + i);
 
-  m_oi.ScoreTrigger
-      .OnTrue(
-          frc2::cmd::Select(
-              target_selector,
-              std::pair{Elevator::L1, m_superStructure.prePlace(Elevator::L1)},
-              std::pair{Elevator::L2, m_superStructure.prePlace(Elevator::L2)},
-              std::pair{Elevator::L3, m_superStructure.prePlace(Elevator::L3)},
-              std::pair{Elevator::L4, m_superStructure.prePlace(Elevator::L4)})
-              .DeadlineFor(std::move(slow)))
-      .OnFalse((m_endeffector.EffectorOut().DeadlineFor(m_elevator.Hold()))
-                   .Unless([this, target_selector] {
-                     return m_oi.CancelScoreTrigger.Get() ||
-                            frc::SmartDashboard::GetString(
-                                "Elevator/Target Level", "INTAKE") == "INTAKE";
-                   }));
+    // Holding score button
+    auto align_drive = m_swerve.CustomRobotRelativeSwerveCommand(
+        [this] { return 0_mps; }, [this] { return m_oi.strafe() * 0.3; },
+        [this] { return m_oi.rot() * 0.3; });
+
+    (m_oi.ScoreTrigger && m_oi.LevelSelected(level))
+        .WhileTrue(
+            m_superStructure.prePlace(level).AlongWith(std::move(align_drive)));
+
+    frc2::Trigger ReadyToScore(
+        [this, level] { return m_superStructure.ReadyToScore(level); });
+
+    // Release score button while ready to score
+    (!m_oi.ScoreTrigger && m_oi.LevelSelected(level) && ReadyToScore)
+        .OnTrue(m_superStructure.Score(level));
+  }
 
   // Easy on-stop cancel button for everything.
-  m_oi.CancelScoreTrigger.OnTrue(m_superStructure.Reset());
+  m_oi.CancelScoreTrigger.OnTrue(m_superStructure.Intake());
 
   // When not holding the prePlace button, go to collapsed position
   m_elevator.SetDefaultCommand(m_elevator.GoToLevel(Elevator::INTAKE));

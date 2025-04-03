@@ -62,6 +62,7 @@ public:
   units::meters_per_second_t alt_fwd();
   units::revolutions_per_minute_t rot();
   Elevator::Level target_level() { return m_target_level; }
+  std::function<bool()> LevelSelected(Elevator::Level level);
 
   // Primary Controls
   frc2::Trigger ZeroHeadingTrigger = m_swerveController.Start();

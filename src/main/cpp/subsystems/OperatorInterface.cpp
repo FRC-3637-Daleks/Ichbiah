@@ -83,6 +83,10 @@ units::revolutions_per_minute_t OperatorInterface::rot() {
          boolean_slowdown();
 }
 
+std::function<bool()> OperatorInterface::LevelSelected(Elevator::Level level) {
+  return [this, level] { return target_level() == level; };
+}
+
 bool OperatorInterface::IsRed() {
   auto m_isRed =
       (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed);

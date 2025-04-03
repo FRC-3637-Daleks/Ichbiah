@@ -1,5 +1,6 @@
 #include "subsystems/SuperStructure.h"
 
+#include <frc/RobotBase.h>
 #include <frc/RobotController.h>
 #include <frc/smartdashboard/Mechanism2d.h>
 #include <frc/smartdashboard/MechanismLigament2d.h>
@@ -83,11 +84,6 @@ frc2::CommandPtr SuperStructure::Score(Elevator::Level level) {
       .WithTimeout(2.0_s); // if left unchecked
 }
 
-frc2::CommandPtr SuperStructure::Reset() {
-  return frc2::cmd::Parallel(m_endeffector.EffectorContinue(),
-                             m_elevator.GoToLevel(Elevator::Level::INTAKE));
-}
-
 units::millimeter_t SuperStructure::GetLaserCANMeasurement() {
   auto measurement_opt = m_laser.get_measurement();
   if (measurement_opt.has_value() &&
@@ -98,6 +94,10 @@ units::millimeter_t SuperStructure::GetLaserCANMeasurement() {
 }
 
 bool SuperStructure::IsBranchInReach() {
+  if constexpr (frc::RobotBase::IsSimulation()) {
+    return true;
+  }
+
   bool var =
       GetLaserCANMeasurement() <= SuperStructureConstants::kBranchThreshold &&
       GetLaserCANMeasurement() > (units::length::millimeter_t)0.1;
@@ -110,6 +110,10 @@ bool SuperStructure::IsBranchInReach() {
 }
 
 bool SuperStructure::IsBranchInReachL23() {
+  if constexpr (frc::RobotBase::IsSimulation()) {
+    return true;
+  }
+
   bool var = GetLaserCANMeasurement() <= 15_in &&
              GetLaserCANMeasurement() > (units::length::millimeter_t)0.1;
   // if (frc::SmartDashboard::GetString("Elevator/Target Level", "L1") == "L4")
@@ -119,6 +123,19 @@ bool SuperStructure::IsBranchInReachL23() {
   //   frc::SmartDashboard::PutBoolean("BranchInReach?", false);
   // };
   return var;
+}
+
+bool SuperStructure::ReadyToScore(Elevator::Level level) {
+  if (m_elevator.IsAtLevel(level)) {
+    if (level == Elevator::L4)
+      return IsBranchInReach();
+    else if (level == Elevator::L3 || level == Elevator::L3)
+      return IsBranchInReachL23();
+    else
+      return true; // L1
+  } else {
+    return false; // not at the target height
+  }
 }
 
 SuperStructure::~SuperStructure() {}
