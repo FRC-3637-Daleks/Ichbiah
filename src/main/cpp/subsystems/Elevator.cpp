@@ -209,8 +209,7 @@ bool Elevator::IsAtPos(units::length::centimeter_t pos) {
 };
 
 bool Elevator::IsAtLevel(Elevator::Level level) {
-  return IsAtPos(ElevatorConstants::goal_heights[level] +
-                 ElevatorConstants::kMinHeight);
+  return IsAtPos(ElevatorConstants::goal_heights[level]);
 };
 
 bool Elevator::isAtBottom() { return !(m_reverseLimit.Get()); };
@@ -307,7 +306,7 @@ frc2::CommandPtr Elevator::HomeEncoder() {
 
 frc2::CommandPtr Elevator::GoToLevel(Level goal) {
   return Run([this, goal] { SetGoalHeight(goal); }).Until([this, goal] {
-    return IsAtPos(ElevatorConstants::goal_heights[goal]);
+    return IsAtLevel(goal);
   });
 }
 
