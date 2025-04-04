@@ -145,8 +145,10 @@ void RobotContainer::ConfigureBindings() {
         .WhileTrue(
             m_superStructure.prePlace(level).AlongWith(std::move(align_drive)));
 
-    frc2::Trigger ReadyToScore(
-        [this, level] { return m_superStructure.ReadyToScore(level); });
+    frc2::Trigger ReadyToScore([this, level] {
+      return frc::DriverStation::IsTeleop() &&
+             m_superStructure.ReadyToScore(level);
+    });
 
     // Release score button while ready to score
     (!m_oi.ScoreTrigger && m_oi.LevelSelected(level) && ReadyToScore)
