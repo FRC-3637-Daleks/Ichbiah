@@ -66,42 +66,42 @@ auto ReefFarToIntakeProcessor =
 auto StartProcessorToReef =
     choreo::Choreo::LoadTrajectory<choreo::SwerveSample>(
         "StartProcessorToReef");
+auto StartBargeToReefRight auto ReefFarToIntakeRight auto IntakeToReefCloseRight
 
-namespace util {
+    namespace util{
 
-inline frc2::CommandPtr LineUp(Direction direction, Drivetrain &swerve,
-                               SuperStructure &superstructure) {
-  if (direction == Direction::LEFT) {
-    return frc2::cmd::Sequence(
-        (swerve.CustomRobotRelativeSwerveCommand([] { return 0_mps; },
-                                                 [] { return kLineUpSpeed; },
-                                                 [] { return 0_rad_per_s; }))
-            .Until(
-                [&superstructure] { return superstructure.IsBranchInReach(); }),
-        swerve
-            .CustomRobotRelativeSwerveCommand([] { return 0_mps; },
-                                              [] { return 0_mps; },
-                                              [] { return 0_rad_per_s; })
-            .WithTimeout(0.1_s));
-  }
-  if (direction == Direction::RIGHT) {
-    return frc2::cmd::Sequence(
-        (swerve.CustomRobotRelativeSwerveCommand([] { return 0_mps; },
-                                                 [] { return -kLineUpSpeed; },
-                                                 [] { return 0_rad_per_s; }))
-            .Until(
-                [&superstructure] { return superstructure.IsBranchInReach(); }),
-        swerve
-            .CustomRobotRelativeSwerveCommand([] { return 0_mps; },
-                                              [] { return 0_mps; },
-                                              [] { return 0_rad_per_s; })
-            .WithTimeout(0.1_s));
-  }
-  return swerve
-      .CustomRobotRelativeSwerveCommand([] { return 0_mps; },
-                                        [] { return 0_mps; },
-                                        [] { return 0_rad_per_s; })
-      .WithTimeout(0.1_s);
+        inline frc2::CommandPtr LineUp(Direction direction, Drivetrain &swerve,
+                                       SuperStructure &superstructure){
+            if (direction == Direction::LEFT){return frc2::cmd::Sequence(
+                (swerve.CustomRobotRelativeSwerveCommand(
+                     [] { return 0_mps; }, [] { return kLineUpSpeed; },
+                     [] { return 0_rad_per_s; }))
+                    .Until([&superstructure] {
+                      return superstructure.IsBranchInReach();
+                    }),
+                swerve
+                    .CustomRobotRelativeSwerveCommand(
+                        [] { return 0_mps; }, [] { return 0_mps; },
+                        [] { return 0_rad_per_s; })
+                    .WithTimeout(0.1_s));
+} // namespace AutoBuilder
+if (direction == Direction::RIGHT) {
+  return frc2::cmd::Sequence(
+      (swerve.CustomRobotRelativeSwerveCommand([] { return 0_mps; },
+                                               [] { return -kLineUpSpeed; },
+                                               [] { return 0_rad_per_s; }))
+          .Until(
+              [&superstructure] { return superstructure.IsBranchInReach(); }),
+      swerve
+          .CustomRobotRelativeSwerveCommand([] { return 0_mps; },
+                                            [] { return 0_mps; },
+                                            [] { return 0_rad_per_s; })
+          .WithTimeout(0.1_s));
+}
+return swerve
+    .CustomRobotRelativeSwerveCommand(
+        [] { return 0_mps; }, [] { return 0_mps; }, [] { return 0_rad_per_s; })
+    .WithTimeout(0.1_s);
 }
 
 bool IsCloseToGoal(units::meter_t tolerance,
@@ -116,10 +116,13 @@ bool IsCloseToGoal(units::meter_t tolerance,
 }
 
 inline std::optional<choreo::Trajectory<choreo::SwerveSample>>
-Flip(std::optional<choreo::Trajectory<choreo::SwerveSample>> traj) {
+Flip(std::optional<choreo::Trajectory<choreo::SwerveSample>> traj,
+     bool flippy) {
+  auto flipAmount = flippy ? 180_deg : 0_deg;
   for (auto &state : traj.value().samples) {
-    state.y = choreo::util::MirroredFlipper::FlipY(state.y);
-    state.heading = choreo::util::MirroredFlipper::FlipHeading(state.heading);
+    state.y = 8.062_m - state.y;
+    state.heading =
+        choreo::util::MirroredFlipper::FlipHeading(state.heading) - flipAmount;
   }
   return traj;
 }
@@ -157,8 +160,8 @@ AutoIntake(std::optional<choreo::Trajectory<choreo::SwerveSample>> traj,
                              superstructure.Intake())
       .WithTimeout(timeout);
 }
-
-}; // namespace util
+}
+; // namespace util
 
 frc2::CommandPtr LeftThreeL4Auto(Drivetrain &swerve,
                                  SuperStructure &superstructure) {
@@ -237,4 +240,5 @@ frc2::CommandPtr CenterOneL4Auto(Drivetrain &swerve,
       util::AutoScore(Elevator::Level::L4, Direction::LEFT, swerve,
                       superstructure));
 }
-}; // namespace AutoBuilder
+}
+; // namespace AutoBuilder
