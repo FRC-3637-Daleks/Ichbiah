@@ -10,6 +10,7 @@
 #include "subsystems/SuperStructure.h"
 
 #include <choreo/Choreo.h>
+#include <choreo/util/AllianceFlipperUtil.h>
 
 #include <functional>
 
@@ -114,6 +115,15 @@ bool IsCloseToGoal(units::meter_t tolerance,
   return dist <= tolerance;
 }
 
+inline std::optional<choreo::Trajectory<choreo::SwerveSample>>
+Flip(std::optional<choreo::Trajectory<choreo::SwerveSample>> traj) {
+  for (auto &state : traj.value().samples) {
+    state.y = choreo::util::MirroredFlipper::FlipY(state.y);
+    state.heading = choreo::util::MirroredFlipper::FlipHeading(state.heading);
+  }
+  return traj;
+}
+
 inline frc2::CommandPtr AutoScore(Elevator::Level level, Direction direction,
                                   Drivetrain &swerve,
                                   SuperStructure &superstructure,
@@ -169,26 +179,56 @@ frc2::CommandPtr LeftThreeL4Auto(Drivetrain &swerve,
                       superstructure),
       util::AutoIntake(ReefClose2ToIntake, swerve, superstructure));
 }
-
-frc2::CommandPtr RightThreeL4Auto(Drivetrain &swerve,
-                                  SuperStructure &superstructure) {
+frc2::CommandPtr NewRightThreeL4Auto(Drivetrain &swerve,
+                                     SuperStructure &superstructure) {
   return frc2::cmd::Sequence(
-      swerve.FollowPathCommand(StartProcessorToReef.value(), isRed),
-      util::AutoScore(Elevator::Level::L4, Direction::LEFT, swerve,
-                      superstructure),
-      frc2::cmd::Parallel(
-          swerve.FollowPathCommand(ReefFarToIntakeProcessor.value(), isRed),
-          superstructure.Intake()),
-      swerve.FollowPathCommand(IntakeToReefCloseProcessor.value(), isRed),
+      util::GoToScore(Elevator::Level::L4, util::Flip(StartBargeToReef).value(),
+                      swerve, superstructure),
       util::AutoScore(Elevator::Level::L4, Direction::RIGHT, swerve,
                       superstructure),
-      frc2::cmd::Parallel(
-          swerve.FollowPathCommand(ReefCloseToIntakeProcessor.value(), isRed),
-          superstructure.Intake()),
-      swerve.FollowPathCommand(IntakeToReefClose2Processor.value(), isRed),
+      util::AutoIntake(util::Flip(ReefFarToIntake), swerve, superstructure),
+      util::GoToScore(Elevator::Level::L4,
+                      util::Flip(IntakeToReefClose).value(), swerve,
+                      superstructure),
       util::AutoScore(Elevator::Level::L4, Direction::LEFT, swerve,
-                      superstructure));
+                      superstructure, 1.7_s),
+      util::AutoIntake(util::Flip(ReefCloseToIntake), swerve, superstructure),
+      util::GoToScore(Elevator::Level::L4, util::Flip(IntakeToReefClose2),
+                      swerve, superstructure, 5_s),
+      util::AutoScore(Elevator::Level::L4, Direction::RIGHT, swerve,
+                      superstructure),
+      util::AutoIntake(util::Flip(ReefClose2ToIntake), swerve, superstructure));
 }
+
+// frc2::CommandPtr RightThreeL4Auto(Drivetrain &swerve,
+//                                   SuperStructure &superstructure) {
+//   return frc2::cmd::Sequence(
+//       swerve.FollowPathCommand(
+//           choreo::util::MirroredFlipper::FlipY(StartProcessorToReef.value()),
+//           isRed),
+//       util::AutoScore(Elevator::Level::L4, Direction::LEFT, swerve,
+//                       superstructure),
+//       frc2::cmd::Parallel(
+//           swerve.FollowPathCommand(choreo::util::MirroredFlipper::FlipY(
+//                                        ReefFarToIntakeProcessor.value()),
+//                                    isRed),
+//           superstructure.Intake()),
+//       swerve.FollowPathCommand(choreo::util::MirroredFlipper::FlipY(
+//                                    IntakeToReefCloseProcessor.value()),
+//                                isRed),
+//       util::AutoScore(Elevator::Level::L4, Direction::RIGHT, swerve,
+//                       superstructure),
+//       frc2::cmd::Parallel(
+//           swerve.FollowPathCommand(choreo::util::MirroredFlipper::FlipY(
+//                                        ReefCloseToIntakeProcessor.value()),
+//                                    isRed),
+//           superstructure.Intake()),
+//       swerve.FollowPathCommand(choreo::util::MirroredFlipper::FlipY(
+//                                    IntakeToReefClose2Processor.value()),
+//                                isRed),
+//       util::AutoScore(Elevator::Level::L4, Direction::LEFT, swerve,
+//                       superstructure));
+// }
 
 frc2::CommandPtr CenterOneL4Auto(Drivetrain &swerve,
                                  SuperStructure &superstructure) {
