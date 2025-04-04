@@ -346,7 +346,7 @@ void RobotContainer::ConfigureAuto() {
 
   threel4auto = AutoBuilder::LeftThreeL4Auto(m_swerve, m_superStructure);
   threel4autoprocessor =
-      AutoBuilder::NewRightThreeL4Auto(m_swerve, m_superStructure);
+      AutoBuilder::RightThreeL4Auto(m_swerve, m_superStructure);
   onel4startmidauto = AutoBuilder::CenterOneL4Auto(m_swerve, m_superStructure);
 
   m_chooser.SetDefaultOption(
