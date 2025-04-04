@@ -31,7 +31,7 @@ constexpr auto kFirstStageLength =
 constexpr auto kMassEffective = 21.0_kg;
 
 // Level Heights
-constexpr units::length::centimeter_t kL1 = 2_ft + 2_in;
+constexpr units::length::centimeter_t kL1 = 1_ft + 6_in;
 constexpr units::length::centimeter_t kL2 = 2_ft + 7.875_in + 0.5_in;
 constexpr units::length::centimeter_t kL3 = 3_ft + 11.625_in;
 constexpr units::length::centimeter_t kL4 = 6_ft;

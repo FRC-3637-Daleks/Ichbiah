@@ -71,18 +71,26 @@ frc2::CommandPtr SuperStructure::Intake() {
 
 // Pre-requisit is having coral && being at the right
 frc2::CommandPtr SuperStructure::Score(Elevator::Level level) {
-  auto out_cmd = (level == Elevator::L1) ? m_endeffector.EffectorOutToL1()
-                                         : m_endeffector.EffectorOut();
 
-  // Ensure coral secured
-  // Go to the level, wait to get there
-  // Then output at the speed for said level
-  // 2 second timeout just in case pressed with no coral inside
-  return m_endeffector.Intake()
-      .Unless([this] { return m_endeffector.IsOuterBreakBeamBroken(); })
-      .AndThen(m_elevator.GoToLevel(level))
-      .AndThen(std::move(out_cmd))
-      .WithTimeout(2.0_s); // if left unchecked
+  if (level == Elevator::L1) {
+    // Move to the L1 prePlace state
+    // Output at the L1 speed
+    // while lifting elevator simultaneously to flip coral forth
+    return prePlace(Elevator::L1)
+        .Until([this] { return m_elevator.IsAtLevel(Elevator::L1); })
+        .AndThen(m_endeffector.EffectorOutToL1().AlongWith(
+            m_elevator.GoToLevel(Elevator::L2)));
+  } else {
+    // Ensure coral secured
+    // Go to the level, wait to get there
+    // Then output at the L2-4 speed
+    // 2 second timeout just in case pressed with no coral inside
+    return m_endeffector.Intake()
+        .Unless([this] { return m_endeffector.IsOuterBreakBeamBroken(); })
+        .AndThen(m_elevator.GoToLevel(level))
+        .AndThen(m_endeffector.EffectorOut())
+        .WithTimeout(2.0_s); // if left unchecked
+  }
 }
 
 units::millimeter_t SuperStructure::GetLaserCANMeasurement() {
