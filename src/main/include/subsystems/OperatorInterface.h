@@ -69,13 +69,13 @@ public:
   frc2::Trigger ScoreTrigger = m_swerveController.RightBumper();
   frc2::Trigger CancelScoreTrigger = m_swerveController.B();
   frc2::Trigger L1TargetTrigger =
-      m_swerveController.POVDown() || m_copilotController.POVDown();
+      m_swerveController.POVDown();// || m_copilotController.POVDown();
   frc2::Trigger L2TargetTrigger =
-      m_swerveController.POVLeft() || m_copilotController.POVLeft();
+      m_swerveController.POVLeft();// || m_copilotController.POVLeft();
   frc2::Trigger L3TargetTrigger =
-      m_swerveController.POVRight() || m_copilotController.POVRight();
+      m_swerveController.POVRight();// || m_copilotController.POVRight();
   frc2::Trigger L4TargetTrigger =
-      m_swerveController.POVUp() || m_copilotController.POVUp();
+      m_swerveController.POVUp();// || m_copilotController.POVUp();
 
   frc2::Trigger ElevatorPrePlaceTrigger = m_swerveController.X();
   frc2::Trigger IntakeTrigger =

@@ -289,6 +289,9 @@ void RobotContainer::ConfigureDashboard() {
 
   // auto pose = m_swerve.GetPose();
   m_swerve.GetField()
+      .GetObject("ScoringPose")
+      ->SetPose(ReefAssist::getNearestScoringPose(m_swerve.GetPose()));
+  m_swerve.GetField()
       .GetObject("Blue Reef")
       ->SetPoses(FieldConstants::Blue::kReefPoses);
   m_swerve.GetField()

@@ -31,6 +31,8 @@
 #include <iostream>
 #include <numeric>
 
+#include "subsystems/ReefAssist.h"
+
 namespace KrakenDriveConstants {
 constexpr auto kMaxSpeed = 18.9_fps;
 constexpr auto kMaxAccel = 6_mps_sq; // no test
@@ -184,6 +186,9 @@ void Drivetrain::Periodic() {
 
   // Update the odometry with the current gyro angle and module states.
   m_poseEstimator.Update(GetGyroHeading(), each_position());
+
+  m_field.GetObject("ScoringPose")
+      ->SetPose(ReefAssist::getNearestScoringPose(GetPose()));
 
   this->UpdateDashboard();
 }

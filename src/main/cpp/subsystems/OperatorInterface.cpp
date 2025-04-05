@@ -22,8 +22,8 @@ constexpr double kRotDeadband = .16;
 constexpr double kClimbDeadband = 0.08;
 constexpr int kFieldRelativeButton = frc::XboxController::Button::kBack;
 
-constexpr auto kMaxTeleopSpeed = 15.7_fps;
-constexpr auto kMaxTeleopTurnSpeed = 2.5 * std::numbers::pi * 1_rad_per_s;
+constexpr auto kMaxTeleopSpeed = 17.7_fps;
+constexpr auto kMaxTeleopTurnSpeed = 3.0 * std::numbers::pi * 1_rad_per_s;
 } // namespace OperatorConstants
 OperatorInterface::OperatorInterface()
     : m_swerveController{OperatorConstants::kSwerveControllerPort},
