@@ -67,15 +67,24 @@ public:
   frc2::Trigger ZeroHeadingTrigger = m_swerveController.Start();
   frc2::Trigger RobotRelativeToggleTrigger = m_swerveController.Back();
   frc2::Trigger ScoreTrigger = m_swerveController.RightBumper();
+  // frc2::Trigger AutoScoreTrigger = m_swerveController.LeftBumper(); elseware
   frc2::Trigger CancelScoreTrigger = m_swerveController.B();
   frc2::Trigger L1TargetTrigger =
-      m_swerveController.POVDown();// || m_copilotController.POVDown();
+      m_swerveController.POVDown(); // || m_copilotController.POVDown();
   frc2::Trigger L2TargetTrigger =
-      m_swerveController.POVLeft();// || m_copilotController.POVLeft();
+      m_swerveController.POVLeft(); // || m_copilotController.POVLeft();
   frc2::Trigger L3TargetTrigger =
-      m_swerveController.POVRight();// || m_copilotController.POVRight();
+      m_swerveController.POVRight(); // || m_copilotController.POVRight();
   frc2::Trigger L4TargetTrigger =
-      m_swerveController.POVUp();// || m_copilotController.POVUp();
+      m_swerveController.POVUp(); // || m_copilotController.POVUp();
+
+  frc2::Trigger AutoScoreTrigger =
+      m_swerveController.LeftBumper() || m_copilotController.LeftBumper();
+
+  frc2::Trigger AutoIntake{[this]() -> bool {
+    return frc::SmartDashboard::GetString("Elevator/Target Level", "INTAKE") ==
+           "INTAKE";
+  }};
 
   frc2::Trigger ElevatorPrePlaceTrigger = m_swerveController.X();
   frc2::Trigger IntakeTrigger =
@@ -104,7 +113,6 @@ public:
   frc2::Trigger EndEffectorInTrigger = m_copilotController.RightTrigger();
   frc2::Trigger EndEffectorOutTrigger = m_copilotController.LeftTrigger();
   frc2::Trigger ElevatorIntakeTrigger = m_copilotController.B();
-  frc2::Trigger AutoScoreTrigger = m_copilotController.RightBumper();
   frc2::Trigger ClimbUpTrigger = m_copilotController.Y();
   frc2::Trigger ClimbDownTrigger = m_copilotController.X();
   frc2::Trigger L1Manual = m_copilotController.POVDown();

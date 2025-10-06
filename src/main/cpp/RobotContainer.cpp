@@ -169,9 +169,6 @@ void RobotContainer::ConfigureBindings() {
                                 "Elevator/Target Level", "INTAKE") == "INTAKE";
                    }));
 
-  // Easy on-stop cancel button for everything.
-  m_oi.CancelScoreTrigger.OnTrue(m_superStructure.Reset());
-
   // When not holding the prePlace button, go to collapsed position
   m_elevator.SetDefaultCommand(m_elevator.GoToLevel(Elevator::INTAKE));
 
@@ -210,10 +207,25 @@ void RobotContainer::ConfigureBindings() {
           m_swerve.CustomSwerveCommand(0_mps, 0_mps, 0_rad_per_s),
           m_endeffector.EffectorOut()),
       frc2::cmd::None(), [this]() -> bool {
-        return frc::SmartDashboard::GetBoolean("BranchInReach?", false) &&
-               frc::SmartDashboard::GetString("Elevator/Target Level", "L1") ==
-                   "L4";
+        return (m_superStructure.IsBranchInReach() &&
+                frc::SmartDashboard::GetString("Elevator/Target Level", "L1") ==
+                    "L4" &&
+                frc::SmartDashboard::GetBoolean("EndEffector/has coral?",
+                                                false) == true);
       }));
+
+  //     m_oi.AutoScoreTrigger.WhileTrue(frc2::cmd::Either(
+  //   frc::cmd::Sequence(
+  //       m_swerve.CustomSwerveCommand(0_mps, 0_mps, 0_rad_per_s),
+  //       m_endeffector.EffectorOut()),
+  //   frc2::cmd::None(), [this]() -> bool {
+  //     return (m_superStructure.IsBranchInReach() &&
+  //             frc::SmartDashboard::GetString("Elevator/Target Level", "L1")
+  //             ==
+  //                 "L4" &&
+  //             frc::SmartDashboard::GetBoolean("EndEffector/has coral?",
+  //                                             false) == true);
+  //   }));
 
   // SavePosTrigger.OnTrue([this] { reefPose = m_swerve.GetPose(); });
   // Climb
