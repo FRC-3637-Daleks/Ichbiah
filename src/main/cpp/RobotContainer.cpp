@@ -214,6 +214,8 @@ void RobotContainer::ConfigureBindings() {
                                                 false) == true);
       }));
 
+  m_oi.AutoIntake.OnTrue(m_superStructure.Intake());
+
   //     m_oi.AutoScoreTrigger.WhileTrue(frc2::cmd::Either(
   //   frc::cmd::Sequence(
   //       m_swerve.CustomSwerveCommand(0_mps, 0_mps, 0_rad_per_s),
