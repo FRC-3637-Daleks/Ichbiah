@@ -63,19 +63,39 @@ public:
   units::revolutions_per_minute_t rot();
   Elevator::Level target_level() { return m_target_level; }
 
+  //Slowdowns Stack
+
+  //Left Trigger: Hard Set Throttle Down
+  //Left Bumber: Manual Score (Relative Mode while held down, on release drop coral)
+  //Right Trigger: Dynamic Trottle Down
+  //Right Bumber: Auto Score (Relative Mode while held down)
+
+  //Left Stick: Direction
+  //DPAD: up = L4 target hight, left = L3, right = L2, down = L1
+  //Right Stick: Rotation
+  //Y: Climb
+  //X: Auto Elevator
+  //B: Cancel
+  //A: Intake
+
+  //Start: Zero Heading
+  //Back:  Robot Relative Toggle
+
   // Primary Controls
   frc2::Trigger ZeroHeadingTrigger = m_swerveController.Start();
   frc2::Trigger RobotRelativeToggleTrigger = m_swerveController.Back();
-  frc2::Trigger ScoreTrigger = m_swerveController.RightBumper();
+  frc2::Trigger ScoreTrigger = m_swerveController.LeftBumper();
   frc2::Trigger CancelScoreTrigger = m_swerveController.B();
   frc2::Trigger L1TargetTrigger =
-      m_swerveController.POVDown();// || m_copilotController.POVDown();
+      m_swerveController.POVDown(); // || m_copilotController.POVDown();
   frc2::Trigger L2TargetTrigger =
-      m_swerveController.POVLeft();// || m_copilotController.POVLeft();
+      m_swerveController.POVLeft(); // || m_copilotController.POVLeft();
   frc2::Trigger L3TargetTrigger =
-      m_swerveController.POVRight();// || m_copilotController.POVRight();
+      m_swerveController.POVRight(); // || m_copilotController.POVRight();
   frc2::Trigger L4TargetTrigger =
-      m_swerveController.POVUp();// || m_copilotController.POVUp();
+      m_swerveController.POVUp(); // || m_copilotController.POVUp();
+        
+  frc2::Trigger AutoScoreTrigger = m_swerveController.RightBumper();
 
   frc2::Trigger ElevatorPrePlaceTrigger = m_swerveController.X();
   frc2::Trigger IntakeTrigger =
@@ -104,7 +124,6 @@ public:
   frc2::Trigger EndEffectorInTrigger = m_copilotController.RightTrigger();
   frc2::Trigger EndEffectorOutTrigger = m_copilotController.LeftTrigger();
   frc2::Trigger ElevatorIntakeTrigger = m_copilotController.B();
-  frc2::Trigger AutoScoreTrigger = m_copilotController.RightBumper();
   frc2::Trigger ClimbUpTrigger = m_copilotController.Y();
   frc2::Trigger ClimbDownTrigger = m_copilotController.X();
   frc2::Trigger L1Manual = m_copilotController.POVDown();

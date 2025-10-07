@@ -18,7 +18,7 @@
   "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: LLVM, IndentWidth: 2 }",
   "[cpp]": {
     "editor.defaultFormatter": "ms-vscode.cpptools",
-    "editor.formatOnSave": true
+    "editor.formatOnSave": false
   },
   "C_Cpp.autoAddFileAssociations": false,
   "files.associations": {
