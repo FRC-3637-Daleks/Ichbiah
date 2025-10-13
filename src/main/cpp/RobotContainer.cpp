@@ -205,7 +205,7 @@ void RobotContainer::ConfigureBindings() {
   // frc2::Trigger SavePosTrigger(
   //     [this]() -> bool { return m_superStructure.IsBranchInReach(); });
 
-  frc2::Trigger AutoScoreBools([this] -> bool {
+  frc2::Trigger AutoScoreBools([this]() -> bool {
     return frc::SmartDashboard::GetBoolean("BranchInReach?", false) &&
            (frc::SmartDashboard::GetString("Elevator/Target Level", "L1") == "L4" ||
             frc::SmartDashboard::GetString("Elevator/Target Level", "L1") == "L3" ||
@@ -226,10 +226,10 @@ void RobotContainer::ConfigureBindings() {
 
     //When True (button must be down and Must be at reef) 
   (AutoScoreBools && m_oi.AutoScoreTrigger)
-      .OnTrue(m_endeffector.EffectorOut().DeadlineWith(
+      .OnTrue(m_endeffector.EffectorOut().DeadlineFor(
           m_swerve.CustomSwerveCommand(0_mps, 0_mps, 0_rad_per_s)));
 
-  frc2::Trigger AutoIntake([this] -> bool {
+  frc2::Trigger AutoIntake([this] () -> bool {
     return frc::SmartDashboard::GetString("Elevator/Target Level", "L1") ==
            "INTAKE";
   });
