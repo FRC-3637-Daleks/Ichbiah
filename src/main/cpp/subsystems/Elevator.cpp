@@ -209,8 +209,7 @@ bool Elevator::IsAtPos(units::length::centimeter_t pos) {
 };
 
 bool Elevator::IsAtLevel(Elevator::Level level) {
-  return IsAtPos(ElevatorConstants::goal_heights[level] +
-                 ElevatorConstants::kMinHeight);
+  return IsAtPos(ElevatorConstants::goal_heights[level]);
 };
 
 bool Elevator::isAtBottom() { return !(m_reverseLimit.Get()); };

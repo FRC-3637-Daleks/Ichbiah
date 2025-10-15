@@ -279,6 +279,17 @@ public:
         });
   }
 
+    template <LinearCmd XCmd, LinearCmd YCmd, RotationCmd ThetaCmd>
+  frc2::CommandPtr CustomRobotRelativeSwerveCommandSlow(XCmd &&x_cmd, YCmd &&y_cmd,
+                                                    ThetaCmd &&theta_cmd) {
+    return RobotRelativeSwerveCommand(
+        [forward = x_speed(std::forward<XCmd>(x_cmd)) * 0.3,
+         strafe = y_speed(std::forward<YCmd>(y_cmd)) * 0.4,
+         rot = theta_speed(std::forward<ThetaCmd>(theta_cmd)) * 0.3] {
+          return frc::ChassisSpeeds{forward(), strafe(), rot()};
+        });
+  }
+
   /* @see CustomRobotRelativeSwerveCommand
    * This overload allows passing in a bundle of all 3 cmds in
    * a single package, in x, y, omega order.

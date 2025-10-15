@@ -119,16 +119,19 @@ RobotContainer::RobotContainer()
   frc::DataLogManager::Log(fmt::format("Finished initializing robot."));
 }
 
+
 void RobotContainer::ConfigureBindings() {
   // PRIMARY CONTROLS
   m_swerve.SetDefaultCommand(m_swerve.CustomSwerveCommand(
       [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
       [this] { return m_oi.rot(); }));
 
-  auto slow = m_swerve.CustomRobotRelativeSwerveCommand(
+  auto slow = [this] {
+    return m_swerve.CustomRobotRelativeSwerveCommand(
       [this] { return m_oi.alt_fwd() * 0.3; },
-      [this] { return m_oi.strafe() * 0.4; },
+      [this] { return -m_oi.strafe() * 0.4; },
       [this] { return m_oi.rot() * 0.3; });
+    };
 
   m_oi.RobotRelativeToggleTrigger.ToggleOnTrue(
       m_swerve.CustomRobotRelativeSwerveCommand(
@@ -161,7 +164,7 @@ void RobotContainer::ConfigureBindings() {
               std::pair{Elevator::L2, m_superStructure.prePlace(Elevator::L2)}, //only reason relative mode is left is because 
               std::pair{Elevator::L3, m_superStructure.prePlace(Elevator::L3)}, //OnFalse uses SuperStructure so PrePlace
               std::pair{Elevator::L4, m_superStructure.prePlace(Elevator::L4)}) //is interrupted by scheduler and deadline ends command
-              .DeadlineFor(std::move(slow)))
+              .DeadlineFor(slow()))
       .OnFalse((m_endeffector.EffectorOut().DeadlineFor(m_elevator.Hold()))
                    .Unless([this, target_selector] {
                      return m_oi.CancelScoreTrigger.Get() ||
@@ -174,6 +177,7 @@ void RobotContainer::ConfigureBindings() {
 
   // When not holding the prePlace button, go to collapsed position
   m_elevator.SetDefaultCommand(m_elevator.GoToLevel(Elevator::INTAKE));
+  m_endeffector.SetDefaultCommand(m_endeffector.Intake());
 
   // Driver Auto Score
   /* Example of how to use CustomSwerveCommand to align in arbitrary ways.
@@ -205,16 +209,16 @@ void RobotContainer::ConfigureBindings() {
   // frc2::Trigger SavePosTrigger(
   //     [this]() -> bool { return m_superStructure.IsBranchInReach(); });
 
-  frc2::Trigger AutoScoreBools([this]() -> bool {
-    return frc::SmartDashboard::GetBoolean("BranchInReach?", false) &&
-           (frc::SmartDashboard::GetString("Elevator/Target Level", "L1") == "L4" ||
-            frc::SmartDashboard::GetString("Elevator/Target Level", "L1") == "L3" ||
-            frc::SmartDashboard::GetString("Elevator/Target Level", "L1") == "L2") 
-            &&frc::SmartDashboard::GetBoolean("EndEffector/has coral?", false) == true;
+  frc2::Trigger AutoScoreBools([this] -> bool {
+    return 
+           ((m_elevator.IsAtLevel(Elevator::L4) && m_superStructure.IsBranchInReach()) ||
+            (m_elevator.IsAtLevel(Elevator::L3) && m_superStructure.IsBranchInReachL23()) ||
+            (m_elevator.IsAtLevel(Elevator::L2) && m_superStructure.IsBranchInReachL23())) 
+            && frc::SmartDashboard::GetBoolean("EndEffector/has coral?", false) == true;
   });
 
     //While Holding Down and Not Scoring
-  (!AutoScoreBools && m_oi.AutoScoreTrigger)
+  (m_oi.AutoScoreTrigger)
     .WhileTrue(
           frc2::cmd::Select(
               target_selector,
@@ -222,17 +226,42 @@ void RobotContainer::ConfigureBindings() {
               std::pair{Elevator::L2, m_superStructure.prePlace(Elevator::L2)},
               std::pair{Elevator::L3, m_superStructure.prePlace(Elevator::L3)},
               std::pair{Elevator::L4, m_superStructure.prePlace(Elevator::L4)})
-              .DeadlineFor(std::move(slow)));
+              .DeadlineFor(slow()));
+
+ 
 
     //When True (button must be down and Must be at reef) 
   (AutoScoreBools && m_oi.AutoScoreTrigger)
-      .OnTrue(m_endeffector.EffectorOut().DeadlineFor(
+      .OnTrue(
+        frc2::cmd::Select(
+              target_selector,
+              std::pair{Elevator::L1, m_superStructure.Score(Elevator::L1)},
+              std::pair{Elevator::L2, m_superStructure.Score(Elevator::L2)},
+              std::pair{Elevator::L3, m_superStructure.Score(Elevator::L3)},
+              std::pair{Elevator::L4, m_superStructure.Score(Elevator::L4)})
+      .DeadlineWith(
           m_swerve.CustomSwerveCommand(0_mps, 0_mps, 0_rad_per_s)));
 
-  frc2::Trigger AutoIntake([this] () -> bool {
-    return frc::SmartDashboard::GetString("Elevator/Target Level", "L1") ==
-           "INTAKE";
-  });
+  // m_oi.AutoScoreTrigger.WhileTrue(
+  //     frc2::ConditionalCommand(
+  //       m_endeffector.EffectorOut().DeadlineWith(
+  //           m_swerve.CustomSwerveCommand(0_mps, 0_mps, 0_rad_per_s)),
+  //       frc2::cmd::Select(
+  //           target_selector,
+  //           std::pair{Elevator::L1, m_superStructure.prePlace(Elevator::L1)}, //prePlace runs indefinityly
+  //           std::pair{Elevator::L2, m_superStructure.prePlace(Elevator::L2)},
+  //           std::pair{Elevator::L3, m_superStructure.prePlace(Elevator::L3)},
+  //           std::pair{Elevator::L4, m_superStructure.prePlace(Elevator::L4)})
+  //           .DeadlineFor(std::move(slow)),
+  //       [this]() -> bool {
+  //         return frc::SmartDashboard::GetBoolean("BranchInReach?", false) &&
+  //               (frc::SmartDashboard::GetString("Elevator/Target Level", "L1") == "L4" ||
+  //                 frc::SmartDashboard::GetString("Elevator/Target Level", "L1") == "L3" ||
+  //                 frc::SmartDashboard::GetString("Elevator/Target Level", "L1") == "L2") 
+  //                 &&frc::SmartDashboard::GetBoolean("EndEffector/has coral?", false) == true;
+  //       }
+  //     )
+  //   );
 
   // SavePosTrigger.OnTrue([this] { reefPose = m_swerve.GetPose(); });
   // Climb
