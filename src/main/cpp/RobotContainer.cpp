@@ -64,15 +64,7 @@ constexpr auto mid_line = field_length / 2;
 
 } // namespace FieldConstants
 
-RobotContainer::RobotContainer()
-    : m_vision(
-          [this](frc::Pose2d pose, units::second_t timestamp,
-                 wpi::array<double, 3U> stdDevs) {
-            m_swerve.AddVisionPoseEstimate(pose, timestamp, stdDevs);
-          },
-          [this]() { return m_swerve.GetPose(); },
-          Eigen::Matrix<double, 3, 1>{1.0, 1.0, 1.0},
-          [this] { return m_swerve.GetSimulatedGroundTruth(); }) {
+RobotContainer::RobotContainer() {
   fmt::println("made it to robot container");
   // Initialize all of your commands and subsystems here
   frc::DataLogManager::Start();
@@ -129,7 +121,7 @@ void RobotContainer::ConfigureBindings() {
   auto slow = [this] {
     return m_swerve.CustomRobotRelativeSwerveCommand(
       [this] { return m_oi.alt_fwd() * 0.3; },
-      [this] { return -m_oi.strafe() * 0.4; },
+      [this] { return m_oi.strafe() * 0.4; },
       [this] { return m_oi.rot() * 0.3; });
     };
 

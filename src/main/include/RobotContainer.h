@@ -65,8 +65,6 @@ public:
   Climb m_climb;
   LEDSubsystem m_ledSubsystem;
 
-  Vision m_vision;
-
   bool m_isRed;
   frc::Pose2d reefPose;
 
